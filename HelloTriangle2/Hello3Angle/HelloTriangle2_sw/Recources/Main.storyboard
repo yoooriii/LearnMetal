@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="HelloTriangle2_sw" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <mtkView contentMode="scaleToFill" colorPixelFormat="BGRA8Unorm" depthStencilPixelFormat="Invalid" translatesAutoresizingMaskIntoConstraints="NO" id="l5B-Yg-kyt">
+                                <rect key="frame" x="10" y="70" width="187.5" height="333.5"/>
+                                <color key="clearColor" name="selectedControlColor" catalog="System" colorSpace="catalog"/>
+                            </mtkView>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="fJ2-eD-k7t">
+                                <rect key="frame" x="8" y="617" width="359" height="31"/>
+                                <connections>
+                                    <action selector="actionChangeY:" destination="BYZ-38-t0r" eventType="valueChanged" id="In8-b4-OOz"/>
+                                </connections>
+                            </slider>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="ZCP-On-vkh">
+                                <rect key="frame" x="8" y="567" width="359" height="31"/>
+                                <connections>
+                                    <action selector="actionChangeX:" destination="BYZ-38-t0r" eventType="valueChanged" id="fIf-vz-azw"/>
+                                </connections>
+                            </slider>
+                            <mtkView contentMode="scaleToFill" colorPixelFormat="BGRA8Unorm" depthStencilPixelFormat="Invalid" translatesAutoresizingMaskIntoConstraints="NO" id="XO2-Qh-szt">
+                                <rect key="frame" x="177.5" y="213.5" width="187.5" height="333.5"/>
+                                <color key="clearColor" name="findHighlightColor" catalog="System" colorSpace="catalog"/>
+                            </mtkView>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="0.7082353468" blue="0.31714602019999999" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="l5B-Yg-kyt" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="height" multiplier="0.5" id="90W-WQ-TmS"/>
+                            <constraint firstItem="ZCP-On-vkh" firstAttribute="top" secondItem="XO2-Qh-szt" secondAttribute="bottom" constant="20" id="9DW-PH-iQh"/>
+                            <constraint firstItem="ZCP-On-vkh" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="Iqe-Rk-GP3"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="XO2-Qh-szt" secondAttribute="trailing" constant="10" id="Lcp-Dd-d92"/>
+                            <constraint firstItem="fJ2-eD-k7t" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="Maw-A1-VDB"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="fJ2-eD-k7t" secondAttribute="bottom" constant="20" id="Mub-kR-DC5"/>
+                            <constraint firstItem="l5B-Yg-kyt" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" multiplier="0.5" id="Ohw-2K-PzB"/>
+                            <constraint firstItem="fJ2-eD-k7t" firstAttribute="top" secondItem="ZCP-On-vkh" secondAttribute="bottom" constant="20" id="Pk4-Dw-E0d"/>
+                            <constraint firstItem="l5B-Yg-kyt" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="T9f-Qe-YqP"/>
+                            <constraint firstItem="l5B-Yg-kyt" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="50" id="UNh-MX-X8q"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="fJ2-eD-k7t" secondAttribute="trailing" constant="10" id="jkP-lc-tIM"/>
+                            <constraint firstItem="XO2-Qh-szt" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="height" multiplier="0.5" id="u4B-QA-1lp"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="ZCP-On-vkh" secondAttribute="trailing" constant="10" id="w84-9P-Tkt"/>
+                            <constraint firstItem="XO2-Qh-szt" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" multiplier="0.5" id="x5M-X4-enM"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                    <connections>
+                        <outlet property="mtkView" destination="l5B-Yg-kyt" id="g3x-xg-klv"/>
+                        <outlet property="mtkView2" destination="XO2-Qh-szt" id="uaq-Lb-eHX"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="136.80000000000001" y="111.99400299850076"/>
+        </scene>
+    </scenes>
+</document>
