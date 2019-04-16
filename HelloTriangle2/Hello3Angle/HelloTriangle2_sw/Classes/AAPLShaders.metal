@@ -31,7 +31,7 @@ typedef struct
 vertex RasterizerData
 vertexShader(uint vertexID [[vertex_id]],
              constant AAPLVertex *vertices [[buffer(AAPLVertexInputIndexVertices)]],
-             constant vector_uint2 *viewportSizePointer [[buffer(AAPLVertexInputIndexViewportSize)]])
+             constant AAPLRenderContext *renderContext [[buffer(AAPLVertexInputIndexRenderContext)]])
 {
     RasterizerData out;
 
@@ -44,7 +44,7 @@ vertexShader(uint vertexID [[vertex_id]],
     float2 pixelSpacePosition = vertices[vertexID].position.xy;
 
     // Dereference viewportSizePointer and cast to float so we can do floating-point division
-    vector_float2 viewportSize = vector_float2(*viewportSizePointer);
+    vector_float2 viewportSize = vector_float2(renderContext->viewportSize);
 
     // The output position of every vertex shader is in clip-space (also known as normalized device
     //   coordinate space, or NDC).   A value of (-1.0, -1.0) in clip-space represents the
@@ -54,20 +54,24 @@ vertexShader(uint vertexID [[vertex_id]],
     // Calculate and write x and y values to our clip-space position.  In order to convert from
     //   positions in pixel space to positions in clip-space, we divide the pixel coordinates by
     //   half the size of the viewport.
-    out.clipSpacePosition.xy = pixelSpacePosition / (viewportSize / 2.0);
+    float2 pos = pixelSpacePosition / (viewportSize / 2.0);
+    
+    
+    
+    out.clipSpacePosition.xy = pos;
 
     // Pass our input color straight to our output color.  This value will be interpolated
     //   with the other color values of the vertices that make up the triangle to produce
     //   the color value for each fragment in our fragment shader
     out.color = vertices[vertexID].color;
+//    out.color = float4(1.0); //vertices[vertexID].color;
+    out.color = float4(renderContext->strokeColor);
 
     return out;
 }
 
 // Fragment function
-fragment float4 fragmentShader(RasterizerData in [[stage_in]])
-{
+fragment float4 fragmentShader(RasterizerData in [[stage_in]]) {
     // We return the color we just set which will be written to our color attachment.
     return in.color;
 }
-

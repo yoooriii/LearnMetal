@@ -31,6 +31,7 @@ class ViewController: UIViewController {
             self.renderer = renderer
             mtkView.delegate = renderer
             mtkView2.delegate = renderer
+//            renderer.mtkView(mtkView, drawableSizeWillChange:mtkView.drawableSize)
         } else {
             print("Renderer failed initialization")
         }
@@ -38,6 +39,7 @@ class ViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        // make sure it is needed
         renderer?.mtkView(mtkView, drawableSizeWillChange:mtkView.drawableSize)
     }
     
