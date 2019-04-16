@@ -1,0 +1,25 @@
+debug
+
+MetalChartRenderer:
+
+viewportSize
+int4(1542412800, -33, 1552003200, 303)
+
+screenSize:
+int2(994, 300)
+
+chart.points.count
+112
+
+indexCount
+666
+
+self.chart!.points![0].coordinate.x
+1542412800.0
+self.chart!.points![0].coordinate.y
+22.0
+
+self.chart!.points![1].coordinate.x
+1542499200.0
+self.chart!.points![1].coordinate.y
+12.0

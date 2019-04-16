@@ -1,0 +1,27 @@
+Combine the power of CoreGraphics and Metal by sharing resource memory
+
+https://medium.com/@s1ddok/combine-the-power-of-coregraphics-and-metal-by-sharing-resource-memory-eabb4c1be615
+
+---
+Math, logic:
+https://forum.libcinder.org/topic/smooth-thick-lines-using-geometry-shader
+---------
+JS:
+https://github.com/mattdesl/extrude-polyline
+----------
+VASEr 
+VASEr: better stroke rendering
+http://tyt2y3.github.io/vaser-web/getting_started.html
+------------
+Telegram Charts Contest (Andre Lami)
+
+https://medium.com/@szenariy5/telegram-charts-contest-f371b59cc829
+-----------
+Smooth, efficient, perfect curves
+https://discourse.libcinder.org/t/smooth-efficient-perfect-curves/925
+--------
+https://www.shadertoy.com/view/lts3Df
+-----------
+Cinder-Metal  obj-c
+https://github.com/wdlindmeier/Cinder-Metal
+https://libcinder.org/about
