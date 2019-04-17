@@ -13,8 +13,6 @@
 
 typedef enum {
     AAPLVertexInputIndexVertices = 0,
-    AAPLVertexInputIndexViewportSize = 1,
-    AAPLVertexInputIndexScreenSize = 2,
     AAPLVertexInputIndexChartContext = 1
 } AAPLVertexInputIndex;
 
@@ -23,8 +21,6 @@ typedef struct {
     vector_float2 normal;
     vector_float2 nextNormal;
     float direction;
-    // Floating-point RGBA colors
-    vector_float4 color;
 } ChartRenderVertex;
 
 typedef struct {
@@ -32,6 +28,7 @@ typedef struct {
     vector_int2 screenSize;
     vector_float4 color;
     float lineWidth;
+    uint vertexCount;
 } ChartContext;  // <-- AAPLVertexInputIndexChartContext
 
 #endif /* ShaderTypes_h */

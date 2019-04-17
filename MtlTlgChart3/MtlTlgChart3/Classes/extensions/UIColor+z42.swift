@@ -40,4 +40,38 @@ extension UIColor {
         let b = CGFloat(arc4random())/max
         return UIColor(red:r, green:g, blue:b, alpha:1.0)
     }
+
+    func vector() -> vector_float4 {
+        var colorVector = vector_float4(0.0, 0.0, 0.0, 1.0) // black
+        if let components = cgColor.components {
+            if components.count <= 2 {
+                let gray = Float(components[0])
+                colorVector[0] = gray
+                colorVector[1] = gray
+                colorVector[2] = gray
+            } else if components.count >= 3 {
+                colorVector[0] = Float(components[0])
+                colorVector[1] = Float(components[1])
+                colorVector[2] = Float(components[2])
+            }
+        }
+        return colorVector
+    }
+
+    static func vector(_ color:UIColor?, defaultVector:vector_float4 = vector_float4(0.0, 0.0, 0.0, 1.0)) -> vector_float4 {
+        var colorVector = defaultVector
+        if let color = color, let components = color.cgColor.components {
+            if components.count <= 2 {
+                let gray = Float(components[0])
+                colorVector[0] = gray
+                colorVector[1] = gray
+                colorVector[2] = gray
+            } else if components.count >= 3 {
+                colorVector[0] = Float(components[0])
+                colorVector[1] = Float(components[1])
+                colorVector[2] = Float(components[2])
+            }
+        }
+        return colorVector
+    }
 }

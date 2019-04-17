@@ -18,23 +18,24 @@ typedef struct {
 
 // Vertex Function
 vertex RasterizerData
-vertexShader(uint vertexID [[ vertex_id ]],
+vertexShader(uint vid [[ vertex_id ]],
              device ChartRenderVertex *vertices [[ buffer(AAPLVertexInputIndexVertices) ]],
              constant ChartContext *chartContextPtr  [[ buffer(AAPLVertexInputIndexChartContext) ]] )
 {
-    const float lineWidth = chartContextPtr->lineWidth;
-    const vector_float4 viewport = vector_float4(chartContextPtr->viewportSize);
+    const float4 viewport = float4(chartContextPtr->viewportSize);
     const float2 positionScaler = float2(viewport.z - viewport.x, viewport.w - viewport.y);
     const float2 screenScaler = vector_float2(chartContextPtr->screenSize);
-    
-    const float2 currentNormal = normalize(vertices[vertexID].normal / positionScaler.yx * screenScaler.yx);
-    const float2 nextNormal = normalize(vertices[vertexID].nextNormal / positionScaler.yx * screenScaler.yx);
+    const ChartRenderVertex vx = vertices[vid];
+
+    const float2 nScale = screenScaler.yx / positionScaler.yx;
+    const float2 currentNormal = normalize(vx.normal * nScale);
+    const float2 nextNormal = normalize(vx.nextNormal * nScale);
     
     const float2 miter = normalize(currentNormal + nextNormal);
-    const float direction = vertices[vertexID].direction;
-    const float2 resultOffset = miter * direction * (lineWidth / dot(miter, currentNormal));
+    const float direction = (vid & 1) ? -1 : 1; //vx.direction;
+    const float2 resultOffset = miter * direction * chartContextPtr->lineWidth / dot(miter, currentNormal);
     
-    float2 position = vertices[vertexID].position.xy - viewport.xy; // pixelSpacePosition
+    float2 position = vx.position.xy - viewport.xy;
     position = position / positionScaler * 2.0 - 1.0;
     
     position *= screenScaler;

@@ -26,8 +26,8 @@ class MetalChartRenderer: NSObject {
     // view.drawableSize (no need to keep it here)
     var screenSize = vector_int2(1)
     
-    var numVertices = 0
     var pointsCount = 0
+    var vertexCount:Int { get { return pointsCount * 2 } }
     var strokeColor:UIColor?
     var lineWidth = Float(1.5)
     
@@ -36,7 +36,6 @@ class MetalChartRenderer: NSObject {
         device = mtkView.device
         super.init()
         loadMetal(mtkView: mtkView)
-        // next: create vertex buffer
     }
     
     private var plane:Plane? = nil
@@ -51,12 +50,10 @@ class MetalChartRenderer: NSObject {
         pointsCount = min(count1, count2)
         guard pointsCount > 1 else {
             print("too few points in graph (\(pointsCount))")
-            numVertices = 0
             pointsCount = 0
             viewportSize = vector_int4(1)
             return
         }
-        numVertices = pointsCount * 2
 
         // next create buffers and start drawing
         guard let device = self.device else {
@@ -81,7 +78,7 @@ class MetalChartRenderer: NSObject {
         
         //TODO: double conversion: repack coordinates
         var points = [float2]()
-        for i in 0..<pointsCount {
+        for i in 0 ..< pointsCount {
             let x = plane.vTime.values[i]/1000
             let y = plane.vAmplitudes[0].values[i]
             let p = float2(Float(x), Float(y))
@@ -94,68 +91,41 @@ class MetalChartRenderer: NSObject {
         viewportSize = vector_int4(minX, minY, maxX, maxY)
         strokeColor = plane.vAmplitudes[0].color
         
-//        let indCount = (pointsCount - 1) * 5
         let vb = vertexMemArray
         let ib = indexMemArray
-        var vx = ChartRenderVertex()
-        vx.position = float2(0)
-        vb[0] = vx
-        
-        //let vertexColor = float4(1, 0, 0, 1.0)  //TODO: use color + Float(self.alpha)
-        //vertexColor = float4.init(Float(components[0]), Float(components[1]), Float(components[2]), Float(self.alpha))
 
-        for vertexNumber in 0 ..< pointsCount {
-            var vx = ChartRenderVertex()
-            var vx2 = ChartRenderVertex()
+        for iPoint in 0 ..< pointsCount {
+            let isLast = iPoint >= pointsCount - 1
+            let currPt = points[iPoint]
+            let prevPt = iPoint == 0 ? float2(x: currPt.x - 1, y: currPt.y) : points[iPoint - 1]
+            let nextPt = isLast ? float2(x: currPt.x + 1, y: currPt.y) : points[iPoint + 1]
 
-            let isLast = vertexNumber >= pointsCount - 1
-            let point = points[vertexNumber]
-            
-            let currentCoord = point
-            let prevCoord: float2
-            if vertexNumber == 0 {
-                prevCoord = float2(x: currentCoord.x - 1, y: currentCoord.y)
-            } else {
-                prevCoord = points[vertexNumber - 1]
-            }
-            
-            let nextCoord: float2
-            if isLast {
-                nextCoord = float2(x: currentCoord.x + 1, y: currentCoord.y)
-            } else {
-                nextCoord = points[vertexNumber + 1]
-            }
-            
-            let leftNorm = float2(x: prevCoord.y - currentCoord.y, y: currentCoord.x - prevCoord.x)
-            let rightNorm = float2(x: currentCoord.y - nextCoord.y, y: nextCoord.x - currentCoord.x)
-            
-            let vertexIndex = vertexNumber * 2
-            
-            vx.position = currentCoord
-            vx.direction = 1
-            vx.normal = leftNorm
-            vx.nextNormal = rightNorm
-            vb[vertexIndex] = vx
-            
-            vx2.position = currentCoord
+            var vx1 = ChartRenderVertex()
+            vx1.position = currPt
+            vx1.direction = 1
+            vx1.normal = float2(x: prevPt.y - currPt.y, y: currPt.x - prevPt.x)
+            vx1.nextNormal = float2(x: currPt.y - nextPt.y, y: nextPt.x - currPt.x)
+
+            var vx2 = vx1
             vx2.direction = -1
-            vx2.normal = leftNorm
-            vx2.nextNormal = rightNorm
+
+            let vertexIndex = iPoint * 2
+            vb[vertexIndex] = vx1
             vb[vertexIndex + 1] = vx2
 
             if !isLast {
-                var indexOffset = vertexNumber * 6
-                ib[indexOffset] = UInt16(vertexIndex)
-                indexOffset += 1
-                ib[indexOffset] = UInt16(vertexIndex + 2)
-                indexOffset += 1
-                ib[indexOffset] = UInt16(vertexIndex + 3)
-                indexOffset += 1
-                ib[indexOffset] = UInt16(vertexIndex)
-                indexOffset += 1
-                ib[indexOffset] = UInt16(vertexIndex + 3)
-                indexOffset += 1
-                ib[indexOffset] = UInt16(vertexIndex + 1)
+                var ibi = iPoint * 6
+                ib[ibi] = UInt16(vertexIndex)
+                ibi += 1
+                ib[ibi] = UInt16(vertexIndex + 2)
+                ibi += 1
+                ib[ibi] = UInt16(vertexIndex + 3)
+                ibi += 1
+                ib[ibi] = UInt16(vertexIndex)
+                ibi += 1
+                ib[ibi] = UInt16(vertexIndex + 3)
+                ibi += 1
+                ib[ibi] = UInt16(vertexIndex + 1)
             }
         }
     }
@@ -166,8 +136,7 @@ class MetalChartRenderer: NSObject {
             print("no metal device")
             return
         }
-        //        mtkView.colorPixelFormat = .bgra8Unorm_srgb //MTLPixelFormatBGRA8Unorm_sRGB;
-        
+
         let defaultLibrary = device.makeDefaultLibrary()
         let vertexFunction = defaultLibrary?.makeFunction(name: "vertexShader")
         let fragmentFunction = defaultLibrary?.makeFunction(name: "fragmentShader")
@@ -224,123 +193,7 @@ class MetalChartRenderer: NSObject {
         let ib = self.indexBuffer.contents().bindMemory(to: UInt16.self, capacity: totalIndexCount)
         ib.initialize(repeating: UInt16(0), count: totalIndexCount)
     }
-    
-//    func updateChart(chart: ChartData) {
-//        self.chart = chart
-//    }
-    
-    func updateGeometry(_ chart: ChartData, vertexBuffer: MTLBuffer, indexBuffer: MTLBuffer) {
-        let points = chart.points
-        if points.isEmpty {
-            return
-        }
-        
-        let indCount = (points.count - 1) * 5
-        let vb = vertexBuffer.contents().bindMemory(to: ChartRenderVertex.self, capacity: points.count)
-        let ib = indexBuffer.contents().bindMemory(to: UInt16.self, capacity: indCount)
-        vb[0].position.x = 0
-        
-        let vertexColor: float4
-        if let components = chart.display?.color?.cgColor.components {
-            vertexColor = float4.init(Float(components[0]), Float(components[1]), Float(components[2]), Float(self.alpha))
-        } else {
-            vertexColor = float4.init(0, 0, 0, Float(self.alpha))
-        }
-        
-        for vertexNumber in 0 ..< points.count {
-            let isLast = vertexNumber >= points.count - 1
-            let point = points[vertexNumber]
-            
-            let currentCoord = point.coordinate
-            let prevCoord: ChartData.ChartCoordinate
-            if vertexNumber == 0 {
-                prevCoord = ChartData.ChartCoordinate.init(x: currentCoord.x - 1, y: currentCoord.y)
-            } else {
-                prevCoord = points[vertexNumber - 1].coordinate
-            }
-            
-            let nextCoord: ChartData.ChartCoordinate
-            if isLast {
-                nextCoord = ChartData.ChartCoordinate.init(x: currentCoord.x + 1, y: currentCoord.y)
-            } else {
-                nextCoord = points[vertexNumber + 1].coordinate
-            }
-            
-            let leftNorm = CGPoint.init(x: -(currentCoord.y - prevCoord.y), y: currentCoord.x - prevCoord.x)
-            let rightNorm = CGPoint.init(x: -(nextCoord.y - currentCoord.y), y: nextCoord.x - currentCoord.x)
-            
-            let vertexIndex = vertexNumber * 2
-            
-            vb[vertexIndex + 0].position.x = Float(currentCoord.x)
-            vb[vertexIndex + 0].position.y = Float(currentCoord.y)
-            vb[vertexIndex + 0].color = vertexColor
-            vb[vertexIndex + 0].direction = 1
-            
-            vb[vertexIndex + 0].normal.x = Float(leftNorm.x)
-            vb[vertexIndex + 0].normal.y = Float(leftNorm.y)
-            
-            vb[vertexIndex + 0].nextNormal.x = Float(rightNorm.x)
-            vb[vertexIndex + 0].nextNormal.y = Float(rightNorm.y)
-            
-            
-            vb[vertexIndex + 1].position.x = Float(currentCoord.x)
-            vb[vertexIndex + 1].position.y = Float(currentCoord.y)
-            vb[vertexIndex + 1].color = vertexColor
-            vb[vertexIndex + 1].direction = -1
-            
-            vb[vertexIndex + 1].normal.x = Float(leftNorm.x)
-            vb[vertexIndex + 1].normal.y = Float(leftNorm.y)
-            
-            vb[vertexIndex + 1].nextNormal.x = Float(rightNorm.x)
-            vb[vertexIndex + 1].nextNormal.y = Float(rightNorm.y)
-            
-            if !isLast {
-                let vertexIndexUInt16 = UInt16(vertexIndex)
-                let indexIndex = vertexNumber * 6
-                ib[indexIndex + 0] = vertexIndexUInt16
-                ib[indexIndex + 1] = vertexIndexUInt16 + 2
-                ib[indexIndex + 2] = vertexIndexUInt16 + 3
-                ib[indexIndex + 3] = vertexIndexUInt16
-                ib[indexIndex + 4] = vertexIndexUInt16 + 3
-                ib[indexIndex + 5] = vertexIndexUInt16 + 1;
-            }
-        }
-    }
-    
-    func render(withEncoder encoder: MTLRenderCommandEncoder, context: MetalContext) {
-
-        guard let chart = self.chart else {
-            return
-        }
-        
-        let view = context.view
-        
-        let indexCount = (chart.points.count - 1) * 6;
-        
-        let viewPort = context.dimensionsConverter.convertViewPortToDisplayViewPort(context.viewPort)
-        var viewportSize = vector_int4.init(Int32(viewPort.x),
-                                                      Int32(viewPort.y),
-                                                      Int32(viewPort.xEnd),
-                                                      Int32(viewPort.yEnd))
-        
-        let viewSize = view.drawableSize
-        var screenSize = vector_int2.init(Int32(viewSize.width), Int32(viewSize.height))
-        
-        self.updateGeometry(chart, vertexBuffer: self.vertexBuffer, indexBuffer: self.indexBuffer)
-                
-        encoder.setVertexBuffer(self.vertexBuffer, offset: 0, index: Int(AAPLVertexInputIndexVertices.rawValue))
-        encoder.setVertexBytes(&viewportSize, length: MemoryLayout<vector_int4>.stride, index: Int(AAPLVertexInputIndexViewportSize.rawValue))
-        encoder.setVertexBytes(&screenSize, length: MemoryLayout<vector_int2>.stride, index: Int(AAPLVertexInputIndexScreenSize.rawValue))
-        
-        encoder.drawIndexedPrimitives(type: .triangle,
-                                       indexCount: indexCount,
-                                       indexType: .uint16,
-                                       indexBuffer: self.indexBuffer,
-                                       indexBufferOffset:0)
-    }
-    
 }
-
 
 extension MetalChartRenderer: MTKViewDelegate {
     /// Called whenever view changes orientation or is resized
@@ -358,8 +211,8 @@ extension MetalChartRenderer: MTKViewDelegate {
             return
         }
         
-        guard numVertices > 3 else {
-            print("too few vertices in buffer, skip draw (\(numVertices))")
+        guard vertexCount > 3 else {
+            print("too few vertices in buffer, skip draw (\(vertexCount))")
             return
         }
         
@@ -403,12 +256,6 @@ extension MetalChartRenderer: MTKViewDelegate {
         //              -[MTLRenderCommandEncoder setVertexBytes:length:atIndex:]
         //
         
-//        renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index:Int(AAPLVertexInputIndexVertices.rawValue))
-//
-//        renderEncoder.setVertexBytes(&viewportSize, length: MemoryLayout<vector_uint2>.stride, index: Int(AAPLVertexInputIndexViewportSize.rawValue))
-//        // Draw the vertices of the quads
-//        renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: numVertices)
-        
         renderEncoder.setCullMode(.none)
 
         updateDrawPipeline(view: view, encoder: renderEncoder, color: strokeColor)
@@ -421,48 +268,25 @@ extension MetalChartRenderer: MTKViewDelegate {
         }
         commandBuffer.commit()
     }
-    
-    
+
     func updateDrawPipeline(view: MTKView, encoder:MTLRenderCommandEncoder, color:UIColor?) {
         let viewSize = view.drawableSize
         let screenSize = vector_int2(Int32(viewSize.width), Int32(viewSize.height))
         let indexCount = (pointsCount - 1) * 6;
         let lineWidth = self.lineWidth * Float(view.contentScaleFactor)
-        
-        var colorVector = vector_float4(0.0, 0.0, 0.0, 1.0) // black
-        if let color = color, let components = color.cgColor.components {
-            if components.count <= 2 {
-                let gray = Float(components[0])
-                colorVector[0] = gray
-                colorVector[1] = gray
-                colorVector[2] = gray
-            } else if components.count >= 3 {
-                colorVector[0] = Float(components[0])
-                colorVector[1] = Float(components[1])
-                colorVector[2] = Float(components[2])
-            }
-        }
-        
-        var chartContext = ChartContext(viewportSize: viewportSize, screenSize: screenSize, color: colorVector, lineWidth:lineWidth)
+        let colorVector = UIColor.vector(color)
+
+        var chartContext = ChartContext(viewportSize: viewportSize, screenSize: screenSize, color: colorVector, lineWidth:lineWidth, vertexCount:UInt32(vertexCount))
 
         encoder.setVertexBuffer(vertexBuffer, offset: 0,
                                 index: Int(AAPLVertexInputIndexVertices.rawValue))
-//        encoder.setVertexBytes(&viewportSize, length: MemoryLayout<vector_int4>.stride,
-//                               index: Int(AAPLVertexInputIndexViewportSize.rawValue))
-//        encoder.setVertexBytes(&screenSize, length: MemoryLayout<vector_int2>.stride,
-//                               index: Int(AAPLVertexInputIndexScreenSize.rawValue))
-        
         encoder.setVertexBytes(&chartContext, length: MemoryLayout<ChartContext>.stride,
                                index: Int(AAPLVertexInputIndexChartContext.rawValue))
 
-        
         encoder.drawIndexedPrimitives(type: .triangle,
                                       indexCount: indexCount,
                                       indexType: .uint16,
                                       indexBuffer: indexBuffer,
                                       indexBufferOffset:0)
-        
     }
-    
-
 }

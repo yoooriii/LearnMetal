@@ -120,9 +120,9 @@
 				B3121A432266385B00D2D913 /* RenderingContext.swift */,
 				B3121A3F2266380700D2D913 /* ShaderTypes.h */,
 				B3121A412266381A00D2D913 /* ChartShaders.metal */,
+				B3121A38226636CB00D2D913 /* MetalChartRenderer.swift */,
 				B3121A3C226637C100D2D913 /* ChartData.swift */,
 				B3121A3B2266378900D2D913 /* ChartBridging-Header.h */,
-				B3121A38226636CB00D2D913 /* MetalChartRenderer.swift */,
 				B3121A2D2266367800D2D913 /* AppDelegate.swift */,
 				B3121A2E2266367800D2D913 /* ViewController.swift */,
 			);
