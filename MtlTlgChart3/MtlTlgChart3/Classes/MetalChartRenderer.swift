@@ -90,42 +90,22 @@ class MetalChartRenderer: NSObject {
         let maxY = Int32(plane.vAmplitudes[0].maxValue)
         viewportSize = vector_int4(minX, minY, maxX, maxY)
         strokeColor = plane.vAmplitudes[0].color
-        
-        let vb = vertexMemArray
-        let ib = indexMemArray
 
         for iPoint in 0 ..< pointsCount {
+            let vx = ChartRenderVertex(position: points[iPoint])
+            vertexMemArray[iPoint * 2] = vx
+            vertexMemArray[iPoint * 2 + 1] = vx
+
             let isLast = iPoint >= pointsCount - 1
-            let currPt = points[iPoint]
-            let prevPt = iPoint == 0 ? float2(x: currPt.x - 1, y: currPt.y) : points[iPoint - 1]
-            let nextPt = isLast ? float2(x: currPt.x + 1, y: currPt.y) : points[iPoint + 1]
-
-            var vx1 = ChartRenderVertex()
-            vx1.position = currPt
-            vx1.direction = 1
-            vx1.normal = float2(x: prevPt.y - currPt.y, y: currPt.x - prevPt.x)
-            vx1.nextNormal = float2(x: currPt.y - nextPt.y, y: nextPt.x - currPt.x)
-
-            var vx2 = vx1
-            vx2.direction = -1
-
-            let vertexIndex = iPoint * 2
-            vb[vertexIndex] = vx1
-            vb[vertexIndex + 1] = vx2
-
             if !isLast {
-                var ibi = iPoint * 6
-                ib[ibi] = UInt16(vertexIndex)
-                ibi += 1
-                ib[ibi] = UInt16(vertexIndex + 2)
-                ibi += 1
-                ib[ibi] = UInt16(vertexIndex + 3)
-                ibi += 1
-                ib[ibi] = UInt16(vertexIndex)
-                ibi += 1
-                ib[ibi] = UInt16(vertexIndex + 3)
-                ibi += 1
-                ib[ibi] = UInt16(vertexIndex + 1)
+                let ibi = iPoint * 6
+                let vertexIndex = UInt16(iPoint * 2)
+                indexMemArray[ibi]   = vertexIndex
+                indexMemArray[ibi+1] = vertexIndex + 2
+                indexMemArray[ibi+2] = vertexIndex + 3
+                indexMemArray[ibi+3] = vertexIndex
+                indexMemArray[ibi+4] = vertexIndex + 3
+                indexMemArray[ibi+5] = vertexIndex + 1
             }
         }
     }
@@ -157,10 +137,8 @@ class MetalChartRenderer: NSObject {
             renderAttachment.destinationRGBBlendFactor = .oneMinusSourceAlpha
             renderAttachment.destinationAlphaBlendFactor = .oneMinusSourceAlpha
         }
-        
         pipelineStateDescriptor.depthAttachmentPixelFormat = mtkView.depthStencilPixelFormat
         pipelineStateDescriptor.stencilAttachmentPixelFormat = mtkView.depthStencilPixelFormat
-
         
         do {
             pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
@@ -173,25 +151,6 @@ class MetalChartRenderer: NSObject {
         }
         
         commandQueue = device.makeCommandQueue()
-    }
-
-    // original method
-    func setupWithView(_ view: MTKView) {
-        let device = view.device!
-        
-        let totalSpriteVertexCount = 400;
-        let totalIndexCount = totalSpriteVertexCount * 6;
-        
-        let spriteVertexBufferSize = totalSpriteVertexCount * MemoryLayout<ChartRenderVertex>.stride
-        let spriteIndexBufferSize = totalIndexCount * MemoryLayout<UInt16>.size
-        
-        self.vertexBuffer = device.makeBuffer(length: spriteVertexBufferSize, options: MTLResourceOptions.cpuCacheModeWriteCombined)!
-        let vb = self.vertexBuffer.contents().bindMemory(to: ChartRenderVertex.self, capacity: totalSpriteVertexCount)
-        vb.initialize(repeating: ChartRenderVertex(), count: totalSpriteVertexCount)
-        
-        self.indexBuffer = device.makeBuffer(length: spriteIndexBufferSize, options: MTLResourceOptions.cpuCacheModeWriteCombined)!
-        let ib = self.indexBuffer.contents().bindMemory(to: UInt16.self, capacity: totalIndexCount)
-        ib.initialize(repeating: UInt16(0), count: totalIndexCount)
     }
 }
 
@@ -237,9 +196,13 @@ extension MetalChartRenderer: MTKViewDelegate {
 //        let viewport = MTLViewport(originX: 0, originY: 0,
 //                                   width: Double(viewportSize.x), height: Double(viewportSize.y),
 //                                   znear: -1, zfar: 1)
+
+//        let viewport = MTLViewport(originX: -1, originY: -1,
+//                                   width: 2, height: 2,
+//                                   znear: -1, zfar: 1)
 //        // Set the region of the drawable to which we'll draw.
 //        renderEncoder.setViewport(viewport)
-        
+
         renderEncoder.setRenderPipelineState(pipelineState)
         
         // We call -[MTLRenderCommandEncoder setVertexBuffer:offset:atIndex:] to send data in our
@@ -258,7 +221,7 @@ extension MetalChartRenderer: MTKViewDelegate {
         
         renderEncoder.setCullMode(.none)
 
-        updateDrawPipeline(view: view, encoder: renderEncoder, color: strokeColor)
+        encodeGraph(encoder: renderEncoder, view: view, color: strokeColor)
         
         renderEncoder.endEncoding()
         if let currentDrawable = view.currentDrawable {
@@ -269,7 +232,7 @@ extension MetalChartRenderer: MTKViewDelegate {
         commandBuffer.commit()
     }
 
-    func updateDrawPipeline(view: MTKView, encoder:MTLRenderCommandEncoder, color:UIColor?) {
+    func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView, color:UIColor? = UIColor.black) {
         let viewSize = view.drawableSize
         let screenSize = vector_int2(Int32(viewSize.width), Int32(viewSize.height))
         let indexCount = (pointsCount - 1) * 6;

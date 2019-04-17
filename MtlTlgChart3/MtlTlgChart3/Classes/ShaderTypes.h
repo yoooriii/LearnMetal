@@ -18,9 +18,6 @@ typedef enum {
 
 typedef struct {
     vector_float2 position;
-    vector_float2 normal;
-    vector_float2 nextNormal;
-    float direction;
 } ChartRenderVertex;
 
 typedef struct {
