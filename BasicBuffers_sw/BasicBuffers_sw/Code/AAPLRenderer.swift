@@ -10,7 +10,7 @@ import UIKit
 import MetalKit
 import simd
 
-class AAPLRenderer: NSObject, MTKViewDelegate {
+class AAPLRenderer: NSObject {
     let device: MTLDevice!
     var pipelineState: MTLRenderPipelineState!
     var commandQueue: MTLCommandQueue!
@@ -57,10 +57,11 @@ class AAPLRenderer: NSObject, MTKViewDelegate {
         let NUM_VERTICES_PER_QUAD = coordinates.count
         let QUAD_SPACING = Float(50.0)
 
-        let dataSize = MemoryLayout<AAPLVertex>.stride * NUM_VERTICES_PER_QUAD * NUM_COLUMNS * NUM_ROWS
+        let verticesCount = NUM_VERTICES_PER_QUAD * NUM_COLUMNS * NUM_ROWS
+        let dataSize = MemoryLayout<AAPLVertex>.stride * verticesCount
         // Create a vertex buffer by allocating storage that can be read by the GPU
         let vertexBuffer = device.makeBuffer(length: dataSize, options: .cpuCacheModeWriteCombined)
-        guard let vertexMemArray = vertexBuffer?.contents().bindMemory(to: AAPLVertex.self, capacity: MemoryLayout<AAPLVertex>.stride) else {
+        guard let vertexMemArray = vertexBuffer?.contents().bindMemory(to: AAPLVertex.self, capacity: verticesCount) else {
             return (buffer:nil, count:0)
         }
         
@@ -125,7 +126,9 @@ class AAPLRenderer: NSObject, MTKViewDelegate {
         
         commandQueue = device.makeCommandQueue()
     }
-    
+}
+
+extension AAPLRenderer: MTKViewDelegate {
     /// Called whenever view changes orientation or is resized
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
         // Save the size of the drawable as we'll pass these

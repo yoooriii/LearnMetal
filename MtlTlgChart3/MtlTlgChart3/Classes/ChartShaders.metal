@@ -11,91 +11,44 @@ using namespace metal;
 
 #import "ShaderTypes.h"
 
-
-typedef struct
-{
-    
+typedef struct {
     float4 clipSpacePosition [[position]];
-
     float4 color;
-
 } RasterizerData;
-
-typedef struct
-{
-    // Positions in pixel space (i.e. a value of 100 indicates 100 pixels from the origin/center)
-    vector_float2 position;
-    vector_float2 normal;
-    vector_float2 nextNormal;
-    vector_float2 direction;
-    
-    // Floating point RGBA colors
-    vector_float4 color;
-} AAPLVertex;
 
 // Vertex Function
 vertex RasterizerData
 vertexShader(uint vertexID [[ vertex_id ]],
-             device AAPLVertex *vertices [[ buffer(AAPLVertexInputIndexVertices) ]],
-             constant vector_int4 *viewportSizePointer  [[ buffer(AAPLVertexInputIndexViewportSize) ]],
-             constant vector_int2 *screenSizePointer  [[ buffer(AAPLVertexInputIndexScreenSize) ]])
+             device ChartRenderVertex *vertices [[ buffer(AAPLVertexInputIndexVertices) ]],
+             constant ChartContext *chartContextPtr  [[ buffer(AAPLVertexInputIndexChartContext) ]] )
 {
+    const float lineWidth = chartContextPtr->lineWidth;
+    const vector_float4 viewport = vector_float4(chartContextPtr->viewportSize);
+    const float2 positionScaler = float2(viewport.z - viewport.x, viewport.w - viewport.y);
+    const float2 screenScaler = vector_float2(chartContextPtr->screenSize);
+    
+    const float2 currentNormal = normalize(vertices[vertexID].normal / positionScaler.yx * screenScaler.yx);
+    const float2 nextNormal = normalize(vertices[vertexID].nextNormal / positionScaler.yx * screenScaler.yx);
+    
+    const float2 miter = normalize(currentNormal + nextNormal);
+    const float direction = vertices[vertexID].direction;
+    const float2 resultOffset = miter * direction * (lineWidth / dot(miter, currentNormal));
+    
+    float2 position = vertices[vertexID].position.xy - viewport.xy; // pixelSpacePosition
+    position = position / positionScaler * 2.0 - 1.0;
+    
+    position *= screenScaler;
+    position += resultOffset;
+    position /= screenScaler;
+    
     RasterizerData out;
-
-    out.clipSpacePosition = vector_float4(0.0, 0.0, 0.0, 1.0);
-
-    
-    float2 pixelSpacePositionFull = vertices[vertexID].position.xy;
-    float2 pixelSpacePosition = pixelSpacePositionFull.xy;
-    
-    float2 currentNormal = vertices[vertexID].normal;
-    float2 nextNormal = vertices[vertexID].nextNormal;
-    float direction = vertices[vertexID].direction.x;
-    
-    
-    vector_float4 viewport = vector_float4(*viewportSizePointer);
-    vector_float2 viewportSize = vector_float2(viewport.z - viewport.x, viewport.w - viewport.y);
-    
-    vector_float2 screenSize = vector_float2(*screenSizePointer);
-    
-    
-    pixelSpacePosition -= viewport.xy;
-    
-    float2 positionScaler = viewportSize;
-    float2 screenScaler = screenSize;
-
-    float width = 1.5;
-    
-    currentNormal /= positionScaler.yx;
-    nextNormal /= positionScaler.yx;
-
-    currentNormal *= screenScaler.yx;
-    nextNormal *= screenScaler.yx;
-
-    currentNormal = normalize(currentNormal);
-    nextNormal = normalize(nextNormal);
-    
-    float2 miter = normalize(currentNormal + nextNormal);
-
-    float miterOffset = width / dot(miter, currentNormal);
-    float2 resultOffset = miter * miterOffset;
-    
-    pixelSpacePosition /= positionScaler;
-    pixelSpacePosition = pixelSpacePosition * 2 - 1.0;
-    
-    pixelSpacePosition *= screenScaler;
-    pixelSpacePosition += resultOffset * direction;
-    pixelSpacePosition /= screenScaler;
-    
-    out.clipSpacePosition.xy = pixelSpacePosition;
-    out.color = vertices[vertexID].color;
-
+    out.color = chartContextPtr->color;
+    out.clipSpacePosition = vector_float4(position.x, position.y, 0.0, 1.0);
     return out;
 }
 
 // Fragment function
-fragment float4 fragmentShader(RasterizerData in [[stage_in]])
-{
+fragment float4 fragmentShader(RasterizerData in [[stage_in]]) {
     // We return the color we just set which will be written to our color attachment.
     return in.color;
 }

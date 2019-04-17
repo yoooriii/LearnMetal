@@ -20,6 +20,16 @@
 		B3121A462266389A00D2D913 /* ViewPort.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3121A452266389A00D2D913 /* ViewPort.swift */; };
 		B3121A48226638D700D2D913 /* DimensionsConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3121A47226638D700D2D913 /* DimensionsConverter.swift */; };
 		B3121A4A2266399100D2D913 /* CollectionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3121A492266399100D2D913 /* CollectionUtils.swift */; };
+		B38505912267764D003C8202 /* RawModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38505872267764D003C8202 /* RawModels.swift */; };
+		B38505922267764D003C8202 /* LogicCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38505882267764D003C8202 /* LogicCanvas.swift */; };
+		B38505932267764D003C8202 /* UIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38505892267764D003C8202 /* UIModels.swift */; };
+		B38505942267764D003C8202 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = B385058A2267764D003C8202 /* Models.swift */; };
+		B38505952267764D003C8202 /* PathModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B385058B2267764D003C8202 /* PathModels.swift */; };
+		B38505962267764D003C8202 /* TestModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B385058C2267764D003C8202 /* TestModels.swift */; };
+		B38505972267764D003C8202 /* Extentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B385058E2267764D003C8202 /* Extentions.swift */; };
+		B38505982267764D003C8202 /* NSError+z42.swift in Sources */ = {isa = PBXBuildFile; fileRef = B385058F2267764D003C8202 /* NSError+z42.swift */; };
+		B38505992267764D003C8202 /* UIColor+z42.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38505902267764D003C8202 /* UIColor+z42.swift */; };
+		B385059B2267939C003C8202 /* chart_data.json in Resources */ = {isa = PBXBuildFile; fileRef = B385059A2267939C003C8202 /* chart_data.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +50,16 @@
 		B3121A452266389A00D2D913 /* ViewPort.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewPort.swift; sourceTree = "<group>"; };
 		B3121A47226638D700D2D913 /* DimensionsConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DimensionsConverter.swift; sourceTree = "<group>"; };
 		B3121A492266399100D2D913 /* CollectionUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionUtils.swift; sourceTree = "<group>"; };
+		B38505872267764D003C8202 /* RawModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RawModels.swift; sourceTree = "<group>"; };
+		B38505882267764D003C8202 /* LogicCanvas.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogicCanvas.swift; sourceTree = "<group>"; };
+		B38505892267764D003C8202 /* UIModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIModels.swift; sourceTree = "<group>"; };
+		B385058A2267764D003C8202 /* Models.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		B385058B2267764D003C8202 /* PathModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PathModels.swift; sourceTree = "<group>"; };
+		B385058C2267764D003C8202 /* TestModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestModels.swift; sourceTree = "<group>"; };
+		B385058E2267764D003C8202 /* Extentions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extentions.swift; sourceTree = "<group>"; };
+		B385058F2267764D003C8202 /* NSError+z42.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSError+z42.swift"; sourceTree = "<group>"; };
+		B38505902267764D003C8202 /* UIColor+z42.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+z42.swift"; sourceTree = "<group>"; };
+		B385059A2267939C003C8202 /* chart_data.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = chart_data.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +112,8 @@
 		B3121A2C2266367800D2D913 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				B385058D2267764D003C8202 /* extensions */,
+				B38505862267764D003C8202 /* models */,
 				B3121A492266399100D2D913 /* CollectionUtils.swift */,
 				B3121A47226638D700D2D913 /* DimensionsConverter.swift */,
 				B3121A452266389A00D2D913 /* ViewPort.swift */,
@@ -110,11 +132,35 @@
 		B3121A2F2266367800D2D913 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				B3121A302266367800D2D913 /* LaunchScreen.storyboard */,
+				B385059A2267939C003C8202 /* chart_data.json */,
 				B3121A312266367800D2D913 /* Main.storyboard */,
+				B3121A302266367800D2D913 /* LaunchScreen.storyboard */,
 				B3121A322266367800D2D913 /* Assets.xcassets */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		B38505862267764D003C8202 /* models */ = {
+			isa = PBXGroup;
+			children = (
+				B38505872267764D003C8202 /* RawModels.swift */,
+				B38505882267764D003C8202 /* LogicCanvas.swift */,
+				B38505892267764D003C8202 /* UIModels.swift */,
+				B385058A2267764D003C8202 /* Models.swift */,
+				B385058B2267764D003C8202 /* PathModels.swift */,
+				B385058C2267764D003C8202 /* TestModels.swift */,
+			);
+			path = models;
+			sourceTree = "<group>";
+		};
+		B385058D2267764D003C8202 /* extensions */ = {
+			isa = PBXGroup;
+			children = (
+				B385058E2267764D003C8202 /* Extentions.swift */,
+				B385058F2267764D003C8202 /* NSError+z42.swift */,
+				B38505902267764D003C8202 /* UIColor+z42.swift */,
+			);
+			path = extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -177,6 +223,7 @@
 			files = (
 				B3121A352266367800D2D913 /* LaunchScreen.storyboard in Resources */,
 				B3121A372266367800D2D913 /* Assets.xcassets in Resources */,
+				B385059B2267939C003C8202 /* chart_data.json in Resources */,
 				B3121A362266367800D2D913 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -188,15 +235,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B38505982267764D003C8202 /* NSError+z42.swift in Sources */,
 				B3121A442266385B00D2D913 /* RenderingContext.swift in Sources */,
+				B38505942267764D003C8202 /* Models.swift in Sources */,
 				B3121A4A2266399100D2D913 /* CollectionUtils.swift in Sources */,
 				B3121A462266389A00D2D913 /* ViewPort.swift in Sources */,
 				B3121A342266367800D2D913 /* ViewController.swift in Sources */,
+				B38505912267764D003C8202 /* RawModels.swift in Sources */,
+				B38505922267764D003C8202 /* LogicCanvas.swift in Sources */,
 				B3121A39226636CB00D2D913 /* MetalChartRenderer.swift in Sources */,
+				B38505962267764D003C8202 /* TestModels.swift in Sources */,
+				B38505952267764D003C8202 /* PathModels.swift in Sources */,
 				B3121A3D226637C100D2D913 /* ChartData.swift in Sources */,
+				B38505992267764D003C8202 /* UIColor+z42.swift in Sources */,
 				B3121A332266367800D2D913 /* AppDelegate.swift in Sources */,
+				B38505972267764D003C8202 /* Extentions.swift in Sources */,
 				B3121A422266381A00D2D913 /* ChartShaders.metal in Sources */,
 				B3121A48226638D700D2D913 /* DimensionsConverter.swift in Sources */,
+				B38505932267764D003C8202 /* UIModels.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -254,7 +310,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -309,7 +365,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
