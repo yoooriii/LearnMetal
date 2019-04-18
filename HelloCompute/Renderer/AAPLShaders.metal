@@ -54,6 +54,12 @@ vertexShader(uint vertexID [[ vertex_id ]],
     // In order to convert from positions in pixel space to positions in clip space we divide the
     //   pixel coordinates by half the size of the viewport.
     out.clipSpacePosition.xy = pixelSpacePosition / (viewportSize / 2.0);
+    
+    if (vertexID < 3) {
+        out.clipSpacePosition.xy -= 0.5;
+    } else {
+        out.clipSpacePosition.xy *= 0.5;
+    }
 
     // Set the z component of our clip space position 0 (since we're only rendering in
     //   2-Dimensions for this sample)
@@ -103,6 +109,13 @@ grayscaleKernel(texture2d<half, access::read>  inTexture  [[texture(AAPLTextureI
 
     half4 inColor  = inTexture.read(gid);
     half  gray     = dot(inColor.rgb, kRec709Luma);
+
+    if((gid.x >= outTexture.get_width()/2) && (gid.y >= outTexture.get_height()/2))
+    {
+        outTexture.write(half4(1.0, gray, gray, 1.0), gid);
+        return;
+    }
+
     outTexture.write(half4(gray, gray, gray, 1.0), gid);
 }
 
