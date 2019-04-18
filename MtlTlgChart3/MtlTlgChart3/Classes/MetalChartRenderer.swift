@@ -29,7 +29,10 @@ class MetalChartRenderer: NSObject {
     var pointsCount = 0
     var vertexCount:Int { get { return pointsCount * 2 } }
     var strokeColor:UIColor?
-    var lineWidth = Float(1.5)
+    var lineWidth = Float(10)//Float(1.5)
+
+    ///////////////////
+    var planeRenderers = [PlaneRenderer]()
     
     /// Initialize with the MetalKit view from which we'll obtain our Metal device
     init(mtkView: MTKView) {
@@ -42,8 +45,35 @@ class MetalChartRenderer: NSObject {
     
     func setPlane(_ plane:Plane) {
         self.plane = plane
-        let count1 = plane.vTime.count
         let countP = plane.vAmplitudes.count
+        planeRenderers.removeAll()
+
+//        viewportSize = vector_int4(minX, minY, maxX, maxY)
+        var viewportSize = vector_int4(0)
+        for iPlane in 0 ..< countP {
+            let pRenderer = PlaneRenderer(device: device)
+            pRenderer.setPlane(plane, iPlane: iPlane)
+            if 0 == iPlane {
+                viewportSize = pRenderer.viewportSize
+            } else {
+                let vpSize = pRenderer.viewportSize
+                if viewportSize[0] > vpSize[0] { viewportSize[0] = vpSize[0] }
+                if viewportSize[1] > vpSize[1] { viewportSize[1] = vpSize[1] }
+                if viewportSize[2] < vpSize[2] { viewportSize[2] = vpSize[2] }
+                if viewportSize[3] < vpSize[3] { viewportSize[3] = vpSize[3] }
+            }
+            planeRenderers.append(pRenderer)
+        }
+
+        for pRenderer in planeRenderers {
+            pRenderer.viewportSize = viewportSize
+        }
+
+
+        return
+
+
+        let count1 = plane.vTime.count
         let count2 = plane.vAmplitudes[0].count
         print("set new plane with \(countP) amplitudes and [\(count1):\(count2)] points")
         
@@ -59,7 +89,7 @@ class MetalChartRenderer: NSObject {
         guard let device = self.device else {
             return
         }
-        
+
         let vertexMemSize = MemoryLayout<ChartRenderVertex>.stride * pointsCount * 2
         let totalIndexCount = pointsCount * 6 // not exactly
         let indexMemSize = MemoryLayout<UInt16>.stride * pointsCount * 6
@@ -109,12 +139,18 @@ class MetalChartRenderer: NSObject {
             }
         }
     }
-    
+
     /// Create our Metal render state objects including our shaders and render state pipeline objects
     private func loadMetal(mtkView: MTKView!) {
         guard let device = self.device else {
             print("no metal device")
             return
+        }
+
+        if true {
+            mtkView.isOpaque = false
+            mtkView.clearColor = MTLClearColor.init(red: 0, green: 0, blue: 0, alpha: 0)
+//            mtkView.sampleCount = 4;
         }
 
         let defaultLibrary = device.makeDefaultLibrary()
@@ -123,11 +159,16 @@ class MetalChartRenderer: NSObject {
         
         let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
         pipelineStateDescriptor.label = "Simple Pipeline"
-        pipelineStateDescriptor.sampleCount = mtkView.sampleCount
         pipelineStateDescriptor.vertexFunction = vertexFunction
         pipelineStateDescriptor.fragmentFunction = fragmentFunction
+
+        mtkView.sampleCount = 1 // default=1
+        mtkView.colorPixelFormat = .bgra8Unorm
+        pipelineStateDescriptor.sampleCount = mtkView.sampleCount
         pipelineStateDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat
-        
+        pipelineStateDescriptor.depthAttachmentPixelFormat = mtkView.depthStencilPixelFormat
+        pipelineStateDescriptor.stencilAttachmentPixelFormat = mtkView.depthStencilPixelFormat
+
         if let renderAttachment = pipelineStateDescriptor.colorAttachments[0] {
             renderAttachment.isBlendingEnabled = true
             renderAttachment.alphaBlendOperation = .add
@@ -137,9 +178,7 @@ class MetalChartRenderer: NSObject {
             renderAttachment.destinationRGBBlendFactor = .oneMinusSourceAlpha
             renderAttachment.destinationAlphaBlendFactor = .oneMinusSourceAlpha
         }
-        pipelineStateDescriptor.depthAttachmentPixelFormat = mtkView.depthStencilPixelFormat
-        pipelineStateDescriptor.stencilAttachmentPixelFormat = mtkView.depthStencilPixelFormat
-        
+
         do {
             pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
         } catch {
@@ -165,16 +204,21 @@ extension MetalChartRenderer: MTKViewDelegate {
     
     /// Called whenever the view needs to render a frame
     func draw(in view: MTKView) {
-        guard let vertexBuffer = self.vertexBuffer else {
-            //print("no vertex buffer, skip draw")
+//        guard let vertexBuffer = self.vertexBuffer else {
+//            //print("no vertex buffer, skip draw")
+//            return
+//        }
+//
+//        guard vertexCount > 2 else {
+//            print("too few vertices in buffer, skip draw (\(vertexCount))")
+//            return
+//        }
+
+        guard !planeRenderers.isEmpty else {
+            print("empty renders array")
             return
         }
-        
-        guard vertexCount > 3 else {
-            print("too few vertices in buffer, skip draw (\(vertexCount))")
-            return
-        }
-        
+
         guard let commandBuffer = commandQueue.makeCommandBuffer() else {
             print("cannot create command buffer")
             return
@@ -185,7 +229,11 @@ extension MetalChartRenderer: MTKViewDelegate {
             print("cannot get currentRenderPassDescriptor")
             return
         }
-        
+
+        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0.5, 0.5, 1.0)
+        renderPassDescriptor.colorAttachments[0].loadAction = .clear
+//        renderPassDescriptor.colorAttachments[0].storeAction = .multisampleResolve
+
         guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) else {
             print("cannot make render encoder")
             return
@@ -221,7 +269,11 @@ extension MetalChartRenderer: MTKViewDelegate {
         
         renderEncoder.setCullMode(.none)
 
-        encodeGraph(encoder: renderEncoder, view: view, color: strokeColor)
+        //encodeGraph(encoder: renderEncoder, view: view, color: strokeColor)
+        for pRenderer in planeRenderers {
+            pRenderer.lineWidth = lineWidth
+            pRenderer.encodeGraph(encoder: renderEncoder, view: view)
+        }
         
         renderEncoder.endEncoding()
         if let currentDrawable = view.currentDrawable {

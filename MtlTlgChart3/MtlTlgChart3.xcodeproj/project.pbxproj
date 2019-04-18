@@ -30,6 +30,7 @@
 		B38505982267764D003C8202 /* NSError+z42.swift in Sources */ = {isa = PBXBuildFile; fileRef = B385058F2267764D003C8202 /* NSError+z42.swift */; };
 		B38505992267764D003C8202 /* UIColor+z42.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38505902267764D003C8202 /* UIColor+z42.swift */; };
 		B385059B2267939C003C8202 /* chart_data.json in Resources */ = {isa = PBXBuildFile; fileRef = B385059A2267939C003C8202 /* chart_data.json */; };
+		E2DCE0EB22693118001C04CE /* PlaneRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DCE0EA22693118001C04CE /* PlaneRenderer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -60,6 +61,7 @@
 		B385058F2267764D003C8202 /* NSError+z42.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSError+z42.swift"; sourceTree = "<group>"; };
 		B38505902267764D003C8202 /* UIColor+z42.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+z42.swift"; sourceTree = "<group>"; };
 		B385059A2267939C003C8202 /* chart_data.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = chart_data.json; sourceTree = "<group>"; };
+		E2DCE0EA22693118001C04CE /* PlaneRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaneRenderer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +122,7 @@
 				B3121A432266385B00D2D913 /* RenderingContext.swift */,
 				B3121A3F2266380700D2D913 /* ShaderTypes.h */,
 				B3121A412266381A00D2D913 /* ChartShaders.metal */,
+				E2DCE0EA22693118001C04CE /* PlaneRenderer.swift */,
 				B3121A38226636CB00D2D913 /* MetalChartRenderer.swift */,
 				B3121A3C226637C100D2D913 /* ChartData.swift */,
 				B3121A3B2266378900D2D913 /* ChartBridging-Header.h */,
@@ -240,6 +243,7 @@
 				B38505942267764D003C8202 /* Models.swift in Sources */,
 				B3121A4A2266399100D2D913 /* CollectionUtils.swift in Sources */,
 				B3121A462266389A00D2D913 /* ViewPort.swift in Sources */,
+				E2DCE0EB22693118001C04CE /* PlaneRenderer.swift in Sources */,
 				B3121A342266367800D2D913 /* ViewController.swift in Sources */,
 				B38505912267764D003C8202 /* RawModels.swift in Sources */,
 				B38505922267764D003C8202 /* LogicCanvas.swift in Sources */,

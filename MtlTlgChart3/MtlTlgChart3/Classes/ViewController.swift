@@ -51,6 +51,10 @@ class ViewController: UIViewController {
             startLoadingData()
         }
     }
+
+    @IBAction func acrLineWidth(_ slider: UISlider) {
+        renderer.lineWidth = 1.0 + 10.0 * slider.value
+    }
     
     private func dataDidLoad() {
         print("dataDidLoad")
