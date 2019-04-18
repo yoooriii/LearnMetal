@@ -25,3 +25,6 @@ https://www.shadertoy.com/view/lts3Df
 Cinder-Metal  obj-c
 https://github.com/wdlindmeier/Cinder-Metal
 https://libcinder.org/about
+---------------------
+examples
+http://metalkit.org/2016/05/10/using-metalkit-part-11.html
