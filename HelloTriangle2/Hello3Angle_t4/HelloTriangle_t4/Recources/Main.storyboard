@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="HelloTriangle_t4" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <mtkView contentMode="scaleToFill" colorPixelFormat="BGRA8Unorm" depthStencilPixelFormat="Invalid" translatesAutoresizingMaskIntoConstraints="NO" id="l5B-Yg-kyt">
+                                <rect key="frame" x="10" y="70" width="355" height="577"/>
+                                <gestureRecognizers/>
+                                <color key="clearColor" name="selectedControlColor" catalog="System" colorSpace="catalog"/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="J5L-yc-7Hb" appends="YES" id="QhF-OY-tU2"/>
+                                    <outletCollection property="gestureRecognizers" destination="h7a-Hn-ga4" appends="YES" id="G4R-05-ZyU"/>
+                                    <outletCollection property="gestureRecognizers" destination="Osy-m0-gba" appends="YES" id="9t5-jT-wHl"/>
+                                </connections>
+                            </mtkView>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="0.7082353468" blue="0.31714602019999999" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="l5B-Yg-kyt" secondAttribute="bottom" constant="20" id="Qdh-5o-lEx"/>
+                            <constraint firstItem="l5B-Yg-kyt" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="T9f-Qe-YqP"/>
+                            <constraint firstItem="l5B-Yg-kyt" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="50" id="UNh-MX-X8q"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="l5B-Yg-kyt" secondAttribute="trailing" constant="10" id="obo-mI-Mii"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                    <connections>
+                        <outlet property="mtkView" destination="l5B-Yg-kyt" id="g3x-xg-klv"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <panGestureRecognizer minimumNumberOfTouches="1" id="J5L-yc-7Hb">
+                    <connections>
+                        <action selector="panActRecognized:" destination="BYZ-38-t0r" id="vdj-FE-gbA"/>
+                    </connections>
+                </panGestureRecognizer>
+                <pinchGestureRecognizer id="h7a-Hn-ga4">
+                    <connections>
+                        <action selector="actionPinch:" destination="BYZ-38-t0r" id="o99-Ud-hQ8"/>
+                    </connections>
+                </pinchGestureRecognizer>
+                <tapGestureRecognizer numberOfTapsRequired="2" id="Osy-m0-gba">
+                    <connections>
+                        <action selector="resetPositionAction:" destination="BYZ-38-t0r" id="Xaa-Vl-gnc"/>
+                    </connections>
+                </tapGestureRecognizer>
+            </objects>
+            <point key="canvasLocation" x="136.80000000000001" y="111.99400299850076"/>
+        </scene>
+    </scenes>
+</document>
