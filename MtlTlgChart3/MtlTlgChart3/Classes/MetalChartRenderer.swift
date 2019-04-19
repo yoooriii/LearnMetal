@@ -150,7 +150,6 @@ class MetalChartRenderer: NSObject {
         if true {
             mtkView.isOpaque = false
             mtkView.clearColor = MTLClearColor.init(red: 0, green: 0, blue: 0, alpha: 0)
-//            mtkView.sampleCount = 4;
         }
 
         let defaultLibrary = device.makeDefaultLibrary()
@@ -162,22 +161,22 @@ class MetalChartRenderer: NSObject {
         pipelineStateDescriptor.vertexFunction = vertexFunction
         pipelineStateDescriptor.fragmentFunction = fragmentFunction
 
-        mtkView.sampleCount = 1 // default=1
+        mtkView.sampleCount = 4 // default=1
         mtkView.colorPixelFormat = .bgra8Unorm
         pipelineStateDescriptor.sampleCount = mtkView.sampleCount
         pipelineStateDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat
         pipelineStateDescriptor.depthAttachmentPixelFormat = mtkView.depthStencilPixelFormat
         pipelineStateDescriptor.stencilAttachmentPixelFormat = mtkView.depthStencilPixelFormat
 
-        if let renderAttachment = pipelineStateDescriptor.colorAttachments[0] {
-            renderAttachment.isBlendingEnabled = true
-            renderAttachment.alphaBlendOperation = .add
-            renderAttachment.rgbBlendOperation = .add
-            renderAttachment.sourceRGBBlendFactor = .sourceAlpha
-            renderAttachment.sourceAlphaBlendFactor = .sourceAlpha
-            renderAttachment.destinationRGBBlendFactor = .oneMinusSourceAlpha
-            renderAttachment.destinationAlphaBlendFactor = .oneMinusSourceAlpha
-        }
+//        if let renderAttachment = pipelineStateDescriptor.colorAttachments[0] {
+//            renderAttachment.isBlendingEnabled = true
+//            renderAttachment.alphaBlendOperation = .add
+//            renderAttachment.rgbBlendOperation = .add
+//            renderAttachment.sourceRGBBlendFactor = .sourceAlpha
+//            renderAttachment.sourceAlphaBlendFactor = .sourceAlpha
+//            renderAttachment.destinationRGBBlendFactor = .oneMinusSourceAlpha
+//            renderAttachment.destinationAlphaBlendFactor = .oneMinusSourceAlpha
+//        }
 
         do {
             pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
@@ -191,6 +190,19 @@ class MetalChartRenderer: NSObject {
         
         commandQueue = device.makeCommandQueue()
     }
+    
+    private var msaaTexture: MTLTexture?
+    
+    private func makeTexture(size:vector_int2) -> MTLTexture? {
+        let desc = MTLTextureDescriptor()
+        desc.textureType = MTLTextureType.type2DMultisample
+        desc.width = Int(size.x)
+        desc.height = Int(size.y)
+        desc.sampleCount = 4
+        desc.pixelFormat = .bgra8Unorm
+        
+        return device.makeTexture(descriptor: desc)
+    }
 }
 
 extension MetalChartRenderer: MTKViewDelegate {
@@ -200,6 +212,8 @@ extension MetalChartRenderer: MTKViewDelegate {
         //   values to our vertex shader when we draw
         screenSize.x = Int32(size.width)
         screenSize.y = Int32(size.height)
+        
+        msaaTexture = makeTexture(size: screenSize)
     }
     
     /// Called whenever the view needs to render a frame
@@ -215,7 +229,7 @@ extension MetalChartRenderer: MTKViewDelegate {
 //        }
 
         guard !planeRenderers.isEmpty else {
-            print("empty renders array")
+//            print("empty renders array")
             return
         }
 
@@ -225,13 +239,27 @@ extension MetalChartRenderer: MTKViewDelegate {
         }
         commandBuffer.label = "MyCommandBuffer"
         
-        guard let renderPassDescriptor = view.currentRenderPassDescriptor else {
-            print("cannot get currentRenderPassDescriptor")
+        guard let currentDrawable = view.currentDrawable else {
+            print("no currentDrawable")
             return
         }
 
-        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0.5, 0.5, 1.0)
+        // MSAA : set a texture to smooth lines (antialiasing)
+        let renderPassDescriptor = MTLRenderPassDescriptor()
+        renderPassDescriptor.colorAttachments[0].texture = msaaTexture
+        renderPassDescriptor.colorAttachments[0].resolveTexture = currentDrawable.texture
         renderPassDescriptor.colorAttachments[0].loadAction = .clear
+        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.1, green: 0.4, blue: 0.5, alpha: 0.0)
+        renderPassDescriptor.colorAttachments[0].storeAction = .multisampleResolve
+
+        
+//        guard let renderPassDescriptor = view.currentRenderPassDescriptor else {
+//            print("cannot get currentRenderPassDescriptor")
+//            return
+//        }
+
+//        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0.5, 0.5, 1.0)
+//        renderPassDescriptor.colorAttachments[0].loadAction = .clear
 //        renderPassDescriptor.colorAttachments[0].storeAction = .multisampleResolve
 
         guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) else {
@@ -240,7 +268,7 @@ extension MetalChartRenderer: MTKViewDelegate {
         }
         renderEncoder.label = "MyRenderEncoder"
 
-        //TODO: maybe use it
+        //TODO: maybe use the viewport
 //        let viewport = MTLViewport(originX: 0, originY: 0,
 //                                   width: Double(viewportSize.x), height: Double(viewportSize.y),
 //                                   znear: -1, zfar: 1)
@@ -276,11 +304,7 @@ extension MetalChartRenderer: MTKViewDelegate {
         }
         
         renderEncoder.endEncoding()
-        if let currentDrawable = view.currentDrawable {
-            commandBuffer.present(currentDrawable)
-        } else {
-            print("no currentDrawable")
-        }
+        commandBuffer.present(currentDrawable)
         commandBuffer.commit()
     }
 

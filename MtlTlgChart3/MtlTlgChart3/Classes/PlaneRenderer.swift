@@ -9,48 +9,36 @@
 import Foundation
 import MetalKit
 
-// : IMetalSurfaceRenderer
 class PlaneRenderer: NSObject {
     var alpha: CGFloat = 1.0
     private var vertexBuffer: MTLBuffer!
     private var indexBuffer: MTLBuffer!
-    
-    /////////////
-    let device: MTLDevice!
+    private let device: MTLDevice!
     // absolute coordinates in graph values
     var viewportSize = vector_int4(1)
     // view.drawableSize (no need to keep it here)
     var screenSize = vector_int2(1)
     
-    var pointsCount = 0
-    var vertexCount:Int { get { return pointsCount * 2 } }
-    var strokeColor:UIColor?
-    var lineWidth = Float(10)//Float(1.5)
+    var lineWidth = Float(1)
+    private var pointsCount = 0
+    private var vertexCount:Int { get { return pointsCount * 2 } }
+    private var strokeColor:UIColor?
+    private var plane:Plane? = nil
 
-    /// Initialize with the MetalKit view from which we'll obtain our Metal device
     init(device: MTLDevice!) {
         self.device = device
     }
     
-    private var plane:Plane? = nil
-    
     func setPlane(_ plane:Plane, iPlane:Int) {
         self.plane = plane
-
         if plane.vAmplitudes.count <= iPlane {
             print("wrong plane index \(iPlane)")
             return
         }
-
-        let count1 = plane.vTime.count
-        let countP = plane.vAmplitudes.count
-        let count2 = plane.vAmplitudes[iPlane].count
-        print("set new plane with \(countP) amplitudes and [\(count1):\(count2)] points")
         
-        pointsCount = min(count1, count2)
+        pointsCount = min(plane.vTime.count, plane.vAmplitudes[iPlane].count) // the 2 must be equal
         guard pointsCount > 1 else {
             print("too few points in graph (\(pointsCount))")
-            pointsCount = 0
             viewportSize = vector_int4(1)
             return
         }
@@ -59,7 +47,6 @@ class PlaneRenderer: NSObject {
         guard let device = self.device else {
             return
         }
-
 
         let vertexMemSize = MemoryLayout<ChartRenderVertex>.stride * pointsCount * 2
         let totalIndexCount = pointsCount * 6 // not exactly
@@ -111,14 +98,9 @@ class PlaneRenderer: NSObject {
         }
     }
 
-
-}
-
-extension PlaneRenderer {
-
+    // do the work
     func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView) {
-        let viewSize = view.drawableSize
-        let screenSize = vector_int2(Int32(viewSize.width), Int32(viewSize.height))
+        let screenSize = vector_int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
         let indexCount = (pointsCount - 1) * 6;
         let lineWidth = self.lineWidth * Float(view.contentScaleFactor)
         let colorVector = UIColor.vector(strokeColor)
