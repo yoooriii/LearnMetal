@@ -65,7 +65,7 @@ vertexShader(uint vertexID [[vertex_id]],
     //   the color value for each fragment in our fragment shader
     out.color = vertices[vertexID].color;
 //    out.color = float4(1.0); //vertices[vertexID].color;
-//    out.color = float4(renderContext->strokeColor);
+    out.color = float4(renderContext->strokeColor);
 
     return out;
 }
@@ -74,4 +74,25 @@ vertexShader(uint vertexID [[vertex_id]],
 fragment float4 fragmentShader(RasterizerData in [[stage_in]]) {
     // We return the color we just set which will be written to our color attachment.
     return in.color;
+}
+
+// Another Fragment function: Alpha blend (smooth)?? no idea how it works
+fragment half4 fragment_Points(RasterizerData fragData [[stage_in]],
+                               float2 pointCoord [[point_coord]])
+{
+//    if (length(pointCoord - float2(0.5)) > 0.3) {
+//        discard_fragment();
+//    }
+//    return half4(fragData.color);
+
+    float dist = length(pointCoord - float2(0.5));
+    if (dist < 0.70) {
+        discard_fragment();
+    }
+    return half4(fragData.color);
+
+
+//    float4 out_color = fragData.color;
+//    out_color.a = 1.0 - smoothstep(0.4, 0.5, dist);
+//    return half4(out_color);
 }
