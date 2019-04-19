@@ -183,7 +183,7 @@ extension AAPLRenderer: MTKViewDelegate {
         if true {
             let depthStencilDesc = MTLDepthStencilDescriptor()
             depthStencilDesc.depthCompareFunction = .always
-            depthStencilDesc.isDepthWriteEnabled = true
+            depthStencilDesc.isDepthWriteEnabled = false
             let depthTest = device.makeDepthStencilState(descriptor: depthStencilDesc)
             renderEncoder.setDepthStencilState(depthTest!)
         }
