@@ -52,15 +52,16 @@ vertexShader(uint vertexID [[ vertex_id ]],
     
     // In order to convert from positions in pixel space to positions in clip space we divide the
     //   pixel coordinates by half the size of the viewport.
-    out.clipSpacePosition.xy = pixelSpacePosition / (viewportSize / 2.0);
-    
-    // Set the z component of our clip space position 0 (since we're only rendering in
-    //   2-Dimensions for this sample)
-    out.clipSpacePosition.z = 0.0;
-    
-    // Set the w component to 1.0 since we don't need a perspective divide, which is also not
-    //   necessary when rendering in 2-Dimensions
-    out.clipSpacePosition.w = 1.0;
+    float2 position = pixelSpacePosition / (viewportSize / 2.0);
+    float3 pos3d = float3(position.x, position.y, 0);
+    float angle = renderContext->rotation;
+    //TODO: find a better matrix api or make a matrix in swift
+    float3 m0 = float3( cos(angle), sin(angle), 0);
+    float3 m1 = float3(-sin(angle), cos(angle), 0);
+    float3 m2 = float3( 0,          0,          1);
+    float3x3 matrix = float3x3(m0, m1, m2);
+    float3 rotatedPt = pos3d * matrix;
+    out.clipSpacePosition = float4(rotatedPt, 1.0); // (x,y,0,1)
     
     // Pass our input textureCoordinate straight to our output RasterizerData. This value will be
     //   interpolated with the other textureCoordinate values in the vertices that make up the

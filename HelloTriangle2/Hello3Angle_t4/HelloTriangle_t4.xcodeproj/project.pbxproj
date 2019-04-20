@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		B3E41E06226A3B7300990AA0 /* AAPLShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = B3DA5A3D2264C3640027F9C0 /* AAPLShaders.metal */; };
-		B3E41E07226A3B7300990AA0 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DA5A362264BD9E0027F9C0 /* ViewController.swift */; };
+		B3E41E07226A3B7300990AA0 /* TextureViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DA5A362264BD9E0027F9C0 /* TextureViewController.swift */; };
 		B3E41E08226A3B7300990AA0 /* AAPLRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DA5A422264C3D40027F9C0 /* AAPLRenderer.swift */; };
 		B3E41E09226A3B7300990AA0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DA5A352264BD9E0027F9C0 /* AppDelegate.swift */; };
 		B3E41E0B226A3B7300990AA0 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3DA5A402264C38A0027F9C0 /* MetalKit.framework */; };
@@ -23,7 +23,7 @@
 		B3DA5A322264BD9E0027F9C0 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		B3DA5A332264BD9E0027F9C0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B3DA5A352264BD9E0027F9C0 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		B3DA5A362264BD9E0027F9C0 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		B3DA5A362264BD9E0027F9C0 /* TextureViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextureViewController.swift; sourceTree = "<group>"; };
 		B3DA5A3C2264C3640027F9C0 /* AAPLShaderTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLShaderTypes.h; sourceTree = "<group>"; };
 		B3DA5A3D2264C3640027F9C0 /* AAPLShaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = AAPLShaders.metal; sourceTree = "<group>"; };
 		B3DA5A402264C38A0027F9C0 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
@@ -76,8 +76,8 @@
 		B3DA5A302264BD9E0027F9C0 /* Recources */ = {
 			isa = PBXGroup;
 			children = (
-				B3DA5A312264BD9E0027F9C0 /* LaunchScreen.storyboard */,
 				B3DA5A322264BD9E0027F9C0 /* Main.storyboard */,
+				B3DA5A312264BD9E0027F9C0 /* LaunchScreen.storyboard */,
 				B3DA5A332264BD9E0027F9C0 /* Assets.xcassets */,
 			);
 			path = Recources;
@@ -90,7 +90,7 @@
 				B3DA5A422264C3D40027F9C0 /* AAPLRenderer.swift */,
 				B3DA5A3C2264C3640027F9C0 /* AAPLShaderTypes.h */,
 				B3DA5A352264BD9E0027F9C0 /* AppDelegate.swift */,
-				B3DA5A362264BD9E0027F9C0 /* ViewController.swift */,
+				B3DA5A362264BD9E0027F9C0 /* TextureViewController.swift */,
 				B3DA5A442264CD740027F9C0 /* Bridging-Header.h */,
 			);
 			path = Classes;
@@ -171,7 +171,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B3E41E06226A3B7300990AA0 /* AAPLShaders.metal in Sources */,
-				B3E41E07226A3B7300990AA0 /* ViewController.swift in Sources */,
+				B3E41E07226A3B7300990AA0 /* TextureViewController.swift in Sources */,
 				B3E41E08226A3B7300990AA0 /* AAPLRenderer.swift in Sources */,
 				B3E41E09226A3B7300990AA0 /* AppDelegate.swift in Sources */,
 			);

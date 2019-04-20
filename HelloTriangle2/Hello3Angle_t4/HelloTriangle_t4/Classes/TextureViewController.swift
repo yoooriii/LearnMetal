@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  TextureViewController.swift
 //  HelloTriangle2(sw)
 //
 //  Created by Leonid Lokhmatov on 4/15/19.
@@ -9,8 +9,21 @@
 import UIKit
 import MetalKit
 
-class ViewController: UIViewController {
+protocol InfoDelegate {
+    func setInfo(text:String)
+}
+
+extension TextureViewController: InfoDelegate {
+    func setInfo(text:String) {
+        infoLabel.text = text
+    }
+}
+
+class TextureViewController: UIViewController {
     @IBOutlet weak var mtkView:MTKView!
+    @IBOutlet weak var infoLabel:UILabel!
+    @IBOutlet weak var pinchRecognizer:UIPinchGestureRecognizer!
+    @IBOutlet weak var rotationRecognizer:UIRotationGestureRecognizer!
     private var renderer:AAPLRenderer?
     private var offsetX = Double(0)
     private var offsetY = Double(0)
@@ -28,10 +41,13 @@ class ViewController: UIViewController {
             // Initialize our renderer with the view size
             self.renderer = renderer
             mtkView.delegate = renderer
+            renderer.infoDelegate = self
 //            renderer.mtkView(mtkView, drawableSizeWillChange:mtkView.drawableSize)
         } else {
             print("Renderer failed initialization")
         }
+        
+        rotationRecognizer.shouldRequireFailure(of: pinchRecognizer)
     }
     
     override func viewDidLayoutSubviews() {
@@ -92,6 +108,23 @@ class ViewController: UIViewController {
             renderer.setOffset(x:offsetX, y:offsetY)
             break
             
+        default:
+            break
+        }
+    }
+    
+    @IBAction func testSliderValueAction(_ slider: UISlider) {
+        let rotation = denormalize(slider.value, min: 0, max: .pi * 2.0)
+        renderer?.setRotation(Float(rotation))
+    }
+    
+    @IBAction func actionRotate(_ recognizer: UIRotationGestureRecognizer) {
+        renderer?.setRotation(Float(recognizer.rotation))
+        
+        switch recognizer.state {
+        case .possible:
+            recognizer.require(toFail: pinchRecognizer)
+            break
         default:
             break
         }

@@ -39,6 +39,8 @@ class AAPLRenderer: NSObject {
     private var textureLoader:MTKTextureLoader?
     private var imageTexture:MTLTexture?
     
+    public var infoDelegate:InfoDelegate?
+    
     private var vertSteps:Int = 5
     func setVertSteps(steps:Int) {
         if vertSteps != steps {
@@ -47,6 +49,13 @@ class AAPLRenderer: NSObject {
         }
     }
     
+    private var rotation = Float(0)
+    func setRotation(_ r: Float) {
+        if (abs(rotation - r) > 0.05) {
+            rotation = r
+            updateSize(mtkView.drawableSize)
+        }
+    }
     
     /// Initialize with the MetalKit view from which we'll obtain our Metal device
     init?(metalKitView mtkView: MTKView!) {
@@ -161,63 +170,35 @@ extension AAPLRenderer: MTKViewDelegate {
         renderEncoder.setViewport(viewport)
         renderEncoder.setRenderPipelineState(pipelineState)
         
-        
-        // We call -[MTLRenderCommandEncoder setVertexBytes:length:atIndex:] to send data from our
-        //   Application ObjC code here to our Metal 'vertexShader' function
-        // This call has 3 arguments
-        //   1) A pointer to the memory we want to pass to our shader
-        //   2) The memory size of the data we want passed down
-        //   3) An integer index which corresponds to the index of the buffer attribute qualifier
-        //      of the argument in our 'vertexShader' function
-        
-        // You send a pointer to the `triangleVertices` array also and indicate its size
-        // The `AAPLVertexInputIndexVertices` enum value corresponds to the `vertexArray`
-        // argument in the `vertexShader` function because its buffer attribute also uses
-        // the `AAPLVertexInputIndexVertices` enum value for its index
-        renderEncoder.setVertexBytes(triangleVertices,
-                                     length: MemoryLayout<AAPLVertex>.stride * triangleVertices.count,
-                                     index: Int(AAPLVertexInputIndexVertices.rawValue))
-        
-        // You send a pointer to `_viewportSize` and also indicate its size
-        // The `AAPLVertexInputIndexViewportSize` enum value corresponds to the
-        // `viewportSizePointer` argument in the `vertexShader` function because its
-        //  buffer attribute also uses the `AAPLVertexInputIndexViewportSize` enum value
-        //  for its index
-//        renderEncoder.setVertexBytes(&viewportSize,
-//                                     length: MemoryLayout<simd_uint2>.stride,
-//                                     index: Int(AAPLVertexInputIndexViewportSize.rawValue))
-
-        // set context: colors & viewport size
         let strokeColor = vector_float4(1.0, 0.2, 0.2, 1.0)
         let fillColor = vector_float4(0.0, 1.0, 0.0, 1.0)
         let additionalColors = (vector_float4(0.0), vector_float4(0.0), vector_float4(0.0), vector_float4(0.0))
-        var renderCx = AAPLRenderContext(strokeColor:strokeColor, fillColor:fillColor, viewportSize:viewportSize, additionalColors:additionalColors)
-        renderEncoder.setVertexBytes(&renderCx,
-                                     length: MemoryLayout<AAPLRenderContext>.stride,
-                                     index: Int(AAPLVertexInputIndexRenderContext.rawValue))
-        
-        if let texture = imageTexture {
-            renderEncoder.setFragmentTexture(texture, index: Int(AAPLTextureIndexBaseColor.rawValue))
-        }
-
-        
-        // Draw the 3 vertices of our triangle
-        renderEncoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: triangleVertices.count)
-        
-        /////////// 2nd set
+        var renderCx = AAPLRenderContext(strokeColor:strokeColor, fillColor:fillColor, viewportSize:viewportSize, additionalColors:additionalColors, rotation:rotation)
         
         if triangleVertices.count > 0 {
+
+            if let texture = imageTexture {
+                renderEncoder.setVertexBytes(triangleVertices,
+                                             length: MemoryLayout<AAPLVertex>.stride * triangleVertices.count,
+                                             index: Int(AAPLVertexInputIndexVertices.rawValue))
+                renderEncoder.setFragmentTexture(texture, index: Int(AAPLTextureIndexBaseColor.rawValue))
+                renderEncoder.setVertexBytes(&renderCx,
+                                             length: MemoryLayout<AAPLRenderContext>.stride,
+                                             index: Int(AAPLVertexInputIndexRenderContext.rawValue))
+                renderEncoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: triangleVertices.count)
+            }
+
+            /////////// 2nd draw
+            renderCx.strokeColor = vector_float4(0.0, 0.0, 0.0, 1.0)
+
             renderEncoder.setVertexBytes(triangleVertices,
                                          length: MemoryLayout<AAPLVertex>.stride * triangleVertices.count,
                                          index: Int(AAPLVertexInputIndexVertices.rawValue))
-            let strokeColor = vector_float4(0.0, 0.0, 0.0, 1.0)
-            var renderCx = AAPLRenderContext(strokeColor:strokeColor, fillColor:fillColor, viewportSize:viewportSize, additionalColors:additionalColors)
             renderEncoder.setVertexBytes(&renderCx,
                                          length: MemoryLayout<AAPLRenderContext>.stride,
                                          index: Int(AAPLVertexInputIndexRenderContext.rawValue))
             renderEncoder.drawPrimitives(type: .lineStrip, vertexStart: 0, vertexCount: triangleVertices.count)
         }
-        
         
         renderEncoder.endEncoding()
         
@@ -256,7 +237,12 @@ extension AAPLRenderer: MTKViewDelegate {
 
         let rect = CGRect(origin:CGPoint.zero, size:size)
         triangleVertices = makeTestCircularVertices(rect:rect, steps: vertSteps)
-        print("vertSteps : triangleVertices =  [\(vertSteps):\(triangleVertices.count)]")
+        
+        let info = "vertices:triangles = [\(vertSteps):\(triangleVertices.count)]"
+        print(info)
+        if let infoDlg = infoDelegate {
+            infoDlg.setInfo(text: info)
+        }
     }
 
     func makeTestCircularVertices(rect: CGRect, steps:Int) -> [AAPLVertex] {
