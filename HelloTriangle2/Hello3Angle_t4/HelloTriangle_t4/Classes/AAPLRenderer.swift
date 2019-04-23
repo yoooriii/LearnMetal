@@ -57,6 +57,14 @@ class AAPLRenderer: NSObject {
         }
     }
     
+    private var animeValue = Float(0)
+    func setAnimeValue(_ v: Float) {
+        if (abs(animeValue - v) > 0.05) {
+            animeValue = v
+            updateSize(mtkView.drawableSize)
+        }
+    }
+    
     /// Initialize with the MetalKit view from which we'll obtain our Metal device
     init?(metalKitView mtkView: MTKView!) {
         self.mtkView = mtkView
@@ -172,8 +180,7 @@ extension AAPLRenderer: MTKViewDelegate {
         
         let strokeColor = vector_float4(1.0, 0.2, 0.2, 1.0)
         let fillColor = vector_float4(0.0, 1.0, 0.0, 1.0)
-        let additionalColors = (vector_float4(0.0), vector_float4(0.0), vector_float4(0.0), vector_float4(0.0))
-        var renderCx = AAPLRenderContext(strokeColor:strokeColor, fillColor:fillColor, viewportSize:viewportSize, additionalColors:additionalColors, rotation:rotation)
+        var renderCx = AAPLRenderContext(strokeColor:strokeColor, fillColor:fillColor, viewportSize:viewportSize, rotation:rotation, animeValue:animeValue)
         
         if triangleVertices.count > 0 {
 
@@ -189,7 +196,7 @@ extension AAPLRenderer: MTKViewDelegate {
             }
 
             /////////// 2nd draw
-            renderCx.strokeColor = vector_float4(0.0, 0.0, 0.0, 1.0)
+            renderCx.strokeColor = vector_float4(1.0, 1.0, 1.0, 1.0)
 
             renderEncoder.setVertexBytes(triangleVertices,
                                          length: MemoryLayout<AAPLVertex>.stride * triangleVertices.count,

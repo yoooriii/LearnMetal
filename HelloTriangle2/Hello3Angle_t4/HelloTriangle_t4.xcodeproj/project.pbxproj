@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B3DDF2EB226C5F0E00B9CF7D /* MorphViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DDF2EA226C5F0E00B9CF7D /* MorphViewController.swift */; };
 		B3E41E06226A3B7300990AA0 /* AAPLShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = B3DA5A3D2264C3640027F9C0 /* AAPLShaders.metal */; };
 		B3E41E07226A3B7300990AA0 /* TextureViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DA5A362264BD9E0027F9C0 /* TextureViewController.swift */; };
 		B3E41E08226A3B7300990AA0 /* AAPLRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DA5A422264C3D40027F9C0 /* AAPLRenderer.swift */; };
@@ -29,6 +30,7 @@
 		B3DA5A402264C38A0027F9C0 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		B3DA5A422264C3D40027F9C0 /* AAPLRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AAPLRenderer.swift; sourceTree = "<group>"; };
 		B3DA5A442264CD740027F9C0 /* Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
+		B3DDF2EA226C5F0E00B9CF7D /* MorphViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MorphViewController.swift; sourceTree = "<group>"; };
 		B3E41E13226A3B7300990AA0 /* HelloTriangle_t4.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HelloTriangle_t4.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3E41E14226A3B7300990AA0 /* HelloTriangle_t4_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = HelloTriangle_t4_Info.plist; path = /Users/leonid/ZProjects/LearnMetal/HelloTriangle2/Hello3Angle_t4/HelloTriangle_t4_Info.plist; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
@@ -86,11 +88,12 @@
 		B3DA5A342264BD9E0027F9C0 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				B3DA5A362264BD9E0027F9C0 /* TextureViewController.swift */,
+				B3DDF2EA226C5F0E00B9CF7D /* MorphViewController.swift */,
 				B3DA5A3D2264C3640027F9C0 /* AAPLShaders.metal */,
 				B3DA5A422264C3D40027F9C0 /* AAPLRenderer.swift */,
 				B3DA5A3C2264C3640027F9C0 /* AAPLShaderTypes.h */,
 				B3DA5A352264BD9E0027F9C0 /* AppDelegate.swift */,
-				B3DA5A362264BD9E0027F9C0 /* TextureViewController.swift */,
 				B3DA5A442264CD740027F9C0 /* Bridging-Header.h */,
 			);
 			path = Classes;
@@ -172,6 +175,7 @@
 			files = (
 				B3E41E06226A3B7300990AA0 /* AAPLShaders.metal in Sources */,
 				B3E41E07226A3B7300990AA0 /* TextureViewController.swift in Sources */,
+				B3DDF2EB226C5F0E00B9CF7D /* MorphViewController.swift in Sources */,
 				B3E41E08226A3B7300990AA0 /* AAPLRenderer.swift in Sources */,
 				B3E41E09226A3B7300990AA0 /* AppDelegate.swift in Sources */,
 			);

@@ -41,8 +41,8 @@ typedef struct {
     vector_float4 strokeColor;
     vector_float4 fillColor;
     vector_uint2 viewportSize;
-    vector_float4 additionalColors[4]; // optional?
     float rotation;
+    float animeValue;
 } AAPLRenderContext;
 
 #endif /* AAPLShaderTypes_h */

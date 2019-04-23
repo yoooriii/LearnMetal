@@ -26,10 +26,10 @@
             </objects>
             <point key="canvasLocation" x="-1565" y="142"/>
         </scene>
-        <!--Texture-->
+        <!--Original image-->
         <scene sceneID="s03-qi-pjY">
             <objects>
-                <viewController id="Lfw-4u-esb" sceneMemberID="viewController">
+                <viewController title="Original image" id="Lfw-4u-esb" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="sKV-YJ-gCA">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -49,11 +49,24 @@
                                     <segue destination="BYZ-38-t0r" kind="show" id="jsH-hG-7N0"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rOo-ia-oTM">
+                                <rect key="frame" x="275" y="148" width="80" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="80" id="2OJ-aE-MBv"/>
+                                    <constraint firstAttribute="height" constant="44" id="8Hx-6d-y2L"/>
+                                </constraints>
+                                <state key="normal" title="Morph"/>
+                                <connections>
+                                    <segue destination="NpE-5w-Cnl" kind="show" id="FFI-w9-2LU"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="T1W-MM-8pA" firstAttribute="top" secondItem="Qwd-6N-yb8" secondAttribute="top" constant="20" id="7W7-KZ-CA6"/>
+                            <constraint firstItem="rOo-ia-oTM" firstAttribute="top" secondItem="T1W-MM-8pA" secondAttribute="bottom" constant="20" id="92h-PH-AbG"/>
                             <constraint firstItem="Qwd-6N-yb8" firstAttribute="trailing" secondItem="GBY-UI-ZIF" secondAttribute="trailing" constant="10" id="9dP-SX-ZPc"/>
+                            <constraint firstItem="Qwd-6N-yb8" firstAttribute="trailing" secondItem="rOo-ia-oTM" secondAttribute="trailing" constant="20" id="IJE-Ky-6T5"/>
                             <constraint firstItem="Qwd-6N-yb8" firstAttribute="bottom" secondItem="GBY-UI-ZIF" secondAttribute="bottom" constant="10" id="Q0c-ii-Lkf"/>
                             <constraint firstItem="Qwd-6N-yb8" firstAttribute="trailing" secondItem="T1W-MM-8pA" secondAttribute="trailing" constant="20" id="duw-zQ-Kb6"/>
                             <constraint firstItem="GBY-UI-ZIF" firstAttribute="top" secondItem="Qwd-6N-yb8" secondAttribute="top" constant="10" id="j5i-wK-mg1"/>
@@ -61,7 +74,7 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="Qwd-6N-yb8"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Texture" id="DAf-O5-rBc" userLabel="Nav bar"/>
+                    <navigationItem key="navigationItem" id="DAf-O5-rBc" userLabel="Nav bar"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="9MT-Um-rjN" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -147,6 +160,87 @@
                 </rotationGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="36" y="-382"/>
+        </scene>
+        <!--Metal Morph View-->
+        <scene sceneID="fIF-na-KNi">
+            <objects>
+                <viewController title="Metal Morph View" id="NpE-5w-Cnl" customClass="MorphViewController" customModule="HelloTriangle_t4" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="YgH-64-cjW">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <mtkView contentMode="scaleToFill" colorPixelFormat="BGRA8Unorm" depthStencilPixelFormat="Invalid" translatesAutoresizingMaskIntoConstraints="NO" id="Men-IZ-4k5">
+                                <rect key="frame" x="10" y="114" width="355" height="453"/>
+                                <gestureRecognizers/>
+                                <color key="clearColor" name="selectedControlColor" catalog="System" colorSpace="catalog"/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="lYP-Qv-YmH" appends="YES" id="kSo-WI-YOB"/>
+                                    <outletCollection property="gestureRecognizers" destination="5PH-qf-ZDF" appends="YES" id="wWg-zc-go1"/>
+                                    <outletCollection property="gestureRecognizers" destination="cx6-zN-e4e" appends="YES" id="eeI-vL-iRv"/>
+                                    <outletCollection property="gestureRecognizers" destination="O9p-vI-TIT" appends="YES" id="398-7t-Bhr"/>
+                                </connections>
+                            </mtkView>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="jCH-Z8-jnX">
+                                <rect key="frame" x="8" y="617" width="359" height="31"/>
+                                <connections>
+                                    <action selector="testSliderValueAction:" destination="NpE-5w-Cnl" eventType="valueChanged" id="FAH-hK-B4b"/>
+                                </connections>
+                            </slider>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="info" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ayj-dY-exM">
+                                <rect key="frame" x="20" y="84" width="335" height="25"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="25" id="kUe-Yn-ROc"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="0.7082353468" blue="0.31714602019999999" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="Men-IZ-4k5" firstAttribute="top" secondItem="30d-MG-DNo" secondAttribute="top" constant="50" id="2nh-Qo-lPn"/>
+                            <constraint firstItem="30d-MG-DNo" firstAttribute="bottom" secondItem="jCH-Z8-jnX" secondAttribute="bottom" constant="20" id="7tZ-cE-O3T"/>
+                            <constraint firstItem="Men-IZ-4k5" firstAttribute="leading" secondItem="30d-MG-DNo" secondAttribute="leading" constant="10" id="By9-E7-OEB"/>
+                            <constraint firstItem="jCH-Z8-jnX" firstAttribute="leading" secondItem="30d-MG-DNo" secondAttribute="leading" constant="10" id="Hmw-Pz-hC3"/>
+                            <constraint firstItem="30d-MG-DNo" firstAttribute="trailing" secondItem="jCH-Z8-jnX" secondAttribute="trailing" constant="10" id="Is3-WX-vO8"/>
+                            <constraint firstItem="30d-MG-DNo" firstAttribute="trailing" secondItem="Men-IZ-4k5" secondAttribute="trailing" constant="10" id="SmO-3b-y32"/>
+                            <constraint firstItem="Ayj-dY-exM" firstAttribute="leading" secondItem="30d-MG-DNo" secondAttribute="leading" constant="20" id="WNU-22-7dl"/>
+                            <constraint firstItem="30d-MG-DNo" firstAttribute="bottom" secondItem="Men-IZ-4k5" secondAttribute="bottom" constant="100" id="dcx-mK-gwK"/>
+                            <constraint firstItem="Ayj-dY-exM" firstAttribute="top" secondItem="30d-MG-DNo" secondAttribute="top" constant="20" id="ee1-gj-kiY"/>
+                            <constraint firstItem="30d-MG-DNo" firstAttribute="trailing" secondItem="Ayj-dY-exM" secondAttribute="trailing" constant="20" id="zaC-1t-DWN"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="30d-MG-DNo"/>
+                    </view>
+                    <connections>
+                        <outlet property="infoLabel" destination="Ayj-dY-exM" id="h9w-wx-e6F"/>
+                        <outlet property="mtkView" destination="Men-IZ-4k5" id="8wS-0g-7Ag"/>
+                        <outlet property="pinchRecognizer" destination="5PH-qf-ZDF" id="zMO-uy-9Qk"/>
+                        <outlet property="rotationRecognizer" destination="O9p-vI-TIT" id="u0X-uN-naX"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Y7E-U1-NdT" sceneMemberID="firstResponder"/>
+                <panGestureRecognizer minimumNumberOfTouches="1" id="lYP-Qv-YmH">
+                    <connections>
+                        <action selector="panActRecognized:" destination="NpE-5w-Cnl" id="yjV-us-gnn"/>
+                    </connections>
+                </panGestureRecognizer>
+                <pinchGestureRecognizer id="5PH-qf-ZDF">
+                    <connections>
+                        <action selector="actionPinch:" destination="NpE-5w-Cnl" id="bkO-5e-4bv"/>
+                    </connections>
+                </pinchGestureRecognizer>
+                <tapGestureRecognizer numberOfTapsRequired="2" id="cx6-zN-e4e">
+                    <connections>
+                        <action selector="resetPositionAction:" destination="NpE-5w-Cnl" id="9Gi-MH-4kS"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <rotationGestureRecognizer id="O9p-vI-TIT">
+                    <connections>
+                        <action selector="actionRotate:" destination="NpE-5w-Cnl" id="X46-bL-QWW"/>
+                    </connections>
+                </rotationGestureRecognizer>
+            </objects>
+            <point key="canvasLocation" x="36" y="328"/>
         </scene>
     </scenes>
     <resources>

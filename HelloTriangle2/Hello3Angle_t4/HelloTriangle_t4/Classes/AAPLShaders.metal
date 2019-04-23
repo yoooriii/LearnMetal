@@ -10,6 +10,26 @@ Metal shaders used for this sample
 
 using namespace metal;
 
+// convenience matrix create functions
+float3x3 mx_translate(float tx, float ty) {
+    return float3x3(float3(1, 0, 0),
+                    float3(0, 1, 0),
+                    float3(tx, ty, 1));
+}
+
+float3x3 mx_rotate(float angle) {
+    float3 m0 = float3( cos(angle), sin(angle), 0);
+    float3 m1 = float3(-sin(angle), cos(angle), 0);
+    float3 m2 = float3( 0,          0,          1);
+    return float3x3(m0, m1, m2);
+}
+
+float3x3 mx_scale(float sx, float sy) {
+    return float3x3(float3(sx, 0, 0),
+                    float3(0, sy, 0),
+                    float3(0, 0, 1));
+}
+
 // Include header shared between this Metal shader code and C code executing Metal API commands
 #import "AAPLShaderTypes.h"
 
@@ -53,14 +73,9 @@ vertexShader(uint vertexID [[ vertex_id ]],
     // In order to convert from positions in pixel space to positions in clip space we divide the
     //   pixel coordinates by half the size of the viewport.
     float2 position = pixelSpacePosition / (viewportSize / 2.0);
-    float3 pos3d = float3(position.x, position.y, 0);
-    float angle = renderContext->rotation;
-    //TODO: find a better matrix api or make a matrix in swift
-    float3 m0 = float3( cos(angle), sin(angle), 0);
-    float3 m1 = float3(-sin(angle), cos(angle), 0);
-    float3 m2 = float3( 0,          0,          1);
-    float3x3 matrix = float3x3(m0, m1, m2);
-    float3 rotatedPt = pos3d * matrix;
+    float3 pos3d = float3(position, 0);
+    float3x3 rotateMx = mx_rotate(renderContext->rotation);
+    float3 rotatedPt = pos3d * rotateMx;
     out.clipSpacePosition = float4(rotatedPt, 1.0); // (x,y,0,1)
     
     // Pass our input textureCoordinate straight to our output RasterizerData. This value will be
