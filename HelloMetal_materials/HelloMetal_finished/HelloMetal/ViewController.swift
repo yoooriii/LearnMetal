@@ -100,7 +100,7 @@ class ViewController: UIViewController {
   }
   
   func render() {
-    if true {
+    if 1 == 0 {
       vertexData.append(vertexData[0])
       vertexData.append(vertexData[1])
       vertexData.append(vertexData[2])
@@ -122,7 +122,7 @@ class ViewController: UIViewController {
     let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
     renderEncoder.setRenderPipelineState(pipelineState)
     renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
-    renderEncoder.drawPrimitives(type: .lineStrip, vertexStart: 0, vertexCount: vertexData.count/3, instanceCount: 1)
+    renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertexData.count/3, instanceCount: 1)
     renderEncoder.endEncoding()
     
     commandBuffer.present(drawable)
