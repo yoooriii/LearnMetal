@@ -1,0 +1,492 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B30256B8226A1742008CEE3E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B30256B1226A1742008CEE3E /* LaunchScreen.storyboard */; };
+		B30256B9226A1742008CEE3E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B30256B2226A1742008CEE3E /* Main.storyboard */; };
+		B30256BA226A1742008CEE3E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B30256B3226A1742008CEE3E /* Assets.xcassets */; };
+		B30256BB226A1742008CEE3E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30256B5226A1742008CEE3E /* AppDelegate.swift */; };
+		B30256BC226A1742008CEE3E /* BasicMetalRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30256B6226A1742008CEE3E /* BasicMetalRenderer.swift */; };
+		B30256BD226A1742008CEE3E /* CGPathViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30256B7226A1742008CEE3E /* CGPathViewController.swift */; };
+		B30256C0226A1772008CEE3E /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B30256BF226A1772008CEE3E /* MetalKit.framework */; };
+		B3C97CD5226E093900B54B6E /* ContourHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B3C97CD0226E093900B54B6E /* ContourHandler.m */; };
+		B3C97CD6226E093900B54B6E /* TestDefinitions.m in Sources */ = {isa = PBXBuildFile; fileRef = B3C97CD1226E093900B54B6E /* TestDefinitions.m */; };
+		B3C97CD7226E093900B54B6E /* TestPathMath.m in Sources */ = {isa = PBXBuildFile; fileRef = B3C97CD2226E093900B54B6E /* TestPathMath.m */; };
+		B3C97CD9226E1A2C00B54B6E /* PathMetalRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C97CD8226E1A2C00B54B6E /* PathMetalRenderer.swift */; };
+		B3DA727B226CA3F1003585AF /* dict.c in Sources */ = {isa = PBXBuildFile; fileRef = B3DA726B226CA3F1003585AF /* dict.c */; };
+		B3DA727C226CA3F1003585AF /* priorityq.c in Sources */ = {isa = PBXBuildFile; fileRef = B3DA726D226CA3F1003585AF /* priorityq.c */; };
+		B3DA727D226CA3F1003585AF /* sweep.c in Sources */ = {isa = PBXBuildFile; fileRef = B3DA726F226CA3F1003585AF /* sweep.c */; };
+		B3DA727E226CA3F1003585AF /* geom.c in Sources */ = {isa = PBXBuildFile; fileRef = B3DA7270226CA3F1003585AF /* geom.c */; };
+		B3DA727F226CA3F1003585AF /* tess.c in Sources */ = {isa = PBXBuildFile; fileRef = B3DA7272226CA3F1003585AF /* tess.c */; };
+		B3DA7280226CA3F1003585AF /* bucketalloc.c in Sources */ = {isa = PBXBuildFile; fileRef = B3DA7276226CA3F1003585AF /* bucketalloc.c */; };
+		B3DA7281226CA3F1003585AF /* mesh.c in Sources */ = {isa = PBXBuildFile; fileRef = B3DA7277226CA3F1003585AF /* mesh.c */; };
+		B3DA7286226CA536003585AF /* AAPLShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = B3DA7283226CA536003585AF /* AAPLShaders.metal */; };
+		B3DA7288226CA6A5003585AF /* PathView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DA7287226CA6A5003585AF /* PathView.swift */; };
+		B3DA728B226CA9A1003585AF /* TestShapeTesselate.m in Sources */ = {isa = PBXBuildFile; fileRef = B3DA728A226CA9A1003585AF /* TestShapeTesselate.m */; };
+		B3F7C13C226F16DE00DB74F7 /* PathLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F7C13B226F16DE00DB74F7 /* PathLogic.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B3025699226A154C008CEE3E /* PathTesselate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PathTesselate.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B30256A8226A154D008CEE3E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B30256B1226A1742008CEE3E /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		B30256B2226A1742008CEE3E /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		B30256B3226A1742008CEE3E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B30256B5226A1742008CEE3E /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		B30256B6226A1742008CEE3E /* BasicMetalRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicMetalRenderer.swift; sourceTree = "<group>"; };
+		B30256B7226A1742008CEE3E /* CGPathViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGPathViewController.swift; sourceTree = "<group>"; };
+		B30256BF226A1772008CEE3E /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		B3C97CCF226E093900B54B6E /* TestPathMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestPathMath.h; sourceTree = "<group>"; };
+		B3C97CD0226E093900B54B6E /* ContourHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContourHandler.m; sourceTree = "<group>"; };
+		B3C97CD1226E093900B54B6E /* TestDefinitions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDefinitions.m; sourceTree = "<group>"; };
+		B3C97CD2226E093900B54B6E /* TestPathMath.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestPathMath.m; sourceTree = "<group>"; };
+		B3C97CD3226E093900B54B6E /* ContourHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContourHandler.h; sourceTree = "<group>"; };
+		B3C97CD4226E093900B54B6E /* TestDefinitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestDefinitions.h; sourceTree = "<group>"; };
+		B3C97CD8226E1A2C00B54B6E /* PathMetalRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathMetalRenderer.swift; sourceTree = "<group>"; };
+		B3D1768B226E3A710073ACD6 /* tesseiator_types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = tesseiator_types.h; sourceTree = "<group>"; };
+		B3DA726B226CA3F1003585AF /* dict.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dict.c; sourceTree = "<group>"; };
+		B3DA726C226CA3F1003585AF /* tess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tess.h; sourceTree = "<group>"; };
+		B3DA726D226CA3F1003585AF /* priorityq.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = priorityq.c; sourceTree = "<group>"; };
+		B3DA726E226CA3F1003585AF /* bucketalloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bucketalloc.h; sourceTree = "<group>"; };
+		B3DA726F226CA3F1003585AF /* sweep.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sweep.c; sourceTree = "<group>"; };
+		B3DA7270226CA3F1003585AF /* geom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geom.c; sourceTree = "<group>"; };
+		B3DA7271226CA3F1003585AF /* mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mesh.h; sourceTree = "<group>"; };
+		B3DA7272226CA3F1003585AF /* tess.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tess.c; sourceTree = "<group>"; };
+		B3DA7273226CA3F1003585AF /* dict.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dict.h; sourceTree = "<group>"; };
+		B3DA7274226CA3F1003585AF /* priorityq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = priorityq.h; sourceTree = "<group>"; };
+		B3DA7275226CA3F1003585AF /* sweep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sweep.h; sourceTree = "<group>"; };
+		B3DA7276226CA3F1003585AF /* bucketalloc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bucketalloc.c; sourceTree = "<group>"; };
+		B3DA7277226CA3F1003585AF /* mesh.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mesh.c; sourceTree = "<group>"; };
+		B3DA7278226CA3F1003585AF /* geom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = geom.h; sourceTree = "<group>"; };
+		B3DA727A226CA3F1003585AF /* tesselator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tesselator.h; sourceTree = "<group>"; };
+		B3DA7283226CA536003585AF /* AAPLShaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = AAPLShaders.metal; sourceTree = "<group>"; };
+		B3DA7284226CA536003585AF /* Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
+		B3DA7285226CA536003585AF /* AAPLShaderTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLShaderTypes.h; sourceTree = "<group>"; };
+		B3DA7287226CA6A5003585AF /* PathView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathView.swift; sourceTree = "<group>"; };
+		B3DA7289226CA9A1003585AF /* TestShapeTesselate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestShapeTesselate.h; sourceTree = "<group>"; };
+		B3DA728A226CA9A1003585AF /* TestShapeTesselate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestShapeTesselate.m; sourceTree = "<group>"; };
+		B3DA728C226D23F6003585AF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
+		B3F7C13B226F16DE00DB74F7 /* PathLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathLogic.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B3025696226A154C008CEE3E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B30256C0226A1772008CEE3E /* MetalKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B3025690226A154C008CEE3E = {
+			isa = PBXGroup;
+			children = (
+				B302569B226A154C008CEE3E /* PathTesselate */,
+				B302569A226A154C008CEE3E /* Products */,
+				B30256BE226A1772008CEE3E /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		B302569A226A154C008CEE3E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B3025699226A154C008CEE3E /* PathTesselate.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B302569B226A154C008CEE3E /* PathTesselate */ = {
+			isa = PBXGroup;
+			children = (
+				B3DA728C226D23F6003585AF /* README.md */,
+				B3DA7269226CA3D9003585AF /* Libtess2 */,
+				B30256B4226A1742008CEE3E /* Code */,
+				B30256B0226A1742008CEE3E /* Resources */,
+				B30256A8226A154D008CEE3E /* Info.plist */,
+			);
+			path = PathTesselate;
+			sourceTree = "<group>";
+		};
+		B30256B0226A1742008CEE3E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B30256B2226A1742008CEE3E /* Main.storyboard */,
+				B30256B1226A1742008CEE3E /* LaunchScreen.storyboard */,
+				B30256B3226A1742008CEE3E /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		B30256B4226A1742008CEE3E /* Code */ = {
+			isa = PBXGroup;
+			children = (
+				B3C97CCE226E093900B54B6E /* qqq */,
+				B3DA7282226CA536003585AF /* Metal */,
+				B30256B5226A1742008CEE3E /* AppDelegate.swift */,
+				B30256B6226A1742008CEE3E /* BasicMetalRenderer.swift */,
+				B3C97CD8226E1A2C00B54B6E /* PathMetalRenderer.swift */,
+				B30256B7226A1742008CEE3E /* CGPathViewController.swift */,
+				B3DA7287226CA6A5003585AF /* PathView.swift */,
+				B3DA7289226CA9A1003585AF /* TestShapeTesselate.h */,
+				B3DA728A226CA9A1003585AF /* TestShapeTesselate.m */,
+			);
+			path = Code;
+			sourceTree = "<group>";
+		};
+		B30256BE226A1772008CEE3E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B30256BF226A1772008CEE3E /* MetalKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B3C97CCE226E093900B54B6E /* qqq */ = {
+			isa = PBXGroup;
+			children = (
+				B3C97CCF226E093900B54B6E /* TestPathMath.h */,
+				B3C97CD2226E093900B54B6E /* TestPathMath.m */,
+				B3C97CD3226E093900B54B6E /* ContourHandler.h */,
+				B3C97CD0226E093900B54B6E /* ContourHandler.m */,
+				B3C97CD4226E093900B54B6E /* TestDefinitions.h */,
+				B3C97CD1226E093900B54B6E /* TestDefinitions.m */,
+				B3F7C13B226F16DE00DB74F7 /* PathLogic.swift */,
+			);
+			path = qqq;
+			sourceTree = "<group>";
+		};
+		B3DA7269226CA3D9003585AF /* Libtess2 */ = {
+			isa = PBXGroup;
+			children = (
+				B3DA7279226CA3F1003585AF /* Include */,
+				B3DA726A226CA3F1003585AF /* Source */,
+			);
+			path = Libtess2;
+			sourceTree = "<group>";
+		};
+		B3DA726A226CA3F1003585AF /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				B3DA726B226CA3F1003585AF /* dict.c */,
+				B3DA726C226CA3F1003585AF /* tess.h */,
+				B3DA726D226CA3F1003585AF /* priorityq.c */,
+				B3DA726E226CA3F1003585AF /* bucketalloc.h */,
+				B3DA726F226CA3F1003585AF /* sweep.c */,
+				B3DA7270226CA3F1003585AF /* geom.c */,
+				B3DA7271226CA3F1003585AF /* mesh.h */,
+				B3DA7272226CA3F1003585AF /* tess.c */,
+				B3DA7273226CA3F1003585AF /* dict.h */,
+				B3DA7274226CA3F1003585AF /* priorityq.h */,
+				B3DA7275226CA3F1003585AF /* sweep.h */,
+				B3DA7276226CA3F1003585AF /* bucketalloc.c */,
+				B3DA7277226CA3F1003585AF /* mesh.c */,
+				B3DA7278226CA3F1003585AF /* geom.h */,
+			);
+			name = Source;
+			path = PathTesselate/Libs/libtess2/Source;
+			sourceTree = SOURCE_ROOT;
+		};
+		B3DA7279226CA3F1003585AF /* Include */ = {
+			isa = PBXGroup;
+			children = (
+				B3DA727A226CA3F1003585AF /* tesselator.h */,
+				B3D1768B226E3A710073ACD6 /* tesseiator_types.h */,
+			);
+			name = Include;
+			path = PathTesselate/Libs/libtess2/Include;
+			sourceTree = SOURCE_ROOT;
+		};
+		B3DA7282226CA536003585AF /* Metal */ = {
+			isa = PBXGroup;
+			children = (
+				B3DA7283226CA536003585AF /* AAPLShaders.metal */,
+				B3DA7284226CA536003585AF /* Bridging-Header.h */,
+				B3DA7285226CA536003585AF /* AAPLShaderTypes.h */,
+			);
+			path = Metal;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B3025698226A154C008CEE3E /* PathTesselate */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B30256AB226A154D008CEE3E /* Build configuration list for PBXNativeTarget "PathTesselate" */;
+			buildPhases = (
+				B3025695226A154C008CEE3E /* Sources */,
+				B3025696226A154C008CEE3E /* Frameworks */,
+				B3025697226A154C008CEE3E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PathTesselate;
+			productName = MetalTemplate;
+			productReference = B3025699226A154C008CEE3E /* PathTesselate.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B3025691226A154C008CEE3E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1010;
+				LastUpgradeCheck = 1010;
+				ORGANIZATIONNAME = Leonid;
+				TargetAttributes = {
+					B3025698226A154C008CEE3E = {
+						CreatedOnToolsVersion = 10.1;
+					};
+				};
+			};
+			buildConfigurationList = B3025694226A154C008CEE3E /* Build configuration list for PBXProject "PathTesselate" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = B3025690226A154C008CEE3E;
+			productRefGroup = B302569A226A154C008CEE3E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B3025698226A154C008CEE3E /* PathTesselate */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B3025697226A154C008CEE3E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B30256B8226A1742008CEE3E /* LaunchScreen.storyboard in Resources */,
+				B30256BA226A1742008CEE3E /* Assets.xcassets in Resources */,
+				B30256B9226A1742008CEE3E /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B3025695226A154C008CEE3E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B3C97CD7226E093900B54B6E /* TestPathMath.m in Sources */,
+				B3DA7281226CA3F1003585AF /* mesh.c in Sources */,
+				B3DA7288226CA6A5003585AF /* PathView.swift in Sources */,
+				B3DA727D226CA3F1003585AF /* sweep.c in Sources */,
+				B3C97CD5226E093900B54B6E /* ContourHandler.m in Sources */,
+				B3DA727E226CA3F1003585AF /* geom.c in Sources */,
+				B30256BD226A1742008CEE3E /* CGPathViewController.swift in Sources */,
+				B3DA727C226CA3F1003585AF /* priorityq.c in Sources */,
+				B3C97CD6226E093900B54B6E /* TestDefinitions.m in Sources */,
+				B3DA7286226CA536003585AF /* AAPLShaders.metal in Sources */,
+				B3DA7280226CA3F1003585AF /* bucketalloc.c in Sources */,
+				B30256BC226A1742008CEE3E /* BasicMetalRenderer.swift in Sources */,
+				B30256BB226A1742008CEE3E /* AppDelegate.swift in Sources */,
+				B3F7C13C226F16DE00DB74F7 /* PathLogic.swift in Sources */,
+				B3DA728B226CA9A1003585AF /* TestShapeTesselate.m in Sources */,
+				B3DA727F226CA3F1003585AF /* tess.c in Sources */,
+				B3DA727B226CA3F1003585AF /* dict.c in Sources */,
+				B3C97CD9226E1A2C00B54B6E /* PathMetalRenderer.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		B30256A9226A154D008CEE3E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		B30256AA226A154D008CEE3E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B30256AC226A154D008CEE3E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = 2ULV4W97N2;
+				INFOPLIST_FILE = "$(SRCROOT)/PathTesselate/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = lu.luxtrust.PathTesselate;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "LuxTrust Wildcard Development profile";
+				SWIFT_OBJC_BRIDGING_HEADER = "PathTesselate/Code/Metal/Bridging-Header.h";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B30256AD226A154D008CEE3E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = "$(SRCROOT)/PathTesselate/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = lu.luxtrust.PathTesselate;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "PathTesselate/Code/Metal/Bridging-Header.h";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B3025694226A154C008CEE3E /* Build configuration list for PBXProject "PathTesselate" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B30256A9226A154D008CEE3E /* Debug */,
+				B30256AA226A154D008CEE3E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B30256AB226A154D008CEE3E /* Build configuration list for PBXNativeTarget "PathTesselate" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B30256AC226A154D008CEE3E /* Debug */,
+				B30256AD226A154D008CEE3E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B3025691226A154C008CEE3E /* Project object */;
+}

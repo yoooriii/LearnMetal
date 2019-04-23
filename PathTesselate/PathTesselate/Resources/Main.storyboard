@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Path View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="CGPathViewController" customModule="PathTesselate" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <mtkView contentMode="scaleToFill" colorPixelFormat="BGRA8Unorm" depthStencilPixelFormat="Invalid" translatesAutoresizingMaskIntoConstraints="NO" id="omN-ON-Jey">
+                                <rect key="frame" x="10" y="350" width="355" height="307"/>
+                                <color key="backgroundColor" red="0.75774887020000004" green="1" blue="0.24230146590000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="clearColor" white="0.27899667988084764" alpha="1" colorSpace="calibratedWhite"/>
+                            </mtkView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9mr-ue-DeD" customClass="PathView" customModule="PathTesselate" customModuleProvider="target">
+                                <rect key="frame" x="10" y="30" width="355" height="300"/>
+                                <color key="backgroundColor" name="findHighlightColor" catalog="System" colorSpace="catalog"/>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="9mr-ue-DeD" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="height" multiplier="0.45" id="7bs-FV-Hcf"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="omN-ON-Jey" secondAttribute="trailing" constant="10" id="BT1-Fn-Bpt"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="9mr-ue-DeD" secondAttribute="trailing" constant="10" id="LWa-I3-mpd"/>
+                            <constraint firstItem="9mr-ue-DeD" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="Tp2-AV-pZR"/>
+                            <constraint firstItem="omN-ON-Jey" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="10" id="UiO-Z9-SKD"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="omN-ON-Jey" secondAttribute="bottom" constant="10" id="joF-eZ-6qy"/>
+                            <constraint firstItem="9mr-ue-DeD" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="vjT-RM-yYK"/>
+                            <constraint firstItem="omN-ON-Jey" firstAttribute="top" secondItem="9mr-ue-DeD" secondAttribute="bottom" constant="20" id="zFc-bx-5LO"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                    <connections>
+                        <outlet property="mtkView" destination="omN-ON-Jey" id="1Ca-01-Mly"/>
+                        <outlet property="pathView" destination="9mr-ue-DeD" id="Bpp-BK-61N"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+</document>
