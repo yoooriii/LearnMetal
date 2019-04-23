@@ -200,7 +200,8 @@ class MetalChartRenderer: NSObject {
         desc.height = Int(size.y)
         desc.sampleCount = 4
         desc.pixelFormat = .bgra8Unorm
-        
+        desc.usage = MTLTextureUsage.renderTarget // it fixes crash under xcode debugger
+
         return device.makeTexture(descriptor: desc)
     }
 }
