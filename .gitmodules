@@ -1,0 +1,6 @@
+[submodule "modern-metal"]
+	path = modern-metal
+	url = ./modern-metal
+[submodule "extruded-3d-text"]
+	path = extruded-3d-text
+	url = ./extruded-3d-text
