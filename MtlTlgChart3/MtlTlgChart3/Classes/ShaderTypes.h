@@ -21,7 +21,7 @@ typedef struct {
 } ChartRenderVertex;
 
 typedef struct {
-    vector_int4 viewportSize;
+    vector_float4 graphRect;
     vector_int2 screenSize;
     vector_float4 color;
     float lineWidth;

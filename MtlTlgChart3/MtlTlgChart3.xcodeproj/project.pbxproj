@@ -30,6 +30,7 @@
 		B38505982267764D003C8202 /* NSError+z42.swift in Sources */ = {isa = PBXBuildFile; fileRef = B385058F2267764D003C8202 /* NSError+z42.swift */; };
 		B38505992267764D003C8202 /* UIColor+z42.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38505902267764D003C8202 /* UIColor+z42.swift */; };
 		B385059B2267939C003C8202 /* chart_data.json in Resources */ = {isa = PBXBuildFile; fileRef = B385059A2267939C003C8202 /* chart_data.json */; };
+		B3E144672270A3C20019D034 /* RenderProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E144662270A3C20019D034 /* RenderProtocols.swift */; };
 		E2DCE0EB22693118001C04CE /* PlaneRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2DCE0EA22693118001C04CE /* PlaneRenderer.swift */; };
 /* End PBXBuildFile section */
 
@@ -61,6 +62,7 @@
 		B385058F2267764D003C8202 /* NSError+z42.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSError+z42.swift"; sourceTree = "<group>"; };
 		B38505902267764D003C8202 /* UIColor+z42.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+z42.swift"; sourceTree = "<group>"; };
 		B385059A2267939C003C8202 /* chart_data.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = chart_data.json; sourceTree = "<group>"; };
+		B3E144662270A3C20019D034 /* RenderProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderProtocols.swift; sourceTree = "<group>"; };
 		E2DCE0EA22693118001C04CE /* PlaneRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaneRenderer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -114,6 +116,7 @@
 		B3121A2C2266367800D2D913 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				B3E144652270A3A70019D034 /* renderers */,
 				B385058D2267764D003C8202 /* extensions */,
 				B38505862267764D003C8202 /* models */,
 				B3121A492266399100D2D913 /* CollectionUtils.swift */,
@@ -122,8 +125,6 @@
 				B3121A432266385B00D2D913 /* RenderingContext.swift */,
 				B3121A3F2266380700D2D913 /* ShaderTypes.h */,
 				B3121A412266381A00D2D913 /* ChartShaders.metal */,
-				E2DCE0EA22693118001C04CE /* PlaneRenderer.swift */,
-				B3121A38226636CB00D2D913 /* MetalChartRenderer.swift */,
 				B3121A3C226637C100D2D913 /* ChartData.swift */,
 				B3121A3B2266378900D2D913 /* ChartBridging-Header.h */,
 				B3121A2D2266367800D2D913 /* AppDelegate.swift */,
@@ -164,6 +165,16 @@
 				B38505902267764D003C8202 /* UIColor+z42.swift */,
 			);
 			path = extensions;
+			sourceTree = "<group>";
+		};
+		B3E144652270A3A70019D034 /* renderers */ = {
+			isa = PBXGroup;
+			children = (
+				B3121A38226636CB00D2D913 /* MetalChartRenderer.swift */,
+				E2DCE0EA22693118001C04CE /* PlaneRenderer.swift */,
+				B3E144662270A3C20019D034 /* RenderProtocols.swift */,
+			);
+			path = renderers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -255,6 +266,7 @@
 				B3121A332266367800D2D913 /* AppDelegate.swift in Sources */,
 				B38505972267764D003C8202 /* Extentions.swift in Sources */,
 				B3121A422266381A00D2D913 /* ChartShaders.metal in Sources */,
+				B3E144672270A3C20019D034 /* RenderProtocols.swift in Sources */,
 				B3121A48226638D700D2D913 /* DimensionsConverter.swift in Sources */,
 				B38505932267764D003C8202 /* UIModels.swift in Sources */,
 			);

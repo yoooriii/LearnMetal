@@ -45,11 +45,32 @@ class BasicVector: Vector {
     var values: [Int64]!
     var minValue: Int64
     var maxValue: Int64
+    let avgValue: Double!
     let normal: Double!
     let scale: Double!
 
-    var count:Int {
+    var count: Int! {
         return values.count
+    }
+
+    required init(id:String, values: [Int64]!) {
+        self.id = id
+        self.values = values
+
+        var _min = Int64.max
+        var _max = Int64.min
+        var _median = Double(0)
+        for v in values {
+            _median += Double(v)
+            if _min > v { _min = v }
+            if _max < v { _max = v }
+        }
+        minValue = _min
+        maxValue = _max
+        avgValue = _median/Double(values.count)
+
+        normal = 0
+        scale = 0
     }
 
     required init(_ rawColumn:RawColumn, normal:Double) {
@@ -60,7 +81,30 @@ class BasicVector: Vector {
 
         self.normal = normal
         scale = Double(maxValue - minValue) / normal
+
+        var val = Double(0)
+        for v in values {
+            val += Double(v)
+        }
+        avgValue = val/Double(values.count)
     }
+    
+    func copy(in range:NSRange) -> BasicVector? {
+        let count = values.count
+        if (range.location >= count) {
+            print("BasicVector copy(range): location out of range \(range.location) >= \(count))")
+            return nil
+        }
+        let endItem = range.location + range.length
+        if (endItem >= count) {
+            print("BasicVector copy(range): end location out of range \(endItem) >= \(count)")
+            return nil
+        }
+        let rangeValues = Array<Int64>(values[range.location ..< endItem])
+        let copy = type(of: self).init(id: self.id, values: rangeValues)
+        return copy
+    }
+    
 
 //    func toNormal(_ originalValue:Int64) -> Double {
 //        return Double(originalValue - minValue)/scale
@@ -80,17 +124,16 @@ class BasicVector: Vector {
         return Int64(normalizedValue * scale) + minValue
     }
 
-    func avg() -> Float {
-        var val = Float(0)
-        for v in values {
-            val += Float(v)
-        }
-        return val/Float(count)
-    }
 }
 
 // type 'x'
 class VectorTime: BasicVector {
+    override func copy(in range:NSRange) -> VectorTime? {
+        if let copy = super.copy(in: range) as? VectorTime {
+            return copy
+        }
+        return nil
+    }
 }
 
 // type 'line'
@@ -102,6 +145,15 @@ class VectorAmplitude: BasicVector {
         self.init(rawColumn, normal:normal)
         self.colorString = colorString
         self.name = name
+    }
+    
+    override func copy(in range: NSRange) -> VectorAmplitude? {
+        if let copy = super.copy(in: range) as? VectorAmplitude {
+            copy.name = name
+            copy.colorString = colorString
+            return copy
+        }
+        return nil
     }
 }
 
@@ -116,6 +168,11 @@ class Plane {
     var vAmplitudes: [VectorAmplitude]!
     // key: VectorAmplitude.name; value: @localizedName
     var localizedNames: [String:String]?
+    
+    init(vTime:VectorTime, vAmplitudes:[VectorAmplitude]) {
+        self.vTime = vTime
+        self.vAmplitudes = vAmplitudes
+    }
 
     init(rawPlane:RawPlane, normal:Double) {
         var amplitudes = [VectorAmplitude]()
@@ -138,6 +195,44 @@ class Plane {
             }
         }
         vAmplitudes = amplitudes
+    }
+    
+    func info() -> String {
+        var string = "Plane: "
+        string += "charts:[\(vAmplitudes.count)]"
+        if vAmplitudes.count > 0 {
+            string += " {"
+            for amp in vAmplitudes {
+                string += " \(amp.count!)"
+            }
+            string += " }"
+        }
+        string += " x time[\(vTime.count!)]"
+        return string
+    }
+    
+    func copy(in range:NSRange) -> Plane? {
+        if range.location >= vTime.count {
+            print("cannot copy: location out of range [\(range.location) >= \(vTime.count!)]")
+            return nil
+        }
+        let endIndex = range.location + range.length
+        if endIndex >= vTime.count {
+            print("cannot copy: end location out of range [\(endIndex) >= \(vTime.count!)]")
+            return nil
+        }
+        
+        if let copyVTime = vTime.copy(in: range) {
+            var copyVAmplitudes = [VectorAmplitude]()
+            for amp in vAmplitudes {
+                if let nextAmp = amp.copy(in: range) {
+                    copyVAmplitudes.append(nextAmp)
+                }
+            }
+            return Plane(vTime: copyVTime, vAmplitudes: copyVAmplitudes)
+        }
+        
+        return nil
     }
 }
 

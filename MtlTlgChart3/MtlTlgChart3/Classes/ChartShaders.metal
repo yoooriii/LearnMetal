@@ -22,24 +22,24 @@ vertexShader(uint vid [[ vertex_id ]],
              device ChartRenderVertex *vertices [[ buffer(AAPLVertexInputIndexVertices) ]],
              constant ChartContext *chartContextPtr  [[ buffer(AAPLVertexInputIndexChartContext) ]] )
 {
-    const float4 viewport = float4(chartContextPtr->viewportSize);
-    const float2 positionScaler = float2(viewport.z - viewport.x, viewport.w - viewport.y);
+    const float4 viewport = chartContextPtr->graphRect; // graph size
+    const float2 positionScaler = float2(viewport[2] - viewport[0], viewport[3] - viewport[1]); // width, height in graph logic points
     const float2 screenScaler = vector_float2(chartContextPtr->screenSize);
 
     bool isLast = vid >= chartContextPtr->vertexCount - 2;
     float2 currPt = vertices[vid].position;
-    float2 prevPt = (vid < 2) ? float2(currPt.x - 1, currPt.y) : vertices[vid-2].position;
-    float2 nextPt = isLast ?    float2(currPt.x + 1, currPt.y) : vertices[vid+2].position;
+    float2 prevPt = (vid < 2) ? currPt : vertices[vid-2].position;
+    float2 nextPt = isLast ?    currPt : vertices[vid+2].position;
 
     const float2 nScale = screenScaler.yx / positionScaler.yx;
     const float2 currentNormal = normalize(nScale * float2(prevPt.y - currPt.y, currPt.x - prevPt.x));
     const float2 nextNormal = normalize(nScale * float2(currPt.y - nextPt.y, nextPt.x - currPt.x));
     
     const float2 miter = normalize(currentNormal + nextNormal);
-    const float direction = (vid & 1) ? -1 : 1; //vx.direction;
-    const float2 resultOffset = miter * direction * chartContextPtr->lineWidth / dot(miter, currentNormal);
+    const float direction = (vid & 1) ? 1 : -1;
+    float2 resultOffset = miter * direction * chartContextPtr->lineWidth / dot(miter, currentNormal);
     
-    float2 position = currPt.xy - viewport.xy;
+    float2 position = currPt.xy - viewport.xy;  // move to x0, y0
     position = position / positionScaler * 2.0 - 1.0;
     
     position *= screenScaler;

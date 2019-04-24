@@ -11,6 +11,7 @@ import MetalKit
 
 class ViewController: UIViewController {
     @IBOutlet var mtkView:MTKView!
+    @IBOutlet var infoLabel:UILabel!
     private var renderer: MetalChartRenderer!
     var graphicsContainer:GraphicsContainer?
 
@@ -44,7 +45,9 @@ class ViewController: UIViewController {
             }
             if nextPlane < container.planes.count {
                 let plane = container.planes[nextPlane]
+                // let planeCopy = plane.copy(in: NSRange(location: 0, length: 4))
                 renderer.setPlane(plane)
+                infoLabel.text = "#\(nextPlane): " + plane.info()
                 nextPlane += 1
             }
         } else {
