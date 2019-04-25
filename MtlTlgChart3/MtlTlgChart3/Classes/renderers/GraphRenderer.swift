@@ -9,22 +9,24 @@
 import Foundation
 import MetalKit
 
-class PlaneRenderer: NSObject {
+class GraphRenderer: NSObject {
     var alpha: CGFloat = 1.0
-    private var vertexBuffer: MTLBuffer!
-    private var indexBuffer: MTLBuffer!
-    private let device: MTLDevice!
+    var vertexBuffer: MTLBuffer!
+    var indexBuffer: MTLBuffer!
+    let device: MTLDevice!
     // absolute coordinates in graph values
     var graphRect = vector_float4(1)
     // view.drawableSize (no need to keep it here)
     var screenSize = vector_int2(1)
     
     var lineWidth = Float(1)
-    private var pointsCount:Int = 0
-    private var vertexCount:Int = 0 //{ get { return pointsCount * 2 } }
-    private var indexCount:Int = 0
+    var pointsCount:Int = 0
+    var vertexCount:Int = 0 //{ get { return pointsCount * 2 } }
+    var indexCount:Int = 0
     private var strokeColor:UIColor?
     private var plane:Plane? = nil
+    private var color:float4 = float4(1)
+    var graphMode:VShaderMode = VShaderModeStroke
     
     //MARK: -
 
@@ -48,7 +50,7 @@ class PlaneRenderer: NSObject {
             graphRect = vector_float4(1)
             return
         }
-        guard let device = self.device else {
+        guard let _ = self.device else {
             return
         }
 
@@ -67,31 +69,53 @@ class PlaneRenderer: NSObject {
         
         graphRect = vector_float4(minX, minY, maxX, maxY)
         strokeColor = plane.vAmplitudes[iPlane].color
+        color = UIColor.vector(strokeColor)
 
-        var arrayIndices = [UInt16]()
-        var arrayVertices = [ChartRenderVertex]()
+        makeVertexBuffer(points: points)
+        makeIndexBuffer()
+    }
+    
+    func chartContext(view:MTKView) -> ChartContext! {
+        let screenSize = vector_int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
+        let lineWidth = self.lineWidth * Float(view.contentScaleFactor)
+        return ChartContext(graphRect: graphRect, screenSize: screenSize, color: color, lineWidth:lineWidth, vertexCount:UInt32(vertexCount), vshaderMode:Int32(graphMode.rawValue))
+    }
+}
+
+
+private extension GraphRenderer {
+    func makeVertexBuffer(points:[float2]) {
+        var arrayVertices = [float2]()
         
-        let dx = Float(maxX - minX)/Float(pointsCount * 2)
+        let dx = Float(graphRect[2] - graphRect[0])/Float(pointsCount * 2)
         // insert a fake point at the beginning
-        var vxFirst = ChartRenderVertex(position: points[0])
-        vxFirst.position.x -= dx
+        var vxFirst = points[0]
+        vxFirst.x -= dx
         arrayVertices.append(vxFirst)
         arrayVertices.append(vxFirst)
-
+        
         for pt in points {
-            let vx = ChartRenderVertex(position: pt)
+            let vx = pt
             arrayVertices.append(vx) // use a point twice
             arrayVertices.append(vx)
         }
         
         // repeat the last point (fake point)
-        var vxLast = ChartRenderVertex(position: points[pointsCount - 1])
-        vxLast.position.x += dx
+        var vxLast = points[pointsCount - 1]
+        vxLast.x += dx
         arrayVertices.append(vxLast)
         arrayVertices.append(vxLast)
-
+        
+        vertexCount = arrayVertices.count
+        vertexBuffer = device.makeBuffer(bytes: arrayVertices,
+                                         length: MemoryLayout<float2>.stride * vertexCount,
+                                         options: .cpuCacheModeWriteCombined)
+    }
+    
+    func makeIndexBuffer() {
+        var arrayIndices = [UInt16]()
         //TODO: improvement: index array (buffer) is the same for all graphs
-        for idx in stride(from: 0, to: (arrayVertices.count - 3), by: 2) {
+        for idx in stride(from: 0, to: (vertexCount - 3), by: 2) {
             let vertexIndex = UInt16(idx)
             arrayIndices.append(vertexIndex)
             arrayIndices.append(vertexIndex + 2)
@@ -101,35 +125,28 @@ class PlaneRenderer: NSObject {
             arrayIndices.append(vertexIndex + 1)
         }
         
-        // create buffers
         indexCount = arrayIndices.count
         indexBuffer = device.makeBuffer(bytes: arrayIndices,
                                         length: MemoryLayout<UInt16>.stride * indexCount,
                                         options: .cpuCacheModeWriteCombined)
-        vertexCount = arrayVertices.count
-        vertexBuffer = device.makeBuffer(bytes: arrayVertices,
-                                         length: MemoryLayout<ChartRenderVertex>.stride * vertexCount,
-                                         options: .cpuCacheModeWriteCombined)
     }
 }
 
 
-extension PlaneRenderer: GraphRenderer {
+extension GraphRenderer: GraphRendererProto {
+    @objc func loadResources() {}
+    
     // do the work
     func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView) {
         if pointsCount == 0 || indexCount == 0 {
             return
         }
         
-        let screenSize = vector_int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
-        let lineWidth = self.lineWidth * Float(view.contentScaleFactor)
-        let colorVector = UIColor.vector(strokeColor)
-        
-        var chartContext = ChartContext(graphRect: graphRect, screenSize: screenSize, color: colorVector, lineWidth:lineWidth, vertexCount:UInt32(vertexCount))
+        var chartCx = chartContext(view:view)
         
         encoder.setVertexBuffer(vertexBuffer, offset: 0,
                                 index: Int(AAPLVertexInputIndexVertices.rawValue))
-        encoder.setVertexBytes(&chartContext, length: MemoryLayout<ChartContext>.stride,
+        encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
                                index: Int(AAPLVertexInputIndexChartContext.rawValue))
         
         encoder.drawIndexedPrimitives(type: .triangle,

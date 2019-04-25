@@ -9,6 +9,10 @@
 import UIKit
 import MetalKit
 
-protocol GraphRenderer {
-    func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView);
+protocol GraphRendererProto {
+    var lineWidth: Float { get set }
+    var graphRect: vector_float4 { get set }
+
+    func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView)
+    func loadResources()
 }

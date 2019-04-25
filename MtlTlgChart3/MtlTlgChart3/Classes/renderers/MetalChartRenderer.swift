@@ -32,7 +32,8 @@ class MetalChartRenderer: NSObject {
     var lineWidth = Float(10)//Float(1.5)
 
     ///////////////////
-    var planeRenderers = [PlaneRenderer]()
+    var planeRenderers = [GraphRendererProto]()
+    private var gridRenderer:GridRenderer!
     
     /// Initialize with the MetalKit view from which we'll obtain our Metal device
     init(mtkView: MTKView) {
@@ -48,12 +49,18 @@ class MetalChartRenderer: NSObject {
         self.plane = plane
         let countP = plane.vAmplitudes.count
         planeRenderers.removeAll()
+        
+        if let _ = gridRenderer {} else {
+            gridRenderer = GridRenderer(device: device)
+        }
+        planeRenderers.append(gridRenderer)
 
         var graphRect = vector_float4(0)
         for iPlane in 0 ..< countP {
-            let pRenderer = PlaneRenderer(device: device)
+            let pRenderer = GraphRenderer(device: device)
             pRenderer.setPlane(plane, iPlane: iPlane)
-            planeRenderers.append(pRenderer)
+            pRenderer.graphMode = VShaderModeFill
+            planeRenderers.append(pRenderer)    
 
             if 0 == iPlane {
                 // take the first rect
@@ -68,6 +75,10 @@ class MetalChartRenderer: NSObject {
             }
         }
         commonGraphRect = graphRect
+        
+        for pRenderer in planeRenderers {
+            pRenderer.loadResources()
+        }
     }
 
     /// Create our Metal render state objects including our shaders and render state pipeline objects
@@ -82,14 +93,15 @@ class MetalChartRenderer: NSObject {
             mtkView.clearColor = MTLClearColor.init(red: 0, green: 0, blue: 0, alpha: 0)
         }
 
-        let defaultLibrary = device.makeDefaultLibrary()
-        let vertexFunction = defaultLibrary?.makeFunction(name: "vertexShader")
-        let fragmentFunction = defaultLibrary?.makeFunction(name: "fragmentShader")
-        
         let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
         pipelineStateDescriptor.label = "Simple Pipeline"
-        pipelineStateDescriptor.vertexFunction = vertexFunction
-        pipelineStateDescriptor.fragmentFunction = fragmentFunction
+
+        if let defaultLibrary = device.makeDefaultLibrary() {
+            pipelineStateDescriptor.vertexFunction = defaultLibrary.makeFunction(name: "vertexShader")
+            pipelineStateDescriptor.fragmentFunction = defaultLibrary.makeFunction(name: "fragmentShader")
+//            let bbb = defaultLibrary.makeFunction(name: "vertexShaderFilled")
+        }
+        
 
         mtkView.sampleCount = 4 // default=1
         mtkView.colorPixelFormat = .bgra8Unorm
@@ -189,7 +201,8 @@ extension MetalChartRenderer: MTKViewDelegate {
         renderEncoder.setCullMode(.none)
 
         //encodeGraph(encoder: renderEncoder, view: view, color: strokeColor)
-        for pRenderer in planeRenderers {
+        for i in 0 ..< planeRenderers.count {
+            var pRenderer = planeRenderers[i]
             pRenderer.lineWidth = lineWidth
             pRenderer.graphRect = commonGraphRect
             pRenderer.encodeGraph(encoder: renderEncoder, view: view)

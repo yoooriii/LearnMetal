@@ -16,16 +16,19 @@ typedef enum {
     AAPLVertexInputIndexChartContext = 1
 } AAPLVertexInputIndex;
 
-typedef struct {
-    vector_float2 position;
-} ChartRenderVertex;
+typedef enum {
+    VShaderModeStroke = 0,
+    VShaderModeFill = 1
+} VShaderMode;
 
+/// line chart
 typedef struct {
     vector_float4 graphRect;
     vector_int2 screenSize;
     vector_float4 color;
     float lineWidth;
     uint vertexCount;
+    int vshaderMode; // VShaderMode
 } ChartContext;  // <-- AAPLVertexInputIndexChartContext
 
 #endif /* ShaderTypes_h */
