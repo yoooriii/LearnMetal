@@ -18,7 +18,9 @@ public class BasicMetalRenderer: NSObject {
     let vertexFuncName = "vertexShader"
     let fragmentFuncName = "simpleFragmentShader"
     //
+    private var msaaTexture: MTLTexture?
     private var renderVertices:[float2]?
+    var infoDelegate:InfoDelegate?
 
     public init?(mtkView: MTKView!) {
         self.mtkView = mtkView
@@ -40,13 +42,15 @@ public class BasicMetalRenderer: NSObject {
         }
         
         // Configure a pipeline descriptor that is used to create a pipeline state
+        mtkView.sampleCount = 4 // default=1
+        mtkView.colorPixelFormat = .bgra8Unorm
         let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
         renderPipelineDescriptor.label = "Simple Pipeline"
         renderPipelineDescriptor.sampleCount = mtkView.sampleCount
         renderPipelineDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat
         renderPipelineDescriptor.depthAttachmentPixelFormat = mtkView.depthStencilPixelFormat
         renderPipelineDescriptor.stencilAttachmentPixelFormat = mtkView.depthStencilPixelFormat
-
+        
         // Load the vertex function from the library
         if let vertexFunction = library.makeFunction(name: vertexFuncName) {
             renderPipelineDescriptor.vertexFunction = vertexFunction
@@ -86,7 +90,9 @@ private extension BasicMetalRenderer {
             return
         }
         
-        var renderCx:RenderContext = RenderContext(strokeColor: float4(1), fillColor: float4(1,0,0,1), viewportSize: viewportSize, rotation: 0, animeValue: 0);
+        let fillColor1 = float4(0.6, 0.1, 0.1, 1.0)
+        let fillColor2 = float4(1.0)
+        var renderCx:RenderContext = RenderContext(strokeColor: float4(1), fillColor: fillColor1, viewportSize: viewportSize, rotation: 0, animeValue: 0);
         
         encoder.setVertexBytes(renderVertices,
                                length: MemoryLayout<float2>.stride * renderVertices.count,
@@ -98,22 +104,33 @@ private extension BasicMetalRenderer {
         encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: renderVertices.count)
         
         
-        renderCx.fillColor = float4(1)
+        renderCx.fillColor = fillColor2
         encoder.setVertexBytes(&renderCx,
                                length: MemoryLayout<RenderContext>.stride,
                                index: Int(MetalIndexRenderContext))
         encoder.drawPrimitives(type: .lineStrip, vertexStart: 0, vertexCount: renderVertices.count)
     }
     
-    func makeViewport() -> MTLViewport? {
-        // Set the region of the drawable to which we'll draw.
-        let viewport = MTLViewport(originX:0, originY:0,
-                                   width: Double(viewportSize.x), height: Double(viewportSize.y),
-                                   znear: -1.0, zfar: 1.0)
-        return viewport
+//    func makeViewport() -> MTLViewport? {
+//        // Set the region of the drawable to which we'll draw.
+//        let viewport = MTLViewport(originX:0, originY:0,
+//                                   width: Double(viewportSize.x), height: Double(viewportSize.y),
+//                                   znear: -1.0, zfar: 1.0)
+//        return viewport
+//    }
+    
+    private func makeTexture(size:uint2) -> MTLTexture? {
+        let desc = MTLTextureDescriptor()
+        desc.textureType = MTLTextureType.type2DMultisample
+        desc.width = Int(size.x)
+        desc.height = Int(size.y)
+        desc.sampleCount = 4
+        desc.pixelFormat = .bgra8Unorm
+        desc.usage = MTLTextureUsage.renderTarget // it fixes crash under xcode debugger
+        
+        return device.makeTexture(descriptor: desc)
     }
-    
-    
+
     func makeTestCircularVertices(rect: CGRect, steps:Int) -> [float2] {
         var positions = [float2]()
         if steps < 3 {
@@ -121,7 +138,7 @@ private extension BasicMetalRenderer {
             return positions
         }
         
-        let maxR = Float(min(rect.width, rect.height) * 0.45)
+        let maxR = Float(min(rect.width, rect.height) * 0.5)
         let minR = maxR * 0.8
         let origin = float2(Float(rect.minX), Float(rect.minY))
         let pi2 = Float.pi * 2.0
@@ -152,35 +169,32 @@ extension BasicMetalRenderer: MTKViewDelegate {
         }
         commandBuffer.label = "My Simple Command Buffer"
         
-        // Obtain a renderPassDescriptor generated from the view's drawable textures
-        // MTLRenderPassDescriptor
-        guard let renderPassDescriptor = view.currentRenderPassDescriptor else {
-            commandBuffer.commit()
-            print("cannot get render pass descriptor")
+        guard let currentDrawable = view.currentDrawable else {
+            print("no currentDrawable")
             return
         }
+
+        // MSAA : set a texture to smooth lines (antialiasing)
+        let renderPassDescriptor = MTLRenderPassDescriptor()
+        renderPassDescriptor.colorAttachments[0].texture = msaaTexture
+        renderPassDescriptor.colorAttachments[0].resolveTexture = currentDrawable.texture
+        renderPassDescriptor.colorAttachments[0].loadAction = .clear
+        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.1, green: 0.4, blue: 0.5, alpha: 0.0)
+        renderPassDescriptor.colorAttachments[0].storeAction = .multisampleResolve
         
-        // Create a render command encoder so we can render into something
         guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) else {
+            print("cannot make render encoder")
             commandBuffer.commit()
-            print("cannot create render command encoder")
             return
         }
         renderEncoder.label = "My Simple Render Encoder"
         
-        if let viewport = makeViewport() {
-            renderEncoder.setViewport(viewport)
-        }
+//        if let viewport = makeViewport() {
+//            //renderEncoder.setViewport(viewport)
+//        }
 
         renderEncoder.setRenderPipelineState(pipelineState)
         
-        guard let currentDrawable = view.currentDrawable else {
-            print("no drawable")
-            renderEncoder.endEncoding()
-            commandBuffer.commit()
-            return
-        }
-
         // Real drawing happens here if implemented
         fillEncoder(renderEncoder, mtkView: view)
 
@@ -195,10 +209,17 @@ extension BasicMetalRenderer: MTKViewDelegate {
         viewportSize.x = UInt32(size.width)
         viewportSize.y = UInt32(size.height)
         
-        let rect = CGRect(x: 50, y: 50, width: 300, height: 300)
+        // recreate texture to fit the size
+        msaaTexture = makeTexture(size: viewportSize)
+
+        let rect = CGRect(x:0, y: 0, width: size.width, height: size.height)
         renderVertices = makeTestCircularVertices(rect: rect, steps: 12)
         
         let count = (renderVertices?.count == nil) ? 0 : renderVertices!.count
-        print("canvas: \(Int(size.width))x\(Int(size.height)); vertices:[\(count)]")
+        let info = "canvas: \(Int(size.width))x\(Int(size.height)); vertices:[\(count)]"
+        print(info)
+        if let infoDelegate = infoDelegate {
+            infoDelegate.setInfo(text: info)
+        }
     }
 }

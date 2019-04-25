@@ -23,17 +23,28 @@
                                 <color key="backgroundColor" red="0.75774887020000004" green="1" blue="0.24230146590000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <color key="clearColor" name="selectedControlColor" catalog="System" colorSpace="catalog"/>
                             </mtkView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EtZ-tZ-ti7">
+                                <rect key="frame" x="10" y="30" width="355" height="19.5"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.23089683219178081" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <fontDescription key="fontDescription" name="CourierNewPSMT" family="Courier New" pointSize="17"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
-                        <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="EtZ-tZ-ti7" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="96S-9m-20C"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="omN-ON-Jey" secondAttribute="trailing" constant="10" id="BT1-Fn-Bpt"/>
+                            <constraint firstItem="EtZ-tZ-ti7" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="UgE-ao-Vyc"/>
                             <constraint firstItem="omN-ON-Jey" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="10" id="UiO-Z9-SKD"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="EtZ-tZ-ti7" secondAttribute="trailing" constant="10" id="Us6-gz-40V"/>
                             <constraint firstItem="omN-ON-Jey" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="40" id="ejP-1W-th7"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="omN-ON-Jey" secondAttribute="bottom" constant="100" id="joF-eZ-6qy"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
+                        <outlet property="infoLabel" destination="EtZ-tZ-ti7" id="j5a-1h-Ps6"/>
                         <outlet property="mtkView" destination="omN-ON-Jey" id="1Ca-01-Mly"/>
                     </connections>
                 </viewController>

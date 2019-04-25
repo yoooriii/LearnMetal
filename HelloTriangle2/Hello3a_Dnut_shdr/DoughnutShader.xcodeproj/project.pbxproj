@@ -11,7 +11,7 @@
 		B3D7D10B2271DFBF001C0017 /* SampleMetalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D7D1032271DFBF001C0017 /* SampleMetalViewController.swift */; };
 		B3D7D10C2271DFBF001C0017 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D7D1042271DFBF001C0017 /* AppDelegate.swift */; };
 		B3D7D10D2271DFBF001C0017 /* BasicMetalRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D7D1052271DFBF001C0017 /* BasicMetalRenderer.swift */; };
-		B3D7D10F2271DFBF001C0017 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B3D7D1082271DFBF001C0017 /* LaunchScreen.storyboard */; };
+		B3D7D10F2271DFBF001C0017 /* Splash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B3D7D1082271DFBF001C0017 /* Splash.storyboard */; };
 		B3D7D1102271DFBF001C0017 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B3D7D1092271DFBF001C0017 /* Main.storyboard */; };
 		B3D7D1112271DFBF001C0017 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3D7D10A2271DFBF001C0017 /* Assets.xcassets */; };
 		B3D7D1162271E04D001C0017 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = B3D7D1132271E04D001C0017 /* Shaders.metal */; };
@@ -24,7 +24,7 @@
 		B3D7D1042271DFBF001C0017 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B3D7D1052271DFBF001C0017 /* BasicMetalRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicMetalRenderer.swift; sourceTree = "<group>"; };
 		B3D7D1062271DFBF001C0017 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B3D7D1082271DFBF001C0017 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		B3D7D1082271DFBF001C0017 /* Splash.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Splash.storyboard; sourceTree = "<group>"; };
 		B3D7D1092271DFBF001C0017 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		B3D7D10A2271DFBF001C0017 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B3D7D1132271E04D001C0017 /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
@@ -93,7 +93,7 @@
 		B3D7D1072271DFBF001C0017 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				B3D7D1082271DFBF001C0017 /* LaunchScreen.storyboard */,
+				B3D7D1082271DFBF001C0017 /* Splash.storyboard */,
 				B3D7D1092271DFBF001C0017 /* Main.storyboard */,
 				B3D7D10A2271DFBF001C0017 /* Assets.xcassets */,
 			);
@@ -170,7 +170,7 @@
 			files = (
 				B3D7D1102271DFBF001C0017 /* Main.storyboard in Resources */,
 				B3D7D1112271DFBF001C0017 /* Assets.xcassets in Resources */,
-				B3D7D10F2271DFBF001C0017 /* LaunchScreen.storyboard in Resources */,
+				B3D7D10F2271DFBF001C0017 /* Splash.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

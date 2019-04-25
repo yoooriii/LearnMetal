@@ -9,8 +9,13 @@
 import UIKit
 import MetalKit
 
+protocol InfoDelegate {
+    func setInfo(text:String?)
+}
+
 class SampleMetalViewController: UIViewController {
     
+    @IBOutlet var infoLabel: UILabel!
     @IBOutlet var mtkView: MTKView!
     var renderer:BasicMetalRenderer?
     
@@ -18,5 +23,12 @@ class SampleMetalViewController: UIViewController {
         super.viewDidLoad()
         
         renderer = BasicMetalRenderer(mtkView: mtkView)
+        renderer?.infoDelegate = self
+    }
+}
+
+extension SampleMetalViewController: InfoDelegate {
+    func setInfo(text:String?) {
+        infoLabel.text = text
     }
 }
