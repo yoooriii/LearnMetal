@@ -29,18 +29,20 @@ vertexShader(uint vid [[ vertex_id ]],
              constant ChartContext *chartContextPtr  [[ buffer(AAPLVertexInputIndexChartContext) ]] )
 {
     if (chartContextPtr -> vshaderMode == VShaderModeFill) {
-        const float4 viewport = chartContextPtr->graphRect; // graph size
-        const float2 positionScaler = float2(viewport[2] - viewport[0], viewport[3] - viewport[1]); // width, height in graph logic points
+        const float4 graphBox = chartContextPtr->graphRect; // graph size
+        const float2 graphSize = float2(graphBox[2] - graphBox[0], graphBox[3] - graphBox[1]); // width, height in graph logic points
         
-        float2 currPt = vertices[vid];
+        float2 position = vertices[vid];
+        position -= graphBox.xy;  // move to x0, y0
+        position = position / graphSize * 2.0 - 1.0;
         if (vid & 1) {
-            currPt.y = viewport[1]; // minY
+            // move every next vertex to the bottom
+            position.y = -1.0;
         }
-        float2 position = currPt.xy - viewport.xy;  // move to x0, y0
-        position = position / positionScaler * 2.0 - 1.0;
         
         RasterizerData out;
         out.color = chartContextPtr->color;
+        out.color.a = 1.0;
         out.clipSpacePosition = vector_float4(position.x, position.y, 0.0, 1.0);
         return out;
     }
@@ -82,15 +84,16 @@ vertexShaderFilled(uint vid [[ vertex_id ]],
              device float2 *vertices [[ buffer(AAPLVertexInputIndexVertices) ]],
              constant ChartContext *chartContextPtr  [[ buffer(AAPLVertexInputIndexChartContext) ]] )
 {
-    const float4 viewport = chartContextPtr->graphRect; // graph size
-    const float2 positionScaler = float2(viewport[2] - viewport[0], viewport[3] - viewport[1]); // width, height in graph logic points
+    // graphRect = float4(minX, minY, maxX, maxY); graph size
+    const float4 graphBox = chartContextPtr->graphRect;
+    const float2 graphSize = float2(graphBox[2] - graphBox[0], graphBox[3] - graphBox[1]);
     
     float2 currPt = vertices[vid];
     if (vid & 1) {
-        currPt.y = viewport[1]; // minY
+        currPt.y = graphBox[1]; // minY
     }
-    float2 position = currPt.xy - viewport.xy;  // move to x0, y0
-    position = position / positionScaler * 2.0 - 1.0;
+    float2 position = currPt.xy - graphBox.xy;  // move to x0, y0
+    position = position / graphSize * 2.0 - 1.0;
     
     RasterizerData out;
     out.color = chartContextPtr->color;

@@ -19,7 +19,8 @@ class MetalChartRenderer: NSObject {
     
     /////////////
     let device: MTLDevice!
-    var pipelineState: MTLRenderPipelineState!
+    let mtkView:MTKView!
+    var pipelineState: MTLRenderPipelineState?
     var commandQueue: MTLCommandQueue!
     // absolute coordinates in graph values
     var commonGraphRect = vector_float4(1)
@@ -37,6 +38,7 @@ class MetalChartRenderer: NSObject {
     
     /// Initialize with the MetalKit view from which we'll obtain our Metal device
     init(mtkView: MTKView) {
+        self.mtkView = mtkView
         device = mtkView.device
         super.init()
         loadMetal(mtkView: mtkView)
@@ -102,7 +104,6 @@ class MetalChartRenderer: NSObject {
 //            let bbb = defaultLibrary.makeFunction(name: "vertexShaderFilled")
         }
         
-
         mtkView.sampleCount = 4 // default=1
         mtkView.colorPixelFormat = .bgra8Unorm
         pipelineStateDescriptor.sampleCount = mtkView.sampleCount
@@ -120,22 +121,36 @@ class MetalChartRenderer: NSObject {
 //            renderAttachment.destinationAlphaBlendFactor = .oneMinusSourceAlpha
 //        }
 
-        do {
-            pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
-        } catch {
-            // Pipeline State creation could fail if we haven't properly set up our pipeline descriptor.
-            //  If the Metal API validation is enabled, we can find out more information about what
-            //  went wrong.  (Metal API validation is enabled by default when a debug build is run
-            //  from Xcode)
-            print("Failed to created pipeline state, error \(error.localizedDescription)")
+        // make pipelineState async (dont block main thread)
+        device.makeRenderPipelineState(descriptor: pipelineStateDescriptor) { (pipelineState, error) in
+            self.pipelineState = pipelineState
+            if let error = error {
+                // Pipeline State creation could fail if we haven't properly set up our pipeline descriptor.
+                //  If the Metal API validation is enabled, we can find out more information about what
+                //  went wrong.  (Metal API validation is enabled by default when a debug build is run
+                //  from Xcode)
+                print("Failed to created pipeline state, error \(error.localizedDescription)")
+            } else {
+                self.commandQueue = device.makeCommandQueue()
+            }
         }
-        
-        commandQueue = device.makeCommandQueue()
+
+//        do {  // make pipelineState sync, blocking method
+//            pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
+//        } catch {
+//            // Pipeline State creation could fail if we haven't properly set up our pipeline descriptor.
+//            //  If the Metal API validation is enabled, we can find out more information about what
+//            //  went wrong.  (Metal API validation is enabled by default when a debug build is run
+//            //  from Xcode)
+//            print("Failed to created pipeline state, error \(error.localizedDescription)")
+//        }
+//        commandQueue = device.makeCommandQueue()
     }
     
+    private var renderPassDescriptor: MTLRenderPassDescriptor?
     private var msaaTexture: MTLTexture?
     
-    private func makeTexture(size:vector_int2) -> MTLTexture? {
+    private func makeMSAATexture(size:vector_int2) -> MTLTexture? {
         let desc = MTLTextureDescriptor()
         desc.textureType = MTLTextureType.type2DMultisample
         desc.width = Int(size.x)
@@ -143,8 +158,26 @@ class MetalChartRenderer: NSObject {
         desc.sampleCount = 4
         desc.pixelFormat = .bgra8Unorm
         desc.usage = MTLTextureUsage.renderTarget // it fixes crash under xcode debugger
+        desc.storageMode = .memoryless
 
         return device.makeTexture(descriptor: desc)
+    }
+    
+    private func makeRenderPassDescriptor(view: MTKView) -> MTLRenderPassDescriptor? {
+        if let _ = msaaTexture { /* use cached tx */ } else {
+            let drawableSize = view.drawableSize
+            let size = vector_int2(Int32(drawableSize.width), Int32(drawableSize.height))
+            // MSAA : set a texture to smooth lines (antialiasing)
+            msaaTexture = makeMSAATexture(size: size)
+        }
+        let rPassDescriptor = MTLRenderPassDescriptor()
+        rPassDescriptor.colorAttachments[0].texture = msaaTexture
+//        rPassDescriptor.colorAttachments[0].resolveTexture = currentDrawable.texture
+        rPassDescriptor.colorAttachments[0].loadAction = .clear
+        rPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.1, green: 0.4, blue: 0.5, alpha: 0.0)
+        rPassDescriptor.colorAttachments[0].storeAction = .multisampleResolve
+        
+        return rPassDescriptor
     }
 }
 
@@ -155,16 +188,21 @@ extension MetalChartRenderer: MTKViewDelegate {
         //   values to our vertex shader when we draw
         screenSize.x = Int32(size.width)
         screenSize.y = Int32(size.height)
-        // recreate texture to fit the size
-        msaaTexture = makeTexture(size: screenSize)
+        
+        // reset cached texture, it will be recreated on a next draw pass
+        msaaTexture = nil
     }
     
     func draw(in view: MTKView) {
+        guard let pipelineState = self.pipelineState else {
+            return
+        }
+        
         guard !planeRenderers.isEmpty else {
 //            print("empty renders array")
             return
         }
-
+        
         guard let commandBuffer = commandQueue.makeCommandBuffer() else {
             print("cannot create command buffer")
             return
@@ -175,14 +213,13 @@ extension MetalChartRenderer: MTKViewDelegate {
             print("no currentDrawable")
             return
         }
-
-        // MSAA : set a texture to smooth lines (antialiasing)
-        let renderPassDescriptor = MTLRenderPassDescriptor()
-        renderPassDescriptor.colorAttachments[0].texture = msaaTexture
+        
+        guard let renderPassDescriptor = makeRenderPassDescriptor(view: view) else {
+            print("no renderPassDescriptor")
+            return
+        }
+        
         renderPassDescriptor.colorAttachments[0].resolveTexture = currentDrawable.texture
-        renderPassDescriptor.colorAttachments[0].loadAction = .clear
-        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.1, green: 0.4, blue: 0.5, alpha: 0.0)
-        renderPassDescriptor.colorAttachments[0].storeAction = .multisampleResolve
 
         guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) else {
             print("cannot make render encoder")
@@ -190,12 +227,14 @@ extension MetalChartRenderer: MTKViewDelegate {
         }
         renderEncoder.label = "MyRenderEncoder"
 
-        //TODO: maybe use the viewport
-//        let viewport = MTLViewport(originX: -1, originY: -1,
-//                                   width: 2, height: 2,
-//                                   znear: -1, zfar: 1)
-//        // Set the region of the drawable to which we'll draw.
-//        renderEncoder.setViewport(viewport)
+        if false {
+            // use the viewport if needed
+            let viewport = MTLViewport(originX: 0.0, originY: 0.0,
+                                       width: Double(view.drawableSize.width), height: Double(view.drawableSize.height),
+                                       znear: -1.0, zfar: 1.0)
+            // Set the region of the drawable to which we'll draw.
+            renderEncoder.setViewport(viewport)
+        }
 
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setCullMode(.none)
