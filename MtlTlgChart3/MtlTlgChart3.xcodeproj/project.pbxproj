@@ -120,6 +120,8 @@
 		B3121A2C2266367800D2D913 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				B357B595227C5B9B0069F68D /* AppMain */,
+				B357B594227C5B530069F68D /* metal_support */,
 				B3E144652270A3A70019D034 /* renderers */,
 				B385058D2267764D003C8202 /* extensions */,
 				B38505862267764D003C8202 /* models */,
@@ -127,12 +129,8 @@
 				B3121A47226638D700D2D913 /* DimensionsConverter.swift */,
 				B3121A452266389A00D2D913 /* ViewPort.swift */,
 				B3121A432266385B00D2D913 /* RenderingContext.swift */,
-				B3121A3F2266380700D2D913 /* ShaderTypes.h */,
-				B3121A412266381A00D2D913 /* ChartShaders.metal */,
 				B3121A3C226637C100D2D913 /* ChartData.swift */,
 				B3121A3B2266378900D2D913 /* ChartBridging-Header.h */,
-				B3121A2D2266367800D2D913 /* AppDelegate.swift */,
-				B3121A2E2266367800D2D913 /* ViewController.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -146,6 +144,24 @@
 				B3121A322266367800D2D913 /* Assets.xcassets */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		B357B594227C5B530069F68D /* metal_support */ = {
+			isa = PBXGroup;
+			children = (
+				B3121A3F2266380700D2D913 /* ShaderTypes.h */,
+				B3121A412266381A00D2D913 /* ChartShaders.metal */,
+			);
+			path = metal_support;
+			sourceTree = "<group>";
+		};
+		B357B595227C5B9B0069F68D /* AppMain */ = {
+			isa = PBXGroup;
+			children = (
+				B3121A2D2266367800D2D913 /* AppDelegate.swift */,
+				B3121A2E2266367800D2D913 /* ViewController.swift */,
+			);
+			path = AppMain;
 			sourceTree = "<group>";
 		};
 		B38505862267764D003C8202 /* models */ = {
