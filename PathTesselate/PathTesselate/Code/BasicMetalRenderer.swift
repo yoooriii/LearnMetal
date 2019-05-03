@@ -8,13 +8,6 @@
 
 import MetalKit
 
-protocol BasicDrawMetalProto: NSObjectProtocol {
-    func fillEncoder(_ encoder:MTLRenderCommandEncoder, mtkView:MTKView)
-    func makeViewport() -> MTLViewport?
-    func drawableSizeWillChange(_ size: CGSize)
-}
-
-
 public class BasicMetalRenderer: NSObject {
     var mtkView: MTKView!
     var device: MTLDevice!
@@ -25,8 +18,8 @@ public class BasicMetalRenderer: NSObject {
     let vertexFuncName = "vertexShader"
     let fragmentFuncName = "fragmentShader"
     
-    var contentProvider:BasicDrawMetalProto?
-    
+    private var pathMesh:PathMesh?
+
     public init?(mtkView: MTKView!) {
         self.mtkView = mtkView
         if let dev = mtkView.device {
@@ -84,6 +77,21 @@ public class BasicMetalRenderer: NSObject {
         super.init()
         mtkView.delegate = self
     }
+
+    func setPath(_ path: CGPath) {
+        pathMesh = nil
+        
+        guard let device = self.device else {
+            print("no device")
+            return
+        }
+        
+        let contour = ContourHandler()
+        contour.debugLevel = 1
+        contour.evaluatePath(path)
+        print("evaluated \(contour.count) points")
+        pathMesh = contour.createMesh(with:device)
+    }
 }
 
 //MARK - MTKViewDelegate
@@ -114,7 +122,7 @@ extension BasicMetalRenderer: MTKViewDelegate {
         }
         renderEncoder.label = "My Simple Render Encoder"
         
-        if let contentProvider = self.contentProvider, let viewport = contentProvider.makeViewport() {
+        if let viewport = makeViewport() {
             renderEncoder.setViewport(viewport)
         }
 
@@ -127,11 +135,9 @@ extension BasicMetalRenderer: MTKViewDelegate {
             return
         }
 
-        // Real drawing happens here if implemented
-        if let contentProvider = self.contentProvider {
-            contentProvider.fillEncoder(renderEncoder, mtkView: view)
-        }
-
+        // Real drawing happens here
+        fillEncoder(renderEncoder, mtkView: view)
+        
         renderEncoder.endEncoding()
         commandBuffer.present(currentDrawable)
         // Finalize rendering here & push the command buffer to the GPU
@@ -140,9 +146,61 @@ extension BasicMetalRenderer: MTKViewDelegate {
     
     /// Called whenever view changes orientation or is resized
     public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        if let contentProvider = self.contentProvider {
-            contentProvider.drawableSizeWillChange(size)
-        }
+        // not sure if it is needed
+        viewportSize.x = UInt32(size.width)
+        viewportSize.y = UInt32(size.height)
     }
 }
 
+private extension BasicMetalRenderer {
+    func fillEncoder(_ encoder:MTLRenderCommandEncoder, mtkView:MTKView) {
+        guard let pathMesh = self.pathMesh,
+            let vertexBuffer = pathMesh.vertexBuffer,
+            let indexBuffer = pathMesh.indexBuffer,
+            pathMesh.indexCount > 0
+            else { return }
+        
+        let strokeColor = float4(0.5, 0.1, 0.1, 1.0)
+        let fillColor = float4(0.0, 1.0, 0.0, 1.0)
+        var renderCx = AAPLRenderContext(strokeColor: strokeColor, fillColor: fillColor, viewportSize:viewportSize)
+        encoder.setVertexBytes(&renderCx,
+                               length: MemoryLayout<AAPLRenderContext>.stride,
+                               index: Int(AAPLVertexInputIndexRenderContext.rawValue))
+        
+        let indexCount = Int(pathMesh.indexCount)
+        encoder.setVertexBuffer(vertexBuffer, offset: 0, index: Int(AAPLVertexInputIndexVertices.rawValue))
+        encoder.drawIndexedPrimitives(type: .triangle,
+                                      indexCount: indexCount,
+                                      indexType: .uint16,
+                                      indexBuffer: indexBuffer,
+                                      indexBufferOffset:0)
+        
+        //        return
+        //
+        //        let vertexCount = Int(pathMesh.vertexCount)
+        //        renderCx.strokeColor = vector_float4(1.0, 1.0, 1.0, 1.0)
+        //        encoder.setVertexBytes(&renderCx,
+        //                               length: MemoryLayout<AAPLRenderContext>.stride,
+        //                               index: Int(AAPLVertexInputIndexRenderContext.rawValue))
+        //
+        //        let drawIndexSceleton = true
+        //        if drawIndexSceleton {
+        //            encoder.drawIndexedPrimitives(type: .lineStrip,
+        //                                          indexCount: indexCount,
+        //                                          indexType: .uint16,
+        //                                          indexBuffer: indexBuffer,
+        //                                          indexBufferOffset:0)
+        //        } else {
+        //            encoder.drawPrimitives(type: .lineStrip, vertexStart: 0, vertexCount: vertexCount)
+        //        }
+    }
+    
+    func makeViewport() -> MTLViewport? {
+        return nil
+        // Set the region of the drawable to which we'll draw.
+        let viewport = MTLViewport(originX:0, originY:0,
+                                   width: Double(viewportSize.x), height: Double(viewportSize.y),
+                                   znear: -1.0, zfar: 1.0)
+        return viewport
+    }
+}

@@ -15,9 +15,7 @@
 		B30256BD226A1742008CEE3E /* CGPathViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30256B7226A1742008CEE3E /* CGPathViewController.swift */; };
 		B30256C0226A1772008CEE3E /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B30256BF226A1772008CEE3E /* MetalKit.framework */; };
 		B3C97CD5226E093900B54B6E /* ContourHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B3C97CD0226E093900B54B6E /* ContourHandler.m */; };
-		B3C97CD6226E093900B54B6E /* TestDefinitions.m in Sources */ = {isa = PBXBuildFile; fileRef = B3C97CD1226E093900B54B6E /* TestDefinitions.m */; };
 		B3C97CD7226E093900B54B6E /* TestPathMath.m in Sources */ = {isa = PBXBuildFile; fileRef = B3C97CD2226E093900B54B6E /* TestPathMath.m */; };
-		B3C97CD9226E1A2C00B54B6E /* PathMetalRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C97CD8226E1A2C00B54B6E /* PathMetalRenderer.swift */; };
 		B3DA727B226CA3F1003585AF /* dict.c in Sources */ = {isa = PBXBuildFile; fileRef = B3DA726B226CA3F1003585AF /* dict.c */; };
 		B3DA727C226CA3F1003585AF /* priorityq.c in Sources */ = {isa = PBXBuildFile; fileRef = B3DA726D226CA3F1003585AF /* priorityq.c */; };
 		B3DA727D226CA3F1003585AF /* sweep.c in Sources */ = {isa = PBXBuildFile; fileRef = B3DA726F226CA3F1003585AF /* sweep.c */; };
@@ -27,8 +25,6 @@
 		B3DA7281226CA3F1003585AF /* mesh.c in Sources */ = {isa = PBXBuildFile; fileRef = B3DA7277226CA3F1003585AF /* mesh.c */; };
 		B3DA7286226CA536003585AF /* AAPLShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = B3DA7283226CA536003585AF /* AAPLShaders.metal */; };
 		B3DA7288226CA6A5003585AF /* PathView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DA7287226CA6A5003585AF /* PathView.swift */; };
-		B3DA728B226CA9A1003585AF /* TestShapeTesselate.m in Sources */ = {isa = PBXBuildFile; fileRef = B3DA728A226CA9A1003585AF /* TestShapeTesselate.m */; };
-		B3F7C13C226F16DE00DB74F7 /* PathLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F7C13B226F16DE00DB74F7 /* PathLogic.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,11 +39,8 @@
 		B30256BF226A1772008CEE3E /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		B3C97CCF226E093900B54B6E /* TestPathMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestPathMath.h; sourceTree = "<group>"; };
 		B3C97CD0226E093900B54B6E /* ContourHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContourHandler.m; sourceTree = "<group>"; };
-		B3C97CD1226E093900B54B6E /* TestDefinitions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDefinitions.m; sourceTree = "<group>"; };
 		B3C97CD2226E093900B54B6E /* TestPathMath.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestPathMath.m; sourceTree = "<group>"; };
 		B3C97CD3226E093900B54B6E /* ContourHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContourHandler.h; sourceTree = "<group>"; };
-		B3C97CD4226E093900B54B6E /* TestDefinitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestDefinitions.h; sourceTree = "<group>"; };
-		B3C97CD8226E1A2C00B54B6E /* PathMetalRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathMetalRenderer.swift; sourceTree = "<group>"; };
 		B3D1768B226E3A710073ACD6 /* tesseiator_types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = tesseiator_types.h; sourceTree = "<group>"; };
 		B3DA726B226CA3F1003585AF /* dict.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dict.c; sourceTree = "<group>"; };
 		B3DA726C226CA3F1003585AF /* tess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tess.h; sourceTree = "<group>"; };
@@ -68,10 +61,7 @@
 		B3DA7284226CA536003585AF /* Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
 		B3DA7285226CA536003585AF /* AAPLShaderTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPLShaderTypes.h; sourceTree = "<group>"; };
 		B3DA7287226CA6A5003585AF /* PathView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathView.swift; sourceTree = "<group>"; };
-		B3DA7289226CA9A1003585AF /* TestShapeTesselate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestShapeTesselate.h; sourceTree = "<group>"; };
-		B3DA728A226CA9A1003585AF /* TestShapeTesselate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestShapeTesselate.m; sourceTree = "<group>"; };
 		B3DA728C226D23F6003585AF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
-		B3F7C13B226F16DE00DB74F7 /* PathLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathLogic.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,11 +122,8 @@
 				B3DA7282226CA536003585AF /* Metal */,
 				B30256B5226A1742008CEE3E /* AppDelegate.swift */,
 				B30256B6226A1742008CEE3E /* BasicMetalRenderer.swift */,
-				B3C97CD8226E1A2C00B54B6E /* PathMetalRenderer.swift */,
 				B30256B7226A1742008CEE3E /* CGPathViewController.swift */,
 				B3DA7287226CA6A5003585AF /* PathView.swift */,
-				B3DA7289226CA9A1003585AF /* TestShapeTesselate.h */,
-				B3DA728A226CA9A1003585AF /* TestShapeTesselate.m */,
 			);
 			path = Code;
 			sourceTree = "<group>";
@@ -156,9 +143,6 @@
 				B3C97CD2226E093900B54B6E /* TestPathMath.m */,
 				B3C97CD3226E093900B54B6E /* ContourHandler.h */,
 				B3C97CD0226E093900B54B6E /* ContourHandler.m */,
-				B3C97CD4226E093900B54B6E /* TestDefinitions.h */,
-				B3C97CD1226E093900B54B6E /* TestDefinitions.m */,
-				B3F7C13B226F16DE00DB74F7 /* PathLogic.swift */,
 			);
 			path = qqq;
 			sourceTree = "<group>";
@@ -175,20 +159,20 @@
 		B3DA726A226CA3F1003585AF /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				B3DA7273226CA3F1003585AF /* dict.h */,
 				B3DA726B226CA3F1003585AF /* dict.c */,
 				B3DA726C226CA3F1003585AF /* tess.h */,
+				B3DA7272226CA3F1003585AF /* tess.c */,
+				B3DA7274226CA3F1003585AF /* priorityq.h */,
 				B3DA726D226CA3F1003585AF /* priorityq.c */,
 				B3DA726E226CA3F1003585AF /* bucketalloc.h */,
+				B3DA7276226CA3F1003585AF /* bucketalloc.c */,
+				B3DA7275226CA3F1003585AF /* sweep.h */,
 				B3DA726F226CA3F1003585AF /* sweep.c */,
+				B3DA7278226CA3F1003585AF /* geom.h */,
 				B3DA7270226CA3F1003585AF /* geom.c */,
 				B3DA7271226CA3F1003585AF /* mesh.h */,
-				B3DA7272226CA3F1003585AF /* tess.c */,
-				B3DA7273226CA3F1003585AF /* dict.h */,
-				B3DA7274226CA3F1003585AF /* priorityq.h */,
-				B3DA7275226CA3F1003585AF /* sweep.h */,
-				B3DA7276226CA3F1003585AF /* bucketalloc.c */,
 				B3DA7277226CA3F1003585AF /* mesh.c */,
-				B3DA7278226CA3F1003585AF /* geom.h */,
 			);
 			name = Source;
 			path = PathTesselate/Libs/libtess2/Source;
@@ -293,16 +277,12 @@
 				B3DA727E226CA3F1003585AF /* geom.c in Sources */,
 				B30256BD226A1742008CEE3E /* CGPathViewController.swift in Sources */,
 				B3DA727C226CA3F1003585AF /* priorityq.c in Sources */,
-				B3C97CD6226E093900B54B6E /* TestDefinitions.m in Sources */,
 				B3DA7286226CA536003585AF /* AAPLShaders.metal in Sources */,
 				B3DA7280226CA3F1003585AF /* bucketalloc.c in Sources */,
 				B30256BC226A1742008CEE3E /* BasicMetalRenderer.swift in Sources */,
 				B30256BB226A1742008CEE3E /* AppDelegate.swift in Sources */,
-				B3F7C13C226F16DE00DB74F7 /* PathLogic.swift in Sources */,
-				B3DA728B226CA9A1003585AF /* TestShapeTesselate.m in Sources */,
 				B3DA727F226CA3F1003585AF /* tess.c in Sources */,
 				B3DA727B226CA3F1003585AF /* dict.c in Sources */,
-				B3C97CD9226E1A2C00B54B6E /* PathMetalRenderer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -10,7 +10,6 @@
 #import <QuartzCore/QuartzCore.h>
 #import <MetalKit/MetalKit.h>
 #import "tesselator.h"
-#import "TestDefinitions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

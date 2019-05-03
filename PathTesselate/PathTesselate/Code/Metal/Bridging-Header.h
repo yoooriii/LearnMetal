@@ -12,6 +12,5 @@
 #include "AAPLShaderTypes.h"
 #include "TestPathMath.h"
 #import "ContourHandler.h"
-#import "TestDefinitions.h"
 
 #endif /* Bridging_Header_h */

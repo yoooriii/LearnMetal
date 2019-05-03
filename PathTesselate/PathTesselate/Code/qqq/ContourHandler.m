@@ -6,7 +6,9 @@
 //  Copyright © 2018 Luxoft. All rights reserved
 //
 
+#import <MetalKit/MetalKit.h>
 #import "ContourHandler.h"
+#import "tesselator.h"
 
 #define DEFAULT_CURVE_SUBDIVISIONS 5
 
@@ -31,8 +33,12 @@ static inline CGPoint evalCubicCurve(CGPoint p0, CGPoint p1, CGPoint p2, CGPoint
     return CGPointMake(x, y);
 }
 
-inline static TestVertex TestVertexMake(CGPoint pt) {
-    TestVertex vertex;
+typedef struct ContrVertex {
+    float x, y;
+} ContrVertex;
+
+inline static ContrVertex TestVertexMake(CGPoint pt) {
+    ContrVertex vertex;
     vertex.x = pt.x;
     vertex.y = pt.y;
     return vertex;
@@ -40,10 +46,14 @@ inline static TestVertex TestVertexMake(CGPoint pt) {
 
 #pragma mark -
 
+@implementation PathMesh
+@end
+
+
 @interface ContourHandler ()
 
 @property (nonatomic, assign) int count;
-@property (nonatomic, assign) TestVertex* vertices;
+@property (nonatomic, assign) ContrVertex* vertices;
 @property (nonatomic, assign) int capacity;
 
 @property (nonatomic, assign) unsigned short* closeIndices;
@@ -51,14 +61,16 @@ inline static TestVertex TestVertexMake(CGPoint pt) {
 @property (nonatomic, assign) int indCapacity;
 
 @property (nonatomic, assign) CGPoint lastPoint;
+@property (nonatomic, assign) int curveSubdivisions;
 @end
 
 @implementation ContourHandler
 
 - (instancetype)init {
     if ((self = [super init])) {
+        self.curveSubdivisions = DEFAULT_CURVE_SUBDIVISIONS;
         self.capacity = 256;
-        self.vertices = malloc(sizeof(TestVertex) * self.capacity);
+        self.vertices = malloc(sizeof(ContrVertex) * self.capacity);
         
         self.indCapacity = 16;
         self.closeIndices = malloc(sizeof(unsigned short) * self.indCapacity);
@@ -111,9 +123,9 @@ inline static TestVertex TestVertexMake(CGPoint pt) {
     self.lastPoint = point;
     if (self.count >= self.capacity) {
         self.capacity *= 2;
-        self.vertices = realloc(self.vertices, sizeof(TestVertex) * self.capacity);
+        self.vertices = realloc(self.vertices, sizeof(ContrVertex) * self.capacity);
     }
-    TestVertex vx = TestVertexMake(point);
+    ContrVertex vx = TestVertexMake(point);
     self.vertices[self.count++] = vx;
 }
 
@@ -136,64 +148,7 @@ inline static TestVertex TestVertexMake(CGPoint pt) {
     CGPathApply(path, (void*)self, PathApplierFunction);
 }
 
-- (id<MTLBuffer>)createVertexBufferWithDevice:(id<MTLDevice>)device {
-    if (!self.count) {
-        return nil;
-    }
-    
-    const int vertexBufSize = self.count * sizeof(TestVertex);
-    id<MTLBuffer> vertexBuffer = [device newBufferWithBytes:self.vertices
-                                               length:vertexBufSize
-                                              options:MTLResourceCPUCacheModeDefaultCache];
-    return vertexBuffer;
-}
-
-- (MetalPathBuffers*)createBuffersWithDevice:(id<MTLDevice>)device {
-    if (!self.count) {
-        return nil;
-    }
-    if (!device) {
-        return nil;
-    }
-
-    MetalPathBuffers *buffers = [MetalPathBuffers new];
-    buffers.vertexCount = self.count;
-    
-    const int vertexBufSize = self.count * sizeof(TestVertex);
-    buffers.vertexBuffer = [device newBufferWithBytes:self.vertices
-                                               length:vertexBufSize
-                                              options:MTLResourceCPUCacheModeDefaultCache];
-
-    int maxIndCount = self.count * 2 + 16; // count + magic number
-    unsigned short *buf = malloc(sizeof(unsigned short) * maxIndCount);
-    
-    int indexCounter = 0;
-    int iClose = 0;
-    int iStartContour = 0; // start contour index
-    for (int i=0; i < self.count; ++i) {
-        buf[indexCounter++] = (unsigned short)i;
-        
-        if (iClose < self.countCloseIndices) {
-            if (self.closeIndices[iClose] == i) {
-                // close contour
-                buf[indexCounter++] = (unsigned short)iStartContour;
-                iStartContour = i; // start another contour
-                ++iClose;
-            }
-        }
-    }
-    
-    buffers.indexCount = indexCounter;
-    const int indexBufSize = sizeof(unsigned short) * indexCounter;
-    buffers.indexBuffer = [device newBufferWithBytes:buf
-                                              length:indexBufSize
-                                             options:MTLResourceCPUCacheModeDefaultCache];
-
-    free(buf); buf = NULL;
-    return buffers;
-}
-
-- (MetalPathBuffers*)createMeshWithDevice:(id<MTLDevice>)device {
+- (PathMesh*)createMeshWithDevice:(id<MTLDevice>)device {
     if (!device) {
         return nil;
     }
@@ -216,7 +171,7 @@ inline static TestVertex TestVertexMake(CGPoint pt) {
         if (self.debugLevel > 0) {
             NSLog(@"#%d: add contour in range [start:count] = [%d:%d]", i, startContour, vertexCount);
         }
-        tessAddContour(tesselator, 2, self.vertices + startContour, sizeof(TestVertex), vertexCount);
+        tessAddContour(tesselator, 2, self.vertices + startContour, sizeof(ContrVertex), vertexCount);
         startContour = self.closeIndices[i];
     }
 
@@ -227,7 +182,7 @@ inline static TestVertex TestVertexMake(CGPoint pt) {
         NSLog(@"Unable to tessellate path");
     }
     
-    MetalPathBuffers* buffers = [MetalPathBuffers new];
+    PathMesh* buffers = [PathMesh new];
     // Retrieve the tessellated mesh from the tessellator and copy the contour list and geometry to the current glyph
     buffers.vertexCount = tessGetVertexCount(tesselator);
     buffers.indexCount = tessGetElementCount(tesselator) * polygonIndexCount;
@@ -276,9 +231,7 @@ inline static TestVertex TestVertexMake(CGPoint pt) {
     tesselator = NULL;
     
     return buffers;
-
 }
-
 
 - (NSString *)description {
     NSMutableString *text = [NSMutableString string];
@@ -299,8 +252,9 @@ inline static TestVertex TestVertexMake(CGPoint pt) {
 
 /// CGPathApplierFunction
 void PathApplierFunction(void *info, const CGPathElement *element) {
-    ContourHandler *contourHandler = (__bridge ContourHandler *)info;
+    const ContourHandler *contourHandler = (__bridge ContourHandler *)info;
     contourHandler.iterationCount += 1;
+    const int curveSubdivisions = contourHandler.curveSubdivisions;
     
     switch (element->type) {
         case kCGPathElementMoveToPoint: {
@@ -319,8 +273,8 @@ void PathApplierFunction(void *info, const CGPathElement *element) {
             CGPoint p1 = element->points[0];
             CGPoint p2 = element->points[1];
             CGPoint p3 = element->points[2];
-            for (int i = 0; i < DEFAULT_CURVE_SUBDIVISIONS; ++i) {
-                float t = (float)i / (float)(DEFAULT_CURVE_SUBDIVISIONS - 1);
+            for (int i = 0; i < curveSubdivisions; ++i) {
+                float t = (float)i / (float)(curveSubdivisions - 1);
                 CGPoint r = evalCubicCurve(p0, p1, p2, p3, t);
                 [contourHandler addPoint:r];
             }
@@ -330,8 +284,8 @@ void PathApplierFunction(void *info, const CGPathElement *element) {
             CGPoint p0 = contourHandler.lastPoint;
             CGPoint p1 = element->points[0];
             CGPoint p2 = element->points[1];
-            for (int i = 0; i < DEFAULT_CURVE_SUBDIVISIONS; ++i) {
-                float t = (float)i / (float)(DEFAULT_CURVE_SUBDIVISIONS - 1);
+            for (int i = 0; i < curveSubdivisions; ++i) {
+                float t = (float)i / (float)(curveSubdivisions - 1);
                 CGPoint r = evalQuadCurve(p0, p2, p1, t);
                 [contourHandler addPoint:r];
             }
