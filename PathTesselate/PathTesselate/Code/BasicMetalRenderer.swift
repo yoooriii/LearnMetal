@@ -11,14 +11,17 @@ import MetalKit
 public class BasicMetalRenderer: NSObject {
     var mtkView: MTKView!
     var device: MTLDevice!
-    private let pipelineState: MTLRenderPipelineState!
-    private let commandQueue: MTLCommandQueue!
+    private var pipelineState: MTLRenderPipelineState?
+    private var commandQueue: MTLCommandQueue?
     private var viewportSize: vector_uint2 = vector_uint2(0)
     // Define shader function names here
     let vertexFuncName = "vertexShader"
     let fragmentFuncName = "fragmentShader"
     
     private var pathMesh:PathMesh?
+    private var msaaTexture: MTLTexture?
+
+    //MARK: -
 
     public init?(mtkView: MTKView!) {
         self.mtkView = mtkView
@@ -42,10 +45,6 @@ public class BasicMetalRenderer: NSObject {
         // Configure a pipeline descriptor that is used to create a pipeline state
         let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
         renderPipelineDescriptor.label = "Simple Pipeline"
-        renderPipelineDescriptor.sampleCount = mtkView.sampleCount
-        renderPipelineDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat
-        renderPipelineDescriptor.depthAttachmentPixelFormat = mtkView.depthStencilPixelFormat
-        renderPipelineDescriptor.stencilAttachmentPixelFormat = mtkView.depthStencilPixelFormat
 
         // Load the vertex function from the library
         if let vertexFunction = library.makeFunction(name: vertexFuncName) {
@@ -60,22 +59,30 @@ public class BasicMetalRenderer: NSObject {
         } else {
             print("cannot load func '\(fragmentFuncName)'")
         }
-
-        do {
-            pipelineState = try device.makeRenderPipelineState(descriptor: renderPipelineDescriptor)
-        } catch {
-            print("cannot create pipeline \(error.localizedDescription)")
-            return nil
-        }
         
-        guard let deviceCommandQueue = device.makeCommandQueue() else {
-            print("cannot create command queue")
-            return nil
-        }
-        commandQueue = deviceCommandQueue
-
         super.init()
+
         mtkView.delegate = self
+        mtkView.sampleCount = 4 // default=1
+        mtkView.colorPixelFormat = .bgra8Unorm
+        renderPipelineDescriptor.sampleCount = mtkView.sampleCount
+        renderPipelineDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat
+        renderPipelineDescriptor.depthAttachmentPixelFormat = mtkView.depthStencilPixelFormat
+        renderPipelineDescriptor.stencilAttachmentPixelFormat = mtkView.depthStencilPixelFormat
+
+        // make pipelineState async (dont block main thread)
+        device.makeRenderPipelineState(descriptor: renderPipelineDescriptor) { (pipelineState, error) in
+            self.pipelineState = pipelineState
+            if let error = error {
+                // Pipeline State creation could fail if we haven't properly set up our pipeline descriptor.
+                //  If the Metal API validation is enabled, we can find out more information about what
+                //  went wrong.  (Metal API validation is enabled by default when a debug build is run
+                //  from Xcode)
+                print("Failed to created pipeline state, error \(error.localizedDescription)")
+            } else {
+                self.commandQueue = self.device.makeCommandQueue()
+            }
+        }
     }
 
     func setPath(_ path: CGPath) {
@@ -99,25 +106,30 @@ extension BasicMetalRenderer: MTKViewDelegate {
     
     /// Called whenever the view needs to render a frame
     public func draw(in view: MTKView) {
-        // Create a new command buffer for each render pass to the current drawable
+        guard let commandQueue = self.commandQueue,
+        let pipelineState = self.pipelineState
+            else { return }
+        
         guard let commandBuffer = commandQueue.makeCommandBuffer() else {
             print("cannot create command buffer")
             return
         }
         commandBuffer.label = "My Simple Command Buffer"
-        
-        // Obtain a renderPassDescriptor generated from the view's drawable textures
-        // MTLRenderPassDescriptor
-        guard let renderPassDescriptor = view.currentRenderPassDescriptor else {
-            commandBuffer.commit()
-            print("cannot get render pass descriptor")
+
+        guard let currentDrawable = view.currentDrawable else {
+            print("no currentDrawable")
             return
         }
         
-        // Create a render command encoder so we can render into something
+        guard let renderPassDescriptor = makeRenderPassDescriptor(view: view) else {
+            print("no renderPassDescriptor")
+            return
+        }
+        
+        renderPassDescriptor.colorAttachments[0].resolveTexture = currentDrawable.texture
+        
         guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) else {
-            commandBuffer.commit()
-            print("cannot create render command encoder")
+            print("cannot make render encoder")
             return
         }
         renderEncoder.label = "My Simple Render Encoder"
@@ -127,13 +139,7 @@ extension BasicMetalRenderer: MTKViewDelegate {
         }
 
         renderEncoder.setRenderPipelineState(pipelineState)
-        
-        guard let currentDrawable = view.currentDrawable else {
-            print("no drawable")
-            renderEncoder.endEncoding()
-            commandBuffer.commit()
-            return
-        }
+        renderEncoder.setCullMode(.none)
 
         // Real drawing happens here
         fillEncoder(renderEncoder, mtkView: view)
@@ -149,6 +155,9 @@ extension BasicMetalRenderer: MTKViewDelegate {
         // not sure if it is needed
         viewportSize.x = UInt32(size.width)
         viewportSize.y = UInt32(size.height)
+        
+        // reset cached texture, it will be recreated on a next draw pass
+        msaaTexture = nil
     }
 }
 
@@ -174,25 +183,6 @@ private extension BasicMetalRenderer {
                                       indexType: .uint16,
                                       indexBuffer: indexBuffer,
                                       indexBufferOffset:0)
-        
-        //        return
-        //
-        //        let vertexCount = Int(pathMesh.vertexCount)
-        //        renderCx.strokeColor = vector_float4(1.0, 1.0, 1.0, 1.0)
-        //        encoder.setVertexBytes(&renderCx,
-        //                               length: MemoryLayout<AAPLRenderContext>.stride,
-        //                               index: Int(AAPLVertexInputIndexRenderContext.rawValue))
-        //
-        //        let drawIndexSceleton = true
-        //        if drawIndexSceleton {
-        //            encoder.drawIndexedPrimitives(type: .lineStrip,
-        //                                          indexCount: indexCount,
-        //                                          indexType: .uint16,
-        //                                          indexBuffer: indexBuffer,
-        //                                          indexBufferOffset:0)
-        //        } else {
-        //            encoder.drawPrimitives(type: .lineStrip, vertexStart: 0, vertexCount: vertexCount)
-        //        }
     }
     
     func makeViewport() -> MTLViewport? {
@@ -202,5 +192,35 @@ private extension BasicMetalRenderer {
                                    width: Double(viewportSize.x), height: Double(viewportSize.y),
                                    znear: -1.0, zfar: 1.0)
         return viewport
+    }
+    
+    func makeMSAATexture(size:vector_int2) -> MTLTexture? {
+        let desc = MTLTextureDescriptor()
+        desc.textureType = MTLTextureType.type2DMultisample
+        desc.width = Int(size.x)
+        desc.height = Int(size.y)
+        desc.sampleCount = 4
+        desc.pixelFormat = .bgra8Unorm
+        desc.usage = MTLTextureUsage.renderTarget // it fixes crash under xcode debugger
+        desc.storageMode = .memoryless
+        
+        return device.makeTexture(descriptor: desc)
+    }
+    
+    func makeRenderPassDescriptor(view: MTKView) -> MTLRenderPassDescriptor? {
+        if let _ = msaaTexture { /* use cached tx */ } else {
+            let drawableSize = view.drawableSize
+            let size = vector_int2(Int32(drawableSize.width), Int32(drawableSize.height))
+            // MSAA : set a texture to smooth lines (antialiasing)
+            msaaTexture = makeMSAATexture(size: size)
+        }
+        let rPassDescriptor = MTLRenderPassDescriptor()
+        rPassDescriptor.colorAttachments[0].texture = msaaTexture
+        //        rPassDescriptor.colorAttachments[0].resolveTexture = currentDrawable.texture
+        rPassDescriptor.colorAttachments[0].loadAction = .clear
+        rPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.1, green: 0.4, blue: 0.5, alpha: 0.0)
+        rPassDescriptor.colorAttachments[0].storeAction = .multisampleResolve
+        
+        return rPassDescriptor
     }
 }
