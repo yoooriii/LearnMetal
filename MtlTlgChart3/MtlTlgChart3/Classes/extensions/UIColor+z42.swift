@@ -41,8 +41,8 @@ extension UIColor {
         return UIColor(red:r, green:g, blue:b, alpha:1.0)
     }
 
-    func vector() -> vector_float4 {
-        var colorVector = vector_float4(0.0, 0.0, 0.0, 1.0) // black
+    func vector() -> float4 {
+        var colorVector = float4(0.0, 0.0, 0.0, 1.0) // black
         if let components = cgColor.components {
             if components.count <= 2 {
                 let gray = Float(components[0])

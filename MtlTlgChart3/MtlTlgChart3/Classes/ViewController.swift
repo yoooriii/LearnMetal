@@ -26,12 +26,9 @@ class ViewController: UIViewController {
         
         mtkView.device = device
         renderer = MetalChartRenderer(mtkView:mtkView)
-        mtkView.sampleCount = 1 //?????
 
-        
         // Initialize our renderer with the view size
         renderer.mtkView(mtkView, drawableSizeWillChange: mtkView.drawableSize)
-        
         mtkView.delegate = renderer
         
         startLoadingData()

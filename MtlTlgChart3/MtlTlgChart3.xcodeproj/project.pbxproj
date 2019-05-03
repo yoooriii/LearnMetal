@@ -20,6 +20,7 @@
 		B3121A462266389A00D2D913 /* ViewPort.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3121A452266389A00D2D913 /* ViewPort.swift */; };
 		B3121A48226638D700D2D913 /* DimensionsConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3121A47226638D700D2D913 /* DimensionsConverter.swift */; };
 		B3121A4A2266399100D2D913 /* CollectionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3121A492266399100D2D913 /* CollectionUtils.swift */; };
+		B357B591227C4F050069F68D /* GraphPlaneSlice.swift in Sources */ = {isa = PBXBuildFile; fileRef = B357B590227C4F050069F68D /* GraphPlaneSlice.swift */; };
 		B38505912267764D003C8202 /* RawModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38505872267764D003C8202 /* RawModels.swift */; };
 		B38505922267764D003C8202 /* LogicCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38505882267764D003C8202 /* LogicCanvas.swift */; };
 		B38505932267764D003C8202 /* UIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38505892267764D003C8202 /* UIModels.swift */; };
@@ -53,6 +54,7 @@
 		B3121A452266389A00D2D913 /* ViewPort.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewPort.swift; sourceTree = "<group>"; };
 		B3121A47226638D700D2D913 /* DimensionsConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DimensionsConverter.swift; sourceTree = "<group>"; };
 		B3121A492266399100D2D913 /* CollectionUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionUtils.swift; sourceTree = "<group>"; };
+		B357B590227C4F050069F68D /* GraphPlaneSlice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphPlaneSlice.swift; sourceTree = "<group>"; };
 		B38505872267764D003C8202 /* RawModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RawModels.swift; sourceTree = "<group>"; };
 		B38505882267764D003C8202 /* LogicCanvas.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogicCanvas.swift; sourceTree = "<group>"; };
 		B38505892267764D003C8202 /* UIModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIModels.swift; sourceTree = "<group>"; };
@@ -155,6 +157,7 @@
 				B385058A2267764D003C8202 /* Models.swift */,
 				B385058B2267764D003C8202 /* PathModels.swift */,
 				B385058C2267764D003C8202 /* TestModels.swift */,
+				B357B590227C4F050069F68D /* GraphPlaneSlice.swift */,
 			);
 			path = models;
 			sourceTree = "<group>";
@@ -252,6 +255,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B357B591227C4F050069F68D /* GraphPlaneSlice.swift in Sources */,
 				B38505982267764D003C8202 /* NSError+z42.swift in Sources */,
 				B3121A442266385B00D2D913 /* RenderingContext.swift in Sources */,
 				B38505942267764D003C8202 /* Models.swift in Sources */,

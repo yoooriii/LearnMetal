@@ -24,8 +24,6 @@ class MetalChartRenderer: NSObject {
     var commandQueue: MTLCommandQueue!
     // absolute coordinates in graph values
     var commonGraphRect = vector_float4(1)
-    // view.drawableSize (no need to keep it here)
-    var screenSize = vector_int2(1)
     
     var pointsCount = 0
     var vertexCount:Int { get { return pointsCount * 2 } }
@@ -66,10 +64,10 @@ class MetalChartRenderer: NSObject {
 
             if 0 == iPlane {
                 // take the first rect
-                graphRect = pRenderer.graphRect
+                graphRect = pRenderer.getOriginalGraphRect()
             } else {
                 // compare with other rects and get extremums
-                let nextGraphRect = pRenderer.graphRect
+                let nextGraphRect = pRenderer.getOriginalGraphRect()
                 if graphRect[0] > nextGraphRect[0] { graphRect[0] = nextGraphRect[0] }
                 if graphRect[1] > nextGraphRect[1] { graphRect[1] = nextGraphRect[1] }
                 if graphRect[2] < nextGraphRect[2] { graphRect[2] = nextGraphRect[2] }
@@ -77,10 +75,6 @@ class MetalChartRenderer: NSObject {
             }
         }
         commonGraphRect = graphRect
-        
-        for pRenderer in planeRenderers {
-            pRenderer.loadResources()
-        }
     }
 
     /// Create our Metal render state objects including our shaders and render state pipeline objects
@@ -101,7 +95,6 @@ class MetalChartRenderer: NSObject {
         if let defaultLibrary = device.makeDefaultLibrary() {
             pipelineStateDescriptor.vertexFunction = defaultLibrary.makeFunction(name: "vertexShader")
             pipelineStateDescriptor.fragmentFunction = defaultLibrary.makeFunction(name: "fragmentShader")
-//            let bbb = defaultLibrary.makeFunction(name: "vertexShaderFilled")
         }
         
         mtkView.sampleCount = 4 // default=1
@@ -147,7 +140,7 @@ class MetalChartRenderer: NSObject {
 //        commandQueue = device.makeCommandQueue()
     }
     
-    private var renderPassDescriptor: MTLRenderPassDescriptor?
+//    private var renderPassDescriptor: MTLRenderPassDescriptor?
     private var msaaTexture: MTLTexture?
     
     private func makeMSAATexture(size:vector_int2) -> MTLTexture? {
@@ -184,11 +177,6 @@ class MetalChartRenderer: NSObject {
 extension MetalChartRenderer: MTKViewDelegate {
     /// Called whenever view changes orientation or is resized
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        // Save the size of the drawable as we'll pass these
-        //   values to our vertex shader when we draw
-        screenSize.x = Int32(size.width)
-        screenSize.y = Int32(size.height)
-        
         // reset cached texture, it will be recreated on a next draw pass
         msaaTexture = nil
     }
@@ -225,17 +213,7 @@ extension MetalChartRenderer: MTKViewDelegate {
             print("cannot make render encoder")
             return
         }
-        renderEncoder.label = "MyRenderEncoder"
-
-        if false {
-            // use the viewport if needed
-            let viewport = MTLViewport(originX: 0.0, originY: 0.0,
-                                       width: Double(view.drawableSize.width), height: Double(view.drawableSize.height),
-                                       znear: -1.0, zfar: 1.0)
-            // Set the region of the drawable to which we'll draw.
-            renderEncoder.setViewport(viewport)
-        }
-
+        renderEncoder.label = "Graph Render Encoder"
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setCullMode(.none)
 

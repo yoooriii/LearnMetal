@@ -10,23 +10,16 @@ import Foundation
 import MetalKit
 
 class GraphRenderer: NSObject {
-    var alpha: CGFloat = 1.0
-    var vertexBuffer: MTLBuffer!
-    var indexBuffer: MTLBuffer!
     let device: MTLDevice!
-    // absolute coordinates in graph values
-    var graphRect = vector_float4(1)
-    // view.drawableSize (no need to keep it here)
-    var screenSize = vector_int2(1)
-    
+    var vertexBuffer: MTLBuffer?
+    var indexBuffer: MTLBuffer?
     var lineWidth = Float(1)
-    var pointsCount:Int = 0
-    var vertexCount:Int = 0 //{ get { return pointsCount * 2 } }
+    // this graphRect can differ from the real graph's graphRect (it makes a scale in shader)
+    var graphRect = float4(0)
+    var vertexCount:Int = 0
     var indexCount:Int = 0
-    private var strokeColor:UIColor?
-    private var plane:Plane? = nil
-    private var color:float4 = float4(1)
     var graphMode:VShaderMode = VShaderModeStroke
+    var graphPlane:GraphPlaneSlice?
     
     //MARK: -
 
@@ -35,73 +28,57 @@ class GraphRenderer: NSObject {
     }
     
     func setPlane(_ plane:Plane, iPlane:Int) {
-        self.plane = plane
-        indexCount = 0
-        pointsCount = 0
-        vertexCount = 0
-        if plane.vAmplitudes.count <= iPlane {
-            print("wrong graph index \(iPlane)")
-            return
-        }
-        
-        pointsCount = min(plane.vTime.count, plane.vAmplitudes[iPlane].count) // the 2 must be equal
-        guard pointsCount > 1 else {
-            print("too few points in graph (\(pointsCount))")
-            graphRect = vector_float4(1)
-            return
-        }
+        cleanup()
         guard let _ = self.device else {
+            print("no device, won't accept plane")
             return
         }
-
-        //TODO: double conversion: repack coordinates
-        var points = [float2]()
-        for i in 0 ..< pointsCount {
-            let x = plane.vTime.values[i]/1000
-            let y = plane.vAmplitudes[iPlane].values[i]
-            let p = float2(Float(x), Float(y))
-            points.append(p)
+        graphPlane = GraphPlaneSlice(plane, sliceIndex:iPlane)
+        guard let graphPlane = self.graphPlane else {
+            return
         }
-        let minX = Float(plane.vTime.minValue/1000)
-        let maxX = Float(plane.vTime.maxValue/1000)
-        let minY = Float(plane.vAmplitudes[iPlane].minValue)
-        let maxY = Float(plane.vAmplitudes[iPlane].maxValue)
-        
-        graphRect = vector_float4(minX, minY, maxX, maxY)
-        strokeColor = plane.vAmplitudes[iPlane].color
-        color = UIColor.vector(strokeColor)
+        graphRect = graphPlane.graphRect
 
-        makeVertexBuffer(points: points)
+        makeVertexBuffer(graphPlane:graphPlane)
         makeIndexBuffer()
-    }
-    
-    func chartContext(view:MTKView) -> ChartContext! {
-        let screenSize = vector_int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
-        let lineWidth = self.lineWidth * Float(view.contentScaleFactor)
-        return ChartContext(graphRect: graphRect, screenSize: screenSize, color: color, lineWidth:lineWidth, vertexCount:UInt32(vertexCount), vshaderMode:Int32(graphMode.rawValue))
     }
 }
 
 
 private extension GraphRenderer {
-    func makeVertexBuffer(points:[float2]) {
+    func cleanup() {
+        graphPlane = nil
+        indexCount = 0
+        vertexCount = 0
+        vertexBuffer = nil
+        indexBuffer = nil
+        graphRect = float4(0)
+    }
+    
+    func chartContext(view:MTKView) -> ChartContext! {
+        let screenSize = int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
+        let lineWidth = self.lineWidth * Float(view.contentScaleFactor)
+        return ChartContext(graphRect: graphRect, screenSize: screenSize, color: graphPlane!.color, lineWidth:lineWidth, vertexCount:UInt32(vertexCount), vshaderMode:Int32(graphMode.rawValue))
+    }
+    
+    func makeVertexBuffer(graphPlane:GraphPlaneSlice) {
         var arrayVertices = [float2]()
         
-        let dx = Float(graphRect[2] - graphRect[0])/Float(pointsCount * 2)
+        let dx = graphPlane.avgDX()/2.0
         // insert a fake point at the beginning
-        var vxFirst = points[0]
+        var vxFirst = graphPlane.firstPoint()
         vxFirst.x -= dx
         arrayVertices.append(vxFirst)
         arrayVertices.append(vxFirst)
         
-        for pt in points {
-            let vx = pt
+        for i in 0 ..< graphPlane.pointsCount {
+            let vx = graphPlane.point(at: i)
             arrayVertices.append(vx) // use a point twice
             arrayVertices.append(vx)
         }
         
         // repeat the last point (fake point)
-        var vxLast = points[pointsCount - 1]
+        var vxLast = graphPlane.lastPoint()
         vxLast.x += dx
         arrayVertices.append(vxLast)
         arrayVertices.append(vxLast)
@@ -111,8 +88,13 @@ private extension GraphRenderer {
                                          length: MemoryLayout<float2>.stride * vertexCount,
                                          options: .cpuCacheModeWriteCombined)
     }
-    
+
+    // create vertex buffer first and only then call this
     func makeIndexBuffer() {
+        if vertexCount < 3 {
+            print("cannot create index buffer (create vertex buffer first)")
+            return
+        }
         var arrayIndices = [UInt16]()
         //TODO: improvement: index array (buffer) is the same for all graphs
         for idx in stride(from: 0, to: (vertexCount - 3), by: 2) {
@@ -134,11 +116,18 @@ private extension GraphRenderer {
 
 
 extension GraphRenderer: GraphRendererProto {
-    @objc func loadResources() {}
-    
-    // do the work
+    func getOriginalGraphRect() -> float4 {
+        if let graphPlane = self.graphPlane {
+            return graphPlane.graphRect
+        }
+        return float4(0)
+    }
+
     func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView) {
-        if pointsCount == 0 || indexCount == 0 {
+        guard vertexCount != 0, indexCount != 0 else {
+            return
+        }
+        guard let vertexBuffer = self.vertexBuffer, let indexBuffer = self.indexBuffer else {
             return
         }
         

@@ -67,6 +67,11 @@ private extension GridRenderer {
 }
 
 extension GridRenderer: GraphRendererProto {
+    func getOriginalGraphRect() -> float4 {
+        // it is wrong?
+        return graphRect
+    }
+    
     func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView) {
         if pointsCount == 0 || indexCount == 0 {
             return

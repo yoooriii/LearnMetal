@@ -11,8 +11,9 @@ import MetalKit
 
 protocol GraphRendererProto {
     var lineWidth: Float { get set }
-    var graphRect: vector_float4 { get set }
+    var graphRect:float4 { get set }
 
     func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView)
-    func loadResources()
+    // it returns the original graph rect in comparision to the graphRect var
+    func getOriginalGraphRect() -> float4
 }
