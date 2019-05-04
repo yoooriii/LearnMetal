@@ -10,22 +10,27 @@ import UIKit
 import MetalKit
 
 class GridRenderer: NSObject {
-    var alpha: CGFloat = 1.0
-    private var vertexBuffer: MTLBuffer!
-    private var indexBuffer: MTLBuffer!
     private let device: MTLDevice!
+    private let vertexArray = [float2](repeating: float2(0), count: 4)
+    var graphMode:VShaderMode = VShaderModeStroke
+    
+    let lineCount = uint2(10, 11) // horizontal/vertical lines count
+
+
     // absolute coordinates in graph values
-    var graphRect = vector_float4(1)
-    // view.drawableSize (no need to keep it here)
-    var screenSize = vector_int2(1)
-    
+    var graphRect = float4(0) {
+        didSet{
+            print("GridRenderer:graphRect:didSet: \(graphRect)")
+        }
+    }
+
+    // grid properties
+    var strokeColor = float4(0.5, 0.5, 0.5, 1.0)
     var lineWidth = Float(1)
-    private var pointsCount:Int = 0
-    private var vertexCount:Int = 0 //{ get { return pointsCount * 2 } }
-    private var indexCount:Int = 0
-    private var strokeColor:UIColor?
+    var lineDashPattern:float2 = float2(5,15)
+    var gridCellSize:float2 = float2(100,100)
+    var gridMaxSize:float2 = float2(1000,1000)
     
-    private var pointerVertices: [float2]?
     
     //MARK: -
     
@@ -34,15 +39,13 @@ class GridRenderer: NSObject {
         
     }
     
-    func loadResources() {
-        let pointRect = CGRect(x: -10, y: -10, width: 20, height: 20)
-        pointerVertices = makeTestCircularVertices(rect: pointRect, steps: 12)
+    func loadContent(viewSize:uint2) {
+        graphRect = float4(0,0, Float(viewSize[0]), Float(viewSize[1])) // should we change it here and this way?
     }
-    
-
 }
 
 private extension GridRenderer {
+    //debug method
     func makeTestCircularVertices(rect: CGRect, steps:Int) -> [float2] {
         var resVertices = [float2]()
         if steps < 3 {
@@ -64,6 +67,12 @@ private extension GridRenderer {
         
         return resVertices
     }
+
+    func chartContext(view:MTKView) -> ChartContext! {
+        let screenSize = int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
+        let lineWidth = self.lineWidth * Float(view.contentScaleFactor)
+        return ChartContext.dashLineContext(graphRect: graphRect, screenSize: screenSize, color: strokeColor, lineWidth: lineWidth, lineOffset: gridCellSize, lineCount: lineCount, dashPattern: lineDashPattern)
+    }
 }
 
 extension GridRenderer: GraphRendererProto {
@@ -73,25 +82,14 @@ extension GridRenderer: GraphRendererProto {
     }
     
     func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView) {
-        if pointsCount == 0 || indexCount == 0 {
+        guard vertexArray.count != 0 else {
             return
         }
         
-        let screenSize = vector_int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
-        let lineWidth = self.lineWidth * Float(view.contentScaleFactor)
-        let colorVector = UIColor.vector(strokeColor)
-        
-        var chartContext = ChartContext(graphRect: graphRect, screenSize: screenSize, color: colorVector, lineWidth:lineWidth, vertexCount:UInt32(vertexCount), vshaderMode:Int32(VShaderModeFill.rawValue))
-        
-        encoder.setVertexBuffer(vertexBuffer, offset: 0,
-                                index: Int(AAPLVertexInputIndexVertices.rawValue))
-        encoder.setVertexBytes(&chartContext, length: MemoryLayout<ChartContext>.stride,
+        var chartCx = chartContext(view:view)
+        encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
                                index: Int(AAPLVertexInputIndexChartContext.rawValue))
-        
-        encoder.drawIndexedPrimitives(type: .triangle,
-                                      indexCount: indexCount,
-                                      indexType: .uint16,
-                                      indexBuffer: indexBuffer,
-                                      indexBufferOffset:0)
+        encoder.setVertexBytes(vertexArray, length: MemoryLayout<float2>.stride * vertexArray.count, index: Int(AAPLVertexInputIndexVertices.rawValue))
+        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: Int(lineCount[0] + lineCount[1]))
     }
 }

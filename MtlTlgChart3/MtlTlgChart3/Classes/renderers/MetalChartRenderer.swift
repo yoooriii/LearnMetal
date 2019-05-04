@@ -28,11 +28,11 @@ class MetalChartRenderer: NSObject {
     var pointsCount = 0
     var vertexCount:Int { get { return pointsCount * 2 } }
     var strokeColor:UIColor?
-    var lineWidth = Float(10)//Float(1.5)
+    var lineWidth = Float(2)//Float(1.5)
 
     ///////////////////
     var planeRenderers = [GraphRendererProto]()
-    private var gridRenderer:GridRenderer!
+    private var gridRenderer:GridRenderer?
     
     /// Initialize with the MetalKit view from which we'll obtain our Metal device
     init(mtkView: MTKView) {
@@ -53,13 +53,15 @@ class MetalChartRenderer: NSObject {
         if let _ = gridRenderer {} else {
             gridRenderer = GridRenderer(device: device)
         }
-        planeRenderers.append(gridRenderer)
+        let grSize = mtkView.drawableSize
+        gridRenderer!.loadContent(viewSize: uint2(UInt32(grSize.width), UInt32(grSize.height)))
+        planeRenderers.append(gridRenderer!)
 
         var graphRect = vector_float4(0)
         for iPlane in 0 ..< countP {
             let pRenderer = GraphRenderer(device: device)
             pRenderer.setPlane(plane, iPlane: iPlane)
-            pRenderer.graphMode = VShaderModeFill
+            pRenderer.graphMode = VShaderModeFill // VShaderModeStroke
             planeRenderers.append(pRenderer)    
 
             if 0 == iPlane {
@@ -179,6 +181,10 @@ extension MetalChartRenderer: MTKViewDelegate {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
         // reset cached texture, it will be recreated on a next draw pass
         msaaTexture = nil
+        
+        if let gridRenderer = self.gridRenderer {
+            gridRenderer.loadContent(viewSize: uint2(UInt32(size.width), UInt32(size.height)))
+        }
     }
     
     func draw(in view: MTKView) {
@@ -220,8 +226,11 @@ extension MetalChartRenderer: MTKViewDelegate {
         //encodeGraph(encoder: renderEncoder, view: view, color: strokeColor)
         for i in 0 ..< planeRenderers.count {
             var pRenderer = planeRenderers[i]
-            pRenderer.lineWidth = lineWidth
-            pRenderer.graphRect = commonGraphRect
+            if let _ = pRenderer as? GraphRenderer {
+                // for now we dont resize the grid
+                pRenderer.lineWidth = lineWidth
+                pRenderer.graphRect = commonGraphRect
+            }
             pRenderer.encodeGraph(encoder: renderEncoder, view: view)
         }
         

@@ -18,8 +18,15 @@ typedef enum {
 
 typedef enum {
     VShaderModeStroke = 0,
-    VShaderModeFill = 1
+    VShaderModeFill = 1,
+    VShaderModeDash = 2
 } VShaderMode;
+
+typedef enum {
+    LineOrientationNone = 0,
+    LineOrientationHorizontal = 1,
+    LineOrientationVertical = 2
+} LineOrientation;
 
 /// line chart
 typedef struct {
@@ -28,7 +35,10 @@ typedef struct {
     vector_float4 color;
     float lineWidth;
     uint vertexCount;
-    int vshaderMode; // VShaderMode
+    uint32_t vshaderMode; // VShaderMode
+    // extra
+    float extraFloat[8];
+    uint32_t extraInt[8];
 } ChartContext;  // <-- AAPLVertexInputIndexChartContext
 
 #endif /* ShaderTypes_h */

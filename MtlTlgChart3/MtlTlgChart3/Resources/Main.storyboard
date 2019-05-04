@@ -22,18 +22,6 @@
                                 <rect key="frame" x="10" y="70" width="355" height="497"/>
                                 <color key="clearColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </mtkView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aid-eW-ajC">
-                                <rect key="frame" x="10" y="613" width="100" height="44"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="100" id="HKR-0n-zlK"/>
-                                    <constraint firstAttribute="height" constant="44" id="USA-1a-oM8"/>
-                                </constraints>
-                                <state key="normal" title="Next"/>
-                                <connections>
-                                    <action selector="setNextPlaneAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="dtl-VE-2fJ"/>
-                                </connections>
-                            </button>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="mqU-D9-o1A">
                                 <rect key="frame" x="128" y="617" width="229" height="31"/>
                                 <connections>
@@ -49,21 +37,33 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aid-eW-ajC">
+                                <rect key="frame" x="255" y="513" width="100" height="44"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="HKR-0n-zlK"/>
+                                    <constraint firstAttribute="height" constant="44" id="USA-1a-oM8"/>
+                                </constraints>
+                                <state key="normal" title="Next"/>
+                                <connections>
+                                    <action selector="setNextPlaneAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="dtl-VE-2fJ"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="aid-eW-ajC" secondAttribute="bottom" constant="10" id="CIP-Yh-rVi"/>
+                            <constraint firstItem="mqU-D9-o1A" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="130" id="4nq-UB-dJi"/>
                             <constraint firstItem="QDA-su-14K" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="10" id="Duz-jD-cqd"/>
-                            <constraint firstItem="aid-eW-ajC" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="SD8-zc-Cvz"/>
                             <constraint firstItem="1Aj-a9-Rno" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="VRX-Va-sig"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="mqU-D9-o1A" secondAttribute="bottom" constant="20" id="aQv-4Z-mlZ"/>
                             <constraint firstItem="QDA-su-14K" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="50" id="aR2-X4-LH3"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="QDA-su-14K" secondAttribute="bottom" constant="100" id="cX8-CB-Cg9"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="1Aj-a9-Rno" secondAttribute="trailing" constant="10" id="hhW-ZY-IWZ"/>
-                            <constraint firstItem="mqU-D9-o1A" firstAttribute="leading" secondItem="aid-eW-ajC" secondAttribute="trailing" constant="20" id="jw2-ks-Rn8"/>
                             <constraint firstItem="1Aj-a9-Rno" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="mRN-Wo-DYI"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="QDA-su-14K" secondAttribute="trailing" constant="10" id="saE-Lg-sj6"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="mqU-D9-o1A" secondAttribute="trailing" constant="20" id="sic-gt-TN4"/>
+                            <constraint firstItem="aid-eW-ajC" firstAttribute="bottom" secondItem="QDA-su-14K" secondAttribute="bottom" constant="-10" id="sjr-fE-aTQ"/>
+                            <constraint firstItem="aid-eW-ajC" firstAttribute="trailing" secondItem="QDA-su-14K" secondAttribute="trailing" constant="-10" id="yIi-Te-SiQ"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>

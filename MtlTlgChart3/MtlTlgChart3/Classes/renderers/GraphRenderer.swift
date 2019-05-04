@@ -12,12 +12,10 @@ import MetalKit
 class GraphRenderer: NSObject {
     let device: MTLDevice!
     var vertexBuffer: MTLBuffer?
-    var indexBuffer: MTLBuffer?
     var lineWidth = Float(1)
     // this graphRect can differ from the real graph's graphRect (it makes a scale in shader)
     var graphRect = float4(0)
     var vertexCount:Int = 0
-    var indexCount:Int = 0
     var graphMode:VShaderMode = VShaderModeStroke
     var graphPlane:GraphPlaneSlice?
     
@@ -38,9 +36,7 @@ class GraphRenderer: NSObject {
             return
         }
         graphRect = graphPlane.graphRect
-
         makeVertexBuffer(graphPlane:graphPlane)
-        makeIndexBuffer()
     }
 }
 
@@ -48,17 +44,15 @@ class GraphRenderer: NSObject {
 private extension GraphRenderer {
     func cleanup() {
         graphPlane = nil
-        indexCount = 0
         vertexCount = 0
         vertexBuffer = nil
-        indexBuffer = nil
         graphRect = float4(0)
     }
     
     func chartContext(view:MTKView) -> ChartContext! {
         let screenSize = int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
         let lineWidth = self.lineWidth * Float(view.contentScaleFactor)
-        return ChartContext(graphRect: graphRect, screenSize: screenSize, color: graphPlane!.color, lineWidth:lineWidth, vertexCount:UInt32(vertexCount), vshaderMode:Int32(graphMode.rawValue))
+        return ChartContext(graphRect: graphRect, screenSize: screenSize, color: graphPlane!.color, lineWidth:lineWidth, vertexCount:vertexCount, vshaderMode:graphMode)
     }
     
     func makeVertexBuffer(graphPlane:GraphPlaneSlice) {
@@ -88,30 +82,6 @@ private extension GraphRenderer {
                                          length: MemoryLayout<float2>.stride * vertexCount,
                                          options: .cpuCacheModeWriteCombined)
     }
-
-    // create vertex buffer first and only then call this
-    func makeIndexBuffer() {
-        if vertexCount < 3 {
-            print("cannot create index buffer (create vertex buffer first)")
-            return
-        }
-        var arrayIndices = [UInt16]()
-        //TODO: improvement: index array (buffer) is the same for all graphs
-        for idx in stride(from: 0, to: (vertexCount - 3), by: 2) {
-            let vertexIndex = UInt16(idx)
-            arrayIndices.append(vertexIndex)
-            arrayIndices.append(vertexIndex + 2)
-            arrayIndices.append(vertexIndex + 3)
-            arrayIndices.append(vertexIndex)
-            arrayIndices.append(vertexIndex + 3)
-            arrayIndices.append(vertexIndex + 1)
-        }
-        
-        indexCount = arrayIndices.count
-        indexBuffer = device.makeBuffer(bytes: arrayIndices,
-                                        length: MemoryLayout<UInt16>.stride * indexCount,
-                                        options: .cpuCacheModeWriteCombined)
-    }
 }
 
 
@@ -124,24 +94,15 @@ extension GraphRenderer: GraphRendererProto {
     }
 
     func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView) {
-        guard vertexCount != 0, indexCount != 0 else {
-            return
-        }
-        guard let vertexBuffer = self.vertexBuffer, let indexBuffer = self.indexBuffer else {
+        guard let vertexBuffer = self.vertexBuffer, vertexCount != 0 else {
             return
         }
         
         var chartCx = chartContext(view:view)
-        
-        encoder.setVertexBuffer(vertexBuffer, offset: 0,
-                                index: Int(AAPLVertexInputIndexVertices.rawValue))
         encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
                                index: Int(AAPLVertexInputIndexChartContext.rawValue))
-        
-        encoder.drawIndexedPrimitives(type: .triangle,
-                                      indexCount: indexCount,
-                                      indexType: .uint16,
-                                      indexBuffer: indexBuffer,
-                                      indexBufferOffset:0)
+        encoder.setVertexBuffer(vertexBuffer, offset: 0,
+                                index: Int(AAPLVertexInputIndexVertices.rawValue))
+        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: vertexCount)
     }
 }
