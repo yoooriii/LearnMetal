@@ -37,6 +37,12 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8J3-S6-ndd">
+                                <rect key="frame" x="181" y="521" width="51" height="31"/>
+                                <connections>
+                                    <action selector="switchMode:" destination="BYZ-38-t0r" eventType="valueChanged" id="DSt-Ye-HBX"/>
+                                </connections>
+                            </switch>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aid-eW-ajC">
                                 <rect key="frame" x="255" y="513" width="100" height="44"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -63,6 +69,8 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="QDA-su-14K" secondAttribute="trailing" constant="10" id="saE-Lg-sj6"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="mqU-D9-o1A" secondAttribute="trailing" constant="20" id="sic-gt-TN4"/>
                             <constraint firstItem="aid-eW-ajC" firstAttribute="bottom" secondItem="QDA-su-14K" secondAttribute="bottom" constant="-10" id="sjr-fE-aTQ"/>
+                            <constraint firstItem="8J3-S6-ndd" firstAttribute="bottom" secondItem="QDA-su-14K" secondAttribute="bottom" constant="-15" id="tgf-S0-Hz3"/>
+                            <constraint firstItem="aid-eW-ajC" firstAttribute="leading" secondItem="8J3-S6-ndd" secondAttribute="trailing" constant="25" id="vr3-dL-JVS"/>
                             <constraint firstItem="aid-eW-ajC" firstAttribute="trailing" secondItem="QDA-su-14K" secondAttribute="trailing" constant="-10" id="yIi-Te-SiQ"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>

@@ -56,30 +56,30 @@ private extension GraphRenderer {
     }
     
     func makeVertexBuffer(graphPlane:GraphPlaneSlice) {
-        var arrayVertices = [float2]()
+        var arrayVertices = [Float]()
         
         let dx = graphPlane.avgDX()/2.0
         // insert a fake point at the beginning
         var vxFirst = graphPlane.firstPoint()
         vxFirst.x -= dx
-        arrayVertices.append(vxFirst)
-        arrayVertices.append(vxFirst)
+        arrayVertices.append(vxFirst.x)
+        arrayVertices.append(vxFirst.y)
         
         for i in 0 ..< graphPlane.pointsCount {
             let vx = graphPlane.point(at: i)
-            arrayVertices.append(vx) // use a point twice
-            arrayVertices.append(vx)
+            arrayVertices.append(vx.x) // use a point twice
+            arrayVertices.append(vx.y)
         }
         
         // repeat the last point (fake point)
         var vxLast = graphPlane.lastPoint()
         vxLast.x += dx
-        arrayVertices.append(vxLast)
-        arrayVertices.append(vxLast)
+        arrayVertices.append(vxLast.x)
+        arrayVertices.append(vxLast.y)
         
         vertexCount = arrayVertices.count
         vertexBuffer = device.makeBuffer(bytes: arrayVertices,
-                                         length: MemoryLayout<float2>.stride * vertexCount,
+                                         length: MemoryLayout<Float>.stride * vertexCount,
                                          options: .cpuCacheModeWriteCombined)
     }
 }

@@ -61,7 +61,7 @@ class MetalChartRenderer: NSObject {
         for iPlane in 0 ..< countP {
             let pRenderer = GraphRenderer(device: device)
             pRenderer.setPlane(plane, iPlane: iPlane)
-            pRenderer.graphMode = VShaderModeFill // VShaderModeStroke
+            pRenderer.graphMode = graphMode
             planeRenderers.append(pRenderer)    
 
             if 0 == iPlane {
@@ -77,6 +77,17 @@ class MetalChartRenderer: NSObject {
             }
         }
         commonGraphRect = graphRect
+    }
+    
+    var graphMode:VShaderMode = VShaderModeStroke
+
+    func switchMode(_ state:Bool) {
+        graphMode = state ? VShaderModeStroke : VShaderModeFill
+        for render in planeRenderers {
+            if let graphRender = render as? GraphRenderer {
+                graphRender.graphMode = graphMode
+            }
+        }
     }
 
     /// Create our Metal render state objects including our shaders and render state pipeline objects

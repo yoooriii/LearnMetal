@@ -11,7 +11,7 @@ import MetalKit
 
 class GridRenderer: NSObject {
     private let device: MTLDevice!
-    private let vertexArray = [float2](repeating: float2(0), count: 4)
+    private let vertexArray = [Float](repeating: Float(0), count: 4)
     var graphMode:VShaderMode = VShaderModeStroke
     
     let lineCount = uint2(10, 11) // horizontal/vertical lines count
@@ -89,7 +89,7 @@ extension GridRenderer: GraphRendererProto {
         var chartCx = chartContext(view:view)
         encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
                                index: Int(AAPLVertexInputIndexChartContext.rawValue))
-        encoder.setVertexBytes(vertexArray, length: MemoryLayout<float2>.stride * vertexArray.count, index: Int(AAPLVertexInputIndexVertices.rawValue))
+        encoder.setVertexBytes(vertexArray, length: MemoryLayout<Float>.stride * vertexArray.count, index: Int(AAPLVertexInputIndexVertices.rawValue))
         encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: Int(lineCount[0] + lineCount[1]))
     }
 }

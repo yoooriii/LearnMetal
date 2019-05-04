@@ -22,14 +22,17 @@ typedef struct {
 vertex RasterizerData
 vertexShader(uint vid [[ vertex_id ]],
              uint iid [[ instance_id ]],
-             constant float2 *vertices [[ buffer(AAPLVertexInputIndexVertices) ]],
+             constant float *vertices [[ buffer(AAPLVertexInputIndexVertices) ]],  // v[n]=x, v[n+1]=y
              constant ChartContext *chartContextPtr  [[ buffer(AAPLVertexInputIndexChartContext) ]] )
 {
     if (chartContextPtr -> vshaderMode == VShaderModeFill) {
         const float4 graphBox = chartContextPtr->graphRect; // graph size
         const float2 graphSize = float2(graphBox[2] - graphBox[0], graphBox[3] - graphBox[1]); // width, height in graph logic points
         
-        float2 position = vertices[vid];
+        const uint vid0 = vid & 0xFFFE;
+        float2 position;
+        position.x = vertices[vid0];
+        position.y = vertices[vid0 + 1];
         position -= graphBox.xy;  // move to x0, y0
         position = position / graphSize * 2.0 - 1.0;
         if (vid & 1) {
@@ -103,9 +106,28 @@ vertexShader(uint vid [[ vertex_id ]],
     const float2 screenSize = vector_float2(chartContextPtr->screenSize);
 
     bool isLast = vid >= chartContextPtr->vertexCount - 2;
-    float2 currPt = vertices[vid];
-    float2 prevPt = (vid < 2) ? currPt : vertices[vid-2];
-    float2 nextPt = isLast ?    currPt : vertices[vid+2];
+    float2 currPt;
+    const uint vid0 = vid & 0xFFFE;
+    currPt.x = vertices[vid0];
+    currPt.y = vertices[vid0 + 1];
+    
+    float2 prevPt;
+    if (vid >= 2) {
+        const uint vid_before = (vid - 2) & 0xFFFE;
+        prevPt.x = vertices[vid_before];
+        prevPt.y = vertices[vid_before + 1];
+    } else {
+        prevPt = currPt;
+    }
+    
+    float2 nextPt;
+    if (isLast) {
+        nextPt = currPt;
+    } else {
+        const uint vid_after = (vid + 2) & 0xFFFE;
+        nextPt.x = vertices[vid_after];
+        nextPt.y = vertices[vid_after + 1];
+    }
 
     const float2 nScale = screenSize.yx / positionScaler.yx;
     const float2 currentNormal = normalize(nScale * float2(prevPt.y - currPt.y, currPt.x - prevPt.x));

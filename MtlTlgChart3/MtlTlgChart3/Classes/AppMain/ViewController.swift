@@ -56,6 +56,10 @@ class ViewController: UIViewController {
         renderer.lineWidth = 1.0 + 10.0 * slider.value
     }
     
+    @IBAction func switchMode(_ sw: UISwitch) {
+        renderer.switchMode(sw.isOn)
+    }
+    
     private func dataDidLoad() {
         print("dataDidLoad")
     }
