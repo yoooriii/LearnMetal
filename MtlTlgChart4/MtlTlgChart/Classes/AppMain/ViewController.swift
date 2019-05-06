@@ -12,7 +12,7 @@ class ViewController: UIViewController {
     @IBOutlet var mtkView:MTKView!
     @IBOutlet var mtkView2:MTKView!
     @IBOutlet var infoLabel:UILabel!
-    private var renderer: MetalChartRenderer!
+    private var renderer: ZMultiGraphRenderer!
     private var renderer2: MetalChartRenderer!
     var graphicsContainer:GraphicsContainer?
 
@@ -20,7 +20,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         if let cx = ZGraphAppDelegate.getMetalContext() {
-            renderer = MetalChartRenderer(mtkView:mtkView, metalContext: cx)
+            renderer = ZMultiGraphRenderer(mtkView:mtkView, metalContext: cx)
             renderer2 = MetalChartRenderer(mtkView:mtkView2, metalContext: cx)
         }
         
@@ -53,8 +53,8 @@ class ViewController: UIViewController {
     }
     
     @IBAction func switchMode(_ sw: UISwitch) {
-        renderer.switchMode(sw.isOn)
-        renderer2.switchMode(sw.isOn)
+        renderer.setFillMode(sw.isOn)
+        renderer2.setFillMode(sw.isOn)
     }
     
     private func dataDidLoad() {

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		B3121A2B2266363000D2D913 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3121A2A2266363000D2D913 /* MetalKit.framework */; };
+		B320DC83228089D6007D3DF8 /* ZMultiGraphRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B320DC82228089D6007D3DF8 /* ZMultiGraphRenderer.swift */; };
 		B3E5A0CC2280435F009E992D /* GridRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0A92280435F009E992D /* GridRenderer.swift */; };
 		B3E5A0CD2280435F009E992D /* MetalChartRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0AA2280435F009E992D /* MetalChartRenderer.swift */; };
 		B3E5A0CE2280435F009E992D /* RenderProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0AB2280435F009E992D /* RenderProtocols.swift */; };
@@ -43,6 +44,7 @@
 /* Begin PBXFileReference section */
 		B3121A14226635E300D2D913 /* MtlTlgChart3.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MtlTlgChart3.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3121A2A2266363000D2D913 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		B320DC82228089D6007D3DF8 /* ZMultiGraphRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMultiGraphRenderer.swift; sourceTree = "<group>"; };
 		B3E5A0A92280435F009E992D /* GridRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GridRenderer.swift; sourceTree = "<group>"; };
 		B3E5A0AA2280435F009E992D /* MetalChartRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalChartRenderer.swift; sourceTree = "<group>"; };
 		B3E5A0AB2280435F009E992D /* RenderProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RenderProtocols.swift; sourceTree = "<group>"; };
@@ -146,9 +148,10 @@
 			isa = PBXGroup;
 			children = (
 				B3E5A0AA2280435F009E992D /* MetalChartRenderer.swift */,
+				B3E5A0AC2280435F009E992D /* GraphRenderer.swift */,
 				B3E5A0A92280435F009E992D /* GridRenderer.swift */,
 				B3E5A0AB2280435F009E992D /* RenderProtocols.swift */,
-				B3E5A0AC2280435F009E992D /* GraphRenderer.swift */,
+				B320DC82228089D6007D3DF8 /* ZMultiGraphRenderer.swift */,
 			);
 			path = renderers;
 			sourceTree = "<group>";
@@ -325,6 +328,7 @@
 				B3E5A0D82280435F009E992D /* RenderingContext.swift in Sources */,
 				B3E5A0DB2280435F009E992D /* Extentions.swift in Sources */,
 				B3E5A0CF2280435F009E992D /* GraphRenderer.swift in Sources */,
+				B320DC83228089D6007D3DF8 /* ZMultiGraphRenderer.swift in Sources */,
 				B3E5A0D52280435F009E992D /* Models.swift in Sources */,
 				B3E5A0D72280435F009E992D /* TestModels.swift in Sources */,
 			);

@@ -37,4 +37,19 @@ extension ChartContext {
         instance.extraInt.1 = lineCount[1]          // horizontalCount
         return instance
     }
+
+    static func combinedContext(graphRect:float4,
+                                screenSize:int2,
+                                color: float4,
+                                lineWidth:Float,
+                                planeCount:Int,
+                                vertexCount:Int,
+                                vshaderMode:VShaderMode) -> ChartContext
+    {
+        // ignore color
+        var cx = ChartContext(graphRect: graphRect, screenSize: screenSize,
+                        color: color, lineWidth: lineWidth, vertexCount: vertexCount, vshaderMode: vshaderMode)
+        cx.extraInt.0 = UInt32(planeCount)
+        return cx
+    }
 }

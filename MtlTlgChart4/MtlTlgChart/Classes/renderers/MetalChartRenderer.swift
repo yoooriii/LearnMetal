@@ -2,7 +2,6 @@
 //  MetalChartRenderer.swift
 //  GraphPresenter
 //
-//  Copyright © 2019 BB. All rights reserved.
 //  Created by leonid@leeloo ©2019 Horns&Hoofs.®
 //
 
@@ -14,15 +13,17 @@ class MetalChartRenderer: NSObject {
     var alpha: CGFloat = 1.0
     private var chart: ChartData?
     
-    let mtkView:MTKView!
-    let metalContext:ZMetalContext!
+    private let mtkView:MTKView!
+    private let metalContext:ZMetalContext!
     // absolute coordinates in graph values
     var commonGraphRect = vector_float4(1)
     
     var pointsCount = 0
     var vertexCount:Int { get { return pointsCount * 2 } }
     var strokeColor:UIColor?
-    var lineWidth = Float(2)//Float(1.5)
+    var lineWidth = Float(2) {
+        didSet { mtkView.setNeedsDisplay() }
+    }
 
     var planeRenderers = [GraphRendererProto]()
     private var gridRenderer:GridRenderer?
@@ -43,6 +44,7 @@ class MetalChartRenderer: NSObject {
     
     /// switch to another palne
     func setPlane(_ plane:Plane) {
+        mtkView.setNeedsDisplay()
         self.plane = plane
         let countP = plane.vAmplitudes.count
         planeRenderers.removeAll()
@@ -76,8 +78,9 @@ class MetalChartRenderer: NSObject {
         commonGraphRect = graphRect
     }
     
-    func switchMode(_ state:Bool) {
-        graphMode = state ? VShaderModeStroke : VShaderModeFill
+    func setFillMode(_ fillMode:Bool) {
+        mtkView.setNeedsDisplay()
+        graphMode = fillMode ? VShaderModeFill : VShaderModeStroke
         for render in planeRenderers {
             if let graphRender = render as? GraphRenderer {
                 graphRender.graphMode = graphMode

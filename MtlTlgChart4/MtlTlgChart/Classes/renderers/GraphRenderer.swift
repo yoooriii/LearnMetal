@@ -104,6 +104,8 @@ extension GraphRenderer: GraphRendererProto {
                                index: Int(AAPLVertexInputIndexChartContext.rawValue))
         encoder.setVertexBuffer(vertexBuffer, offset: 0,
                                 index: Int(AAPLVertexInputIndexVertices.rawValue))
+        encoder.setVertexBytes([float4(0)], length: MemoryLayout<float4>.stride, // we dont use colors
+                               index: Int(AAPLVertexInputIndexColor.rawValue))
         encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: vertexCount)
     }
 }

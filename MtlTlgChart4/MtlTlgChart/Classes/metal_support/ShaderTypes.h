@@ -14,13 +14,16 @@
 
 typedef enum {
     AAPLVertexInputIndexVertices = 0,
-    AAPLVertexInputIndexChartContext = 1
+    AAPLVertexInputIndexChartContext = 1,
+    AAPLVertexInputIndexColor
 } AAPLVertexInputIndex;
 
 typedef enum {
     VShaderModeStroke = 0,
     VShaderModeFill = 1,
-    VShaderModeDash = 2
+    VShaderModeDash = 2,
+    VShaderModeStroke2,
+    VShaderModeFill2
 } VShaderMode;
 
 typedef enum {
@@ -33,10 +36,11 @@ typedef enum {
 typedef struct {
     vector_float4 graphRect;
     vector_int2 screenSize;
-    vector_float4 color;
     float lineWidth;
     uint vertexCount;
     uint32_t vshaderMode; // VShaderMode
+
+    vector_float4 color;
     // extra
     float extraFloat[8];
     uint32_t extraInt[8];

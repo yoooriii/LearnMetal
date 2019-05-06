@@ -22,7 +22,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <mtkView contentMode="scaleToFill" colorPixelFormat="BGRA8Unorm" depthStencilPixelFormat="Invalid" translatesAutoresizingMaskIntoConstraints="NO" id="QDA-su-14K">
+                            <mtkView contentMode="scaleToFill" colorPixelFormat="BGRA8Unorm" depthStencilPixelFormat="Invalid" paused="YES" enableSetNeedsDisplay="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QDA-su-14K">
                                 <rect key="frame" x="10" y="70" width="355" height="477"/>
                                 <color key="clearColor" name="selectedControlColor" catalog="System" colorSpace="catalog"/>
                             </mtkView>
@@ -62,7 +62,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DEQ-8k-Eln" customClass="ZScrollSlider2d" customModule="MtlTlgChart3" customModuleProvider="target">
                                 <rect key="frame" x="10" y="587" width="355" height="70"/>
                                 <subviews>
-                                    <mtkView contentMode="scaleToFill" colorPixelFormat="BGRA8Unorm" depthStencilPixelFormat="Invalid" translatesAutoresizingMaskIntoConstraints="NO" id="k2S-vS-2hl">
+                                    <mtkView contentMode="scaleToFill" colorPixelFormat="BGRA8Unorm" depthStencilPixelFormat="Invalid" paused="YES" enableSetNeedsDisplay="YES" translatesAutoresizingMaskIntoConstraints="NO" id="k2S-vS-2hl">
                                         <rect key="frame" x="10" y="0.0" width="335" height="70"/>
                                         <color key="clearColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                     </mtkView>
@@ -210,7 +210,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="ic_go_left" width="1.27173912525177" height="2"/>
-        <image name="ic_go_right" width="1.27173912525177" height="2"/>
+        <image name="ic_go_left" width="0.63586956262588501" height="1"/>
+        <image name="ic_go_right" width="0.63586956262588501" height="1"/>
     </resources>
 </document>

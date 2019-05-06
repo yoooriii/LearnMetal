@@ -58,6 +58,8 @@ extension GridRenderer: GraphRendererProto {
         encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
                                index: Int(AAPLVertexInputIndexChartContext.rawValue))
         encoder.setVertexBytes(vertexArray, length: MemoryLayout<Float>.stride * vertexArray.count, index: Int(AAPLVertexInputIndexVertices.rawValue))
+        encoder.setVertexBytes([float4(0)], length: MemoryLayout<float4>.stride, // we dont use colors
+            index: Int(AAPLVertexInputIndexColor.rawValue))
         encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: Int(lineCount[0] + lineCount[1]))
     }
 }
