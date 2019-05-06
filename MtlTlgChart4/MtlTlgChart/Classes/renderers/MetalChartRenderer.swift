@@ -38,6 +38,7 @@ class MetalChartRenderer: NSObject {
         super.init()
         metalContext.setupMetalView(mtkView)
         mtkView.delegate = self
+        self.mtkView(mtkView, drawableSizeWillChange: mtkView.drawableSize)
     }
     
     /// switch to another palne

@@ -36,6 +36,8 @@
 		B3E5A0E62280435F009E992D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B3E5A0CA2280435F009E992D /* Main.storyboard */; };
 		B3E5A0E72280435F009E992D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3E5A0CB2280435F009E992D /* Assets.xcassets */; };
 		B3E5A0ED22806610009E992D /* ZMetalContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0EC22806610009E992D /* ZMetalContext.swift */; };
+		B3E5A0F122807F5D009E992D /* ZScrollSlider2d.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0EF22807F5D009E992D /* ZScrollSlider2d.swift */; };
+		B3E5A0F222807F5D009E992D /* ZSliderIndicator2d.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0F022807F5D009E992D /* ZSliderIndicator2d.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -73,6 +75,8 @@
 		B3E5A0CB2280435F009E992D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B3E5A0E82280437A009E992D /* readme.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
 		B3E5A0EC22806610009E992D /* ZMetalContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMetalContext.swift; sourceTree = "<group>"; };
+		B3E5A0EF22807F5D009E992D /* ZScrollSlider2d.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZScrollSlider2d.swift; sourceTree = "<group>"; };
+		B3E5A0F022807F5D009E992D /* ZSliderIndicator2d.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZSliderIndicator2d.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,6 +130,7 @@
 		B3E5A0A72280435F009E992D /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				B3E5A0EE22807F5D009E992D /* ui_controls */,
 				B3E5A0E922804668009E992D /* _others */,
 				B3E5A0C12280435F009E992D /* metal_support */,
 				B3E5A0A82280435F009E992D /* renderers */,
@@ -215,6 +220,15 @@
 			path = _others;
 			sourceTree = "<group>";
 		};
+		B3E5A0EE22807F5D009E992D /* ui_controls */ = {
+			isa = PBXGroup;
+			children = (
+				B3E5A0EF22807F5D009E992D /* ZScrollSlider2d.swift */,
+				B3E5A0F022807F5D009E992D /* ZSliderIndicator2d.swift */,
+			);
+			path = ui_controls;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -290,6 +304,7 @@
 				B3E5A0DC2280435F009E992D /* NSError+z42.swift in Sources */,
 				B3E5A0D12280435F009E992D /* RawModels.swift in Sources */,
 				B3E5A0DE2280435F009E992D /* ZGraphAppDelegate.swift in Sources */,
+				B3E5A0F222807F5D009E992D /* ZSliderIndicator2d.swift in Sources */,
 				B3E5A0E12280435F009E992D /* ChartShaders.metal in Sources */,
 				B3E5A0D62280435F009E992D /* PathModels.swift in Sources */,
 				B3E5A0CC2280435F009E992D /* GridRenderer.swift in Sources */,
@@ -306,6 +321,7 @@
 				B3E5A0D92280435F009E992D /* DimensionsConverter.swift in Sources */,
 				B3E5A0E22280435F009E992D /* ChartData.swift in Sources */,
 				B3E5A0DD2280435F009E992D /* UIColor+z42.swift in Sources */,
+				B3E5A0F122807F5D009E992D /* ZScrollSlider2d.swift in Sources */,
 				B3E5A0D82280435F009E992D /* RenderingContext.swift in Sources */,
 				B3E5A0DB2280435F009E992D /* Extentions.swift in Sources */,
 				B3E5A0CF2280435F009E992D /* GraphRenderer.swift in Sources */,

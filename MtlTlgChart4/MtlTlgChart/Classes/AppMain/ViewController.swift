@@ -10,8 +10,10 @@ import MetalKit
 
 class ViewController: UIViewController {
     @IBOutlet var mtkView:MTKView!
+    @IBOutlet var mtkView2:MTKView!
     @IBOutlet var infoLabel:UILabel!
     private var renderer: MetalChartRenderer!
+    private var renderer2: MetalChartRenderer!
     var graphicsContainer:GraphicsContainer?
 
     override func viewDidLoad() {
@@ -19,8 +21,7 @@ class ViewController: UIViewController {
         
         if let cx = ZGraphAppDelegate.getMetalContext() {
             renderer = MetalChartRenderer(mtkView:mtkView, metalContext: cx)
-            // Initialize our renderer with the view size
-            renderer.mtkView(mtkView, drawableSizeWillChange: mtkView.drawableSize)
+            renderer2 = MetalChartRenderer(mtkView:mtkView2, metalContext: cx)
         }
         
 
@@ -37,6 +38,7 @@ class ViewController: UIViewController {
                 let plane = container.planes[nextPlane]
                 // let planeCopy = plane.copy(in: NSRange(location: 0, length: 4))
                 renderer.setPlane(plane)
+                renderer2.setPlane(plane)
                 infoLabel.text = "#\(nextPlane): " + plane.info()
                 nextPlane += 1
             }
@@ -47,10 +49,12 @@ class ViewController: UIViewController {
 
     @IBAction func acrLineWidth(_ slider: UISlider) {
         renderer.lineWidth = 1.0 + 10.0 * slider.value
+        renderer2.lineWidth = 1.0 + 10.0 * slider.value
     }
     
     @IBAction func switchMode(_ sw: UISwitch) {
         renderer.switchMode(sw.isOn)
+        renderer2.switchMode(sw.isOn)
     }
     
     private func dataDidLoad() {
