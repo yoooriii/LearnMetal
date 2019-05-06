@@ -29,7 +29,7 @@ class GridRenderer: NSObject {
         self.device = device
     }
     
-    func loadContent(viewSize:uint2) {
+    func setViewSize(viewSize:uint2) {
         graphRect = float4(0,0, Float(viewSize[0]), Float(viewSize[1])) // should we change it here and this way?
     }
 }

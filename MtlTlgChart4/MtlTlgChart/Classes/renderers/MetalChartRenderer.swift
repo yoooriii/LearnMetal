@@ -2,9 +2,8 @@
 //  MetalChartRenderer.swift
 //  GraphPresenter
 //
-//  Created by Andre on 3/27/19.
 //  Copyright © 2019 BB. All rights reserved.
-//  Updated by leonid@leeloo ©2019 Horns&Hoofs.®
+//  Created by leonid@leeloo ©2019 Horns&Hoofs.®
 //
 
 import Foundation
@@ -14,13 +13,9 @@ class MetalChartRenderer: NSObject {
     var graph: GraphData? = nil
     var alpha: CGFloat = 1.0
     private var chart: ChartData?
-    private var vertexBuffer: MTLBuffer!
-    private var indexBuffer: MTLBuffer!
     
-    let device: MTLDevice!
     let mtkView:MTKView!
-    var pipelineState: MTLRenderPipelineState?
-    var commandQueue: MTLCommandQueue!
+    let metalContext:ZMetalContext!
     // absolute coordinates in graph values
     var commonGraphRect = vector_float4(1)
     
@@ -31,17 +26,18 @@ class MetalChartRenderer: NSObject {
 
     var planeRenderers = [GraphRendererProto]()
     private var gridRenderer:GridRenderer?
-    private var plane:Plane? = nil
+    private var plane:Plane?
     var graphMode:VShaderMode = VShaderModeStroke
     private var msaaTexture: MTLTexture?
 
     //MARK: -
     
-    init(mtkView: MTKView) {
+    init(mtkView: MTKView, metalContext:ZMetalContext) {
         self.mtkView = mtkView
-        device = mtkView.device
+        self.metalContext = metalContext
         super.init()
-        loadMetal(mtkView: mtkView)
+        metalContext.setupMetalView(mtkView)
+        mtkView.delegate = self
     }
     
     /// switch to another palne
@@ -51,15 +47,15 @@ class MetalChartRenderer: NSObject {
         planeRenderers.removeAll()
         
         if let _ = gridRenderer {} else {
-            gridRenderer = GridRenderer(device: device)
+            gridRenderer = GridRenderer(device: metalContext.device)
         }
         let grSize = mtkView.drawableSize
-        gridRenderer!.loadContent(viewSize: uint2(UInt32(grSize.width), UInt32(grSize.height)))
+        gridRenderer!.setViewSize(viewSize: uint2(UInt32(grSize.width), UInt32(grSize.height)))
         planeRenderers.append(gridRenderer!)
 
         var graphRect = vector_float4(0)
         for iPlane in 0 ..< countP {
-            let pRenderer = GraphRenderer(device: device)
+            let pRenderer = GraphRenderer(device: metalContext.device)
             pRenderer.setPlane(plane, iPlane: iPlane)
             pRenderer.graphMode = graphMode
             planeRenderers.append(pRenderer)    
@@ -97,116 +93,29 @@ extension MetalChartRenderer: MTKViewDelegate {
         msaaTexture = nil
         
         if let gridRenderer = self.gridRenderer {
-            gridRenderer.loadContent(viewSize: uint2(UInt32(size.width), UInt32(size.height)))
+            gridRenderer.setViewSize(viewSize: uint2(UInt32(size.width), UInt32(size.height)))
         }
     }
     
     func draw(in view: MTKView) {
-        guard let pipelineState = self.pipelineState else {
-            return
-        }
-        
-        guard !planeRenderers.isEmpty else {
-            return
-        }
-        
-        guard let commandBuffer = commandQueue.makeCommandBuffer() else {
-            print("cannot create command buffer")
-            return
-        }
-        commandBuffer.label = "Graph Command Buffer"
-        
-        guard let currentDrawable = view.currentDrawable else {
-            print("no currentDrawable")
-            return
-        }
-        
-        guard let renderPassDescriptor = makeRenderPassDescriptor(view: view) else {
-            print("no renderPassDescriptor")
-            return
-        }
-        
-        renderPassDescriptor.colorAttachments[0].resolveTexture = currentDrawable.texture
-
-        guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) else {
-            print("cannot make render encoder")
-            return
-        }
-        renderEncoder.label = "Graph Render Encoder"
-        renderEncoder.setRenderPipelineState(pipelineState)
-        renderEncoder.setCullMode(.none)
-
-        //encodeGraph(encoder: renderEncoder, view: view, color: strokeColor)
-        for i in 0 ..< planeRenderers.count {
-            var pRenderer = planeRenderers[i]
-            if let _ = pRenderer as? GraphRenderer {
-                // for now we dont resize the grid
-                pRenderer.lineWidth = lineWidth
-                pRenderer.graphRect = commonGraphRect
+        let renderPassDescriptor = makeRenderPassDescriptor(view: view)
+        metalContext.draw(in: view, renderPassDescriptor:renderPassDescriptor) { renderEncoder in
+            //encodeGraph(encoder: renderEncoder, view: view, color: strokeColor)
+            for i in 0 ..< planeRenderers.count {
+                var pRenderer = planeRenderers[i]
+                if let _ = pRenderer as? GraphRenderer {
+                    // for now we dont resize the grid
+                    pRenderer.lineWidth = lineWidth
+                    pRenderer.graphRect = commonGraphRect
+                }
+                pRenderer.encodeGraph(encoder: renderEncoder, view: view)
             }
-            pRenderer.encodeGraph(encoder: renderEncoder, view: view)
         }
-        
-        renderEncoder.endEncoding()
-        commandBuffer.present(currentDrawable)
-        commandBuffer.commit()
     }
 }
 
 
 private extension MetalChartRenderer {
-    /// Create our Metal render state objects including our shaders and render state pipeline objects
-    private func loadMetal(mtkView: MTKView!) {
-        guard let device = self.device else {
-            print("no metal device")
-            return
-        }
-        
-        if true {
-            mtkView.isOpaque = false
-        }
-        
-        let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
-        pipelineStateDescriptor.label = "Simple Graph Pipeline"
-        
-        if let defaultLibrary = device.makeDefaultLibrary() {
-            pipelineStateDescriptor.vertexFunction = defaultLibrary.makeFunction(name: "vertexShader")
-            pipelineStateDescriptor.fragmentFunction = defaultLibrary.makeFunction(name: "fragmentShader")
-        }
-        
-        mtkView.sampleCount = 4 // default=1
-        mtkView.colorPixelFormat = .bgra8Unorm
-        pipelineStateDescriptor.sampleCount = mtkView.sampleCount
-        pipelineStateDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat
-        pipelineStateDescriptor.depthAttachmentPixelFormat = mtkView.depthStencilPixelFormat
-        pipelineStateDescriptor.stencilAttachmentPixelFormat = mtkView.depthStencilPixelFormat
-        
-        //        if let renderAttachment = pipelineStateDescriptor.colorAttachments[0] {
-        //            renderAttachment.isBlendingEnabled = true
-        //            renderAttachment.alphaBlendOperation = .add
-        //            renderAttachment.rgbBlendOperation = .add
-        //            renderAttachment.sourceRGBBlendFactor = .sourceAlpha
-        //            renderAttachment.sourceAlphaBlendFactor = .sourceAlpha
-        //            renderAttachment.destinationRGBBlendFactor = .oneMinusSourceAlpha
-        //            renderAttachment.destinationAlphaBlendFactor = .oneMinusSourceAlpha
-        //        }
-        
-        // make pipelineState async (dont block main thread); or use the sync variant:
-        // pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
-        device.makeRenderPipelineState(descriptor: pipelineStateDescriptor) { (pipelineState, error) in
-            self.pipelineState = pipelineState
-            if let error = error {
-                // Pipeline State creation could fail if we haven't properly set up our pipeline descriptor.
-                //  If the Metal API validation is enabled, we can find out more information about what
-                //  went wrong.  (Metal API validation is enabled by default when a debug build is run
-                //  from Xcode)
-                print("Failed to created pipeline state, error \(error.localizedDescription)")
-            } else {
-                self.commandQueue = device.makeCommandQueue()
-            }
-        }
-    }
-    
     private func makeMSAATexture(size:vector_int2) -> MTLTexture? {
         let desc = MTLTextureDescriptor()
         desc.textureType = MTLTextureType.type2DMultisample
@@ -217,7 +126,7 @@ private extension MetalChartRenderer {
         desc.usage = MTLTextureUsage.renderTarget // it fixes crash under xcode debugger
         desc.storageMode = .memoryless
         
-        return device.makeTexture(descriptor: desc)
+        return metalContext.device.makeTexture(descriptor: desc)
     }
     
     private func makeRenderPassDescriptor(view: MTKView) -> MTLRenderPassDescriptor? {

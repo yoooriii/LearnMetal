@@ -17,19 +17,13 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Set the view to use the default device
-        guard let device = MTLCreateSystemDefaultDevice() else {
-            print("Metal is not supported on this device")
-            return
+        if let cx = ZGraphAppDelegate.getMetalContext() {
+            renderer = MetalChartRenderer(mtkView:mtkView, metalContext: cx)
+            // Initialize our renderer with the view size
+            renderer.mtkView(mtkView, drawableSizeWillChange: mtkView.drawableSize)
         }
         
-        mtkView.device = device
-        renderer = MetalChartRenderer(mtkView:mtkView)
 
-        // Initialize our renderer with the view size
-        renderer.mtkView(mtkView, drawableSizeWillChange: mtkView.drawableSize)
-        mtkView.delegate = renderer
-        
         startLoadingData()
     }
     
