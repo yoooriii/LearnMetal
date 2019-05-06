@@ -1,7 +1,5 @@
 /*
-See LICENSE folder for this sample’s licensing information.
-
-This is adopted metal shaders file from apple
+ //  Updated by leonid@leeloo ©2019 Horns&Hoofs.®
 */
 
 #include <metal_stdlib>

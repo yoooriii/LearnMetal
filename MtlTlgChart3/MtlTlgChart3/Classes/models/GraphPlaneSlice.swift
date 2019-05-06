@@ -2,8 +2,7 @@
 //  GraphPlaneSlice.swift
 //  MtlTlgChart3
 //
-//  Created by Leonid Lokhmatov on 5/3/19.
-//  Copyright © 2018 Luxoft. All rights reserved
+//  Created by leonid@leeloo ©2019 Horns&Hoofs.®
 //
 
 import Foundation

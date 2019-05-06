@@ -2,8 +2,7 @@
 //  Extentions.swift
 //  TelegramChart
 //
-//  Created by Leonid Lokhmatov on 3/13/19.
-//  Copyright © 2018 Luxoft. All rights reserved
+//  Created by leonid@leeloo ©2019 Horns&Hoofs.®
 //
 
 import UIKit

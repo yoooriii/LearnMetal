@@ -2,7 +2,7 @@
 //  Models.swift
 //  TestJson
 //
-//  Created by Yu Lo on 3/12/19.
+//  Created by leonid@leeloo ©2019 Horns&Hoofs.®
 //  Copyright © 2019 Horns & Hoovs. All rights reserved.
 //
 

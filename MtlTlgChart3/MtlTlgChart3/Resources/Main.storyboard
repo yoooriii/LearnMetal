@@ -20,10 +20,10 @@
                         <subviews>
                             <mtkView contentMode="scaleToFill" colorPixelFormat="BGRA8Unorm" depthStencilPixelFormat="Invalid" translatesAutoresizingMaskIntoConstraints="NO" id="QDA-su-14K">
                                 <rect key="frame" x="10" y="70" width="355" height="497"/>
-                                <color key="clearColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="clearColor" name="selectedControlColor" catalog="System" colorSpace="catalog"/>
                             </mtkView>
-                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="mqU-D9-o1A">
-                                <rect key="frame" x="128" y="617" width="229" height="31"/>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="trailing" contentVerticalAlignment="bottom" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="mqU-D9-o1A">
+                                <rect key="frame" x="128" y="80" width="229" height="31"/>
                                 <connections>
                                     <action selector="acrLineWidth:" destination="BYZ-38-t0r" eventType="valueChanged" id="eA7-eZ-LHm"/>
                                 </connections>
@@ -61,7 +61,7 @@
                             <constraint firstItem="mqU-D9-o1A" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="130" id="4nq-UB-dJi"/>
                             <constraint firstItem="QDA-su-14K" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="10" id="Duz-jD-cqd"/>
                             <constraint firstItem="1Aj-a9-Rno" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="VRX-Va-sig"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="mqU-D9-o1A" secondAttribute="bottom" constant="20" id="aQv-4Z-mlZ"/>
+                            <constraint firstItem="mqU-D9-o1A" firstAttribute="top" secondItem="QDA-su-14K" secondAttribute="top" constant="10" id="ZfQ-cv-aLw"/>
                             <constraint firstItem="QDA-su-14K" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="50" id="aR2-X4-LH3"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="QDA-su-14K" secondAttribute="bottom" constant="100" id="cX8-CB-Cg9"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="1Aj-a9-Rno" secondAttribute="trailing" constant="10" id="hhW-ZY-IWZ"/>

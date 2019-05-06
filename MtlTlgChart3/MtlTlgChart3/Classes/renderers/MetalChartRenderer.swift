@@ -4,12 +4,12 @@
 //
 //  Created by Andre on 3/27/19.
 //  Copyright © 2019 BB. All rights reserved.
+//  Updated by leonid@leeloo ©2019 Horns&Hoofs.®
 //
 
 import Foundation
 import MetalKit
 
-// : IMetalSurfaceRenderer
 class MetalChartRenderer: NSObject {
     var graph: GraphData? = nil
     var alpha: CGFloat = 1.0
@@ -17,7 +17,6 @@ class MetalChartRenderer: NSObject {
     private var vertexBuffer: MTLBuffer!
     private var indexBuffer: MTLBuffer!
     
-    /////////////
     let device: MTLDevice!
     let mtkView:MTKView!
     var pipelineState: MTLRenderPipelineState?
@@ -30,19 +29,20 @@ class MetalChartRenderer: NSObject {
     var strokeColor:UIColor?
     var lineWidth = Float(2)//Float(1.5)
 
-    ///////////////////
     var planeRenderers = [GraphRendererProto]()
     private var gridRenderer:GridRenderer?
+    private var plane:Plane? = nil
+    var graphMode:VShaderMode = VShaderModeStroke
+    private var msaaTexture: MTLTexture?
+
+    //MARK: -
     
-    /// Initialize with the MetalKit view from which we'll obtain our Metal device
     init(mtkView: MTKView) {
         self.mtkView = mtkView
         device = mtkView.device
         super.init()
         loadMetal(mtkView: mtkView)
     }
-    
-    private var plane:Plane? = nil
     
     /// switch to another palne
     func setPlane(_ plane:Plane) {
@@ -79,8 +79,6 @@ class MetalChartRenderer: NSObject {
         commonGraphRect = graphRect
     }
     
-    var graphMode:VShaderMode = VShaderModeStroke
-
     func switchMode(_ state:Bool) {
         graphMode = state ? VShaderModeStroke : VShaderModeFill
         for render in planeRenderers {
@@ -89,103 +87,8 @@ class MetalChartRenderer: NSObject {
             }
         }
     }
-
-    /// Create our Metal render state objects including our shaders and render state pipeline objects
-    private func loadMetal(mtkView: MTKView!) {
-        guard let device = self.device else {
-            print("no metal device")
-            return
-        }
-
-        if true {
-            mtkView.isOpaque = false
-            mtkView.clearColor = MTLClearColor.init(red: 0, green: 0, blue: 0, alpha: 0)
-        }
-
-        let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
-        pipelineStateDescriptor.label = "Simple Pipeline"
-
-        if let defaultLibrary = device.makeDefaultLibrary() {
-            pipelineStateDescriptor.vertexFunction = defaultLibrary.makeFunction(name: "vertexShader")
-            pipelineStateDescriptor.fragmentFunction = defaultLibrary.makeFunction(name: "fragmentShader")
-        }
-        
-        mtkView.sampleCount = 4 // default=1
-        mtkView.colorPixelFormat = .bgra8Unorm
-        pipelineStateDescriptor.sampleCount = mtkView.sampleCount
-        pipelineStateDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat
-        pipelineStateDescriptor.depthAttachmentPixelFormat = mtkView.depthStencilPixelFormat
-        pipelineStateDescriptor.stencilAttachmentPixelFormat = mtkView.depthStencilPixelFormat
-
-//        if let renderAttachment = pipelineStateDescriptor.colorAttachments[0] {
-//            renderAttachment.isBlendingEnabled = true
-//            renderAttachment.alphaBlendOperation = .add
-//            renderAttachment.rgbBlendOperation = .add
-//            renderAttachment.sourceRGBBlendFactor = .sourceAlpha
-//            renderAttachment.sourceAlphaBlendFactor = .sourceAlpha
-//            renderAttachment.destinationRGBBlendFactor = .oneMinusSourceAlpha
-//            renderAttachment.destinationAlphaBlendFactor = .oneMinusSourceAlpha
-//        }
-
-        // make pipelineState async (dont block main thread)
-        device.makeRenderPipelineState(descriptor: pipelineStateDescriptor) { (pipelineState, error) in
-            self.pipelineState = pipelineState
-            if let error = error {
-                // Pipeline State creation could fail if we haven't properly set up our pipeline descriptor.
-                //  If the Metal API validation is enabled, we can find out more information about what
-                //  went wrong.  (Metal API validation is enabled by default when a debug build is run
-                //  from Xcode)
-                print("Failed to created pipeline state, error \(error.localizedDescription)")
-            } else {
-                self.commandQueue = device.makeCommandQueue()
-            }
-        }
-
-//        do {  // make pipelineState sync, blocking method
-//            pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
-//        } catch {
-//            // Pipeline State creation could fail if we haven't properly set up our pipeline descriptor.
-//            //  If the Metal API validation is enabled, we can find out more information about what
-//            //  went wrong.  (Metal API validation is enabled by default when a debug build is run
-//            //  from Xcode)
-//            print("Failed to created pipeline state, error \(error.localizedDescription)")
-//        }
-//        commandQueue = device.makeCommandQueue()
-    }
-    
-//    private var renderPassDescriptor: MTLRenderPassDescriptor?
-    private var msaaTexture: MTLTexture?
-    
-    private func makeMSAATexture(size:vector_int2) -> MTLTexture? {
-        let desc = MTLTextureDescriptor()
-        desc.textureType = MTLTextureType.type2DMultisample
-        desc.width = Int(size.x)
-        desc.height = Int(size.y)
-        desc.sampleCount = 4
-        desc.pixelFormat = .bgra8Unorm
-        desc.usage = MTLTextureUsage.renderTarget // it fixes crash under xcode debugger
-        desc.storageMode = .memoryless
-
-        return device.makeTexture(descriptor: desc)
-    }
-    
-    private func makeRenderPassDescriptor(view: MTKView) -> MTLRenderPassDescriptor? {
-        if let _ = msaaTexture { /* use cached tx */ } else {
-            let drawableSize = view.drawableSize
-            let size = vector_int2(Int32(drawableSize.width), Int32(drawableSize.height))
-            // MSAA : set a texture to smooth lines (antialiasing)
-            msaaTexture = makeMSAATexture(size: size)
-        }
-        let rPassDescriptor = MTLRenderPassDescriptor()
-        rPassDescriptor.colorAttachments[0].texture = msaaTexture
-//        rPassDescriptor.colorAttachments[0].resolveTexture = currentDrawable.texture
-        rPassDescriptor.colorAttachments[0].loadAction = .clear
-        rPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.1, green: 0.4, blue: 0.5, alpha: 0.0)
-        rPassDescriptor.colorAttachments[0].storeAction = .multisampleResolve
-        
-        return rPassDescriptor
-    }
 }
+
 
 extension MetalChartRenderer: MTKViewDelegate {
     /// Called whenever view changes orientation or is resized
@@ -204,7 +107,6 @@ extension MetalChartRenderer: MTKViewDelegate {
         }
         
         guard !planeRenderers.isEmpty else {
-//            print("empty renders array")
             return
         }
         
@@ -212,7 +114,7 @@ extension MetalChartRenderer: MTKViewDelegate {
             print("cannot create command buffer")
             return
         }
-        commandBuffer.label = "MyCommandBuffer"
+        commandBuffer.label = "Graph Command Buffer"
         
         guard let currentDrawable = view.currentDrawable else {
             print("no currentDrawable")
@@ -248,5 +150,90 @@ extension MetalChartRenderer: MTKViewDelegate {
         renderEncoder.endEncoding()
         commandBuffer.present(currentDrawable)
         commandBuffer.commit()
+    }
+}
+
+
+private extension MetalChartRenderer {
+    /// Create our Metal render state objects including our shaders and render state pipeline objects
+    private func loadMetal(mtkView: MTKView!) {
+        guard let device = self.device else {
+            print("no metal device")
+            return
+        }
+        
+        if true {
+            mtkView.isOpaque = false
+        }
+        
+        let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
+        pipelineStateDescriptor.label = "Simple Graph Pipeline"
+        
+        if let defaultLibrary = device.makeDefaultLibrary() {
+            pipelineStateDescriptor.vertexFunction = defaultLibrary.makeFunction(name: "vertexShader")
+            pipelineStateDescriptor.fragmentFunction = defaultLibrary.makeFunction(name: "fragmentShader")
+        }
+        
+        mtkView.sampleCount = 4 // default=1
+        mtkView.colorPixelFormat = .bgra8Unorm
+        pipelineStateDescriptor.sampleCount = mtkView.sampleCount
+        pipelineStateDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat
+        pipelineStateDescriptor.depthAttachmentPixelFormat = mtkView.depthStencilPixelFormat
+        pipelineStateDescriptor.stencilAttachmentPixelFormat = mtkView.depthStencilPixelFormat
+        
+        //        if let renderAttachment = pipelineStateDescriptor.colorAttachments[0] {
+        //            renderAttachment.isBlendingEnabled = true
+        //            renderAttachment.alphaBlendOperation = .add
+        //            renderAttachment.rgbBlendOperation = .add
+        //            renderAttachment.sourceRGBBlendFactor = .sourceAlpha
+        //            renderAttachment.sourceAlphaBlendFactor = .sourceAlpha
+        //            renderAttachment.destinationRGBBlendFactor = .oneMinusSourceAlpha
+        //            renderAttachment.destinationAlphaBlendFactor = .oneMinusSourceAlpha
+        //        }
+        
+        // make pipelineState async (dont block main thread); or use the sync variant:
+        // pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
+        device.makeRenderPipelineState(descriptor: pipelineStateDescriptor) { (pipelineState, error) in
+            self.pipelineState = pipelineState
+            if let error = error {
+                // Pipeline State creation could fail if we haven't properly set up our pipeline descriptor.
+                //  If the Metal API validation is enabled, we can find out more information about what
+                //  went wrong.  (Metal API validation is enabled by default when a debug build is run
+                //  from Xcode)
+                print("Failed to created pipeline state, error \(error.localizedDescription)")
+            } else {
+                self.commandQueue = device.makeCommandQueue()
+            }
+        }
+    }
+    
+    private func makeMSAATexture(size:vector_int2) -> MTLTexture? {
+        let desc = MTLTextureDescriptor()
+        desc.textureType = MTLTextureType.type2DMultisample
+        desc.width = Int(size.x)
+        desc.height = Int(size.y)
+        desc.sampleCount = 4
+        desc.pixelFormat = .bgra8Unorm
+        desc.usage = MTLTextureUsage.renderTarget // it fixes crash under xcode debugger
+        desc.storageMode = .memoryless
+        
+        return device.makeTexture(descriptor: desc)
+    }
+    
+    private func makeRenderPassDescriptor(view: MTKView) -> MTLRenderPassDescriptor? {
+        if let _ = msaaTexture { /* use cached tx */ } else {
+            let drawableSize = view.drawableSize
+            let size = vector_int2(Int32(drawableSize.width), Int32(drawableSize.height))
+            // MSAA : set a texture to smooth lines (antialiasing)
+            msaaTexture = makeMSAATexture(size: size)
+        }
+        let rPassDescriptor = MTLRenderPassDescriptor()
+        rPassDescriptor.colorAttachments[0].texture = msaaTexture
+        //        rPassDescriptor.colorAttachments[0].resolveTexture = currentDrawable.texture
+        rPassDescriptor.colorAttachments[0].loadAction = .clear
+        rPassDescriptor.colorAttachments[0].clearColor = view.clearColor //MTLClearColor(red: 0.1, green: 0.4, blue: 0.5, alpha: 0.0)
+        rPassDescriptor.colorAttachments[0].storeAction = .multisampleResolve
+        
+        return rPassDescriptor
     }
 }

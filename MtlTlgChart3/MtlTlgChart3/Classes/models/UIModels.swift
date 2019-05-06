@@ -2,7 +2,7 @@
 //  UIModels.swift
 //  TelegramChart
 //
-//  Created by Leonid Lokhmatov on 3/14/19.
+//  Created by leonid@leeloo ©2019 Horns&Hoofs.®
 //  Copyright © 2018 Luxoft. All rights reserved
 //
 

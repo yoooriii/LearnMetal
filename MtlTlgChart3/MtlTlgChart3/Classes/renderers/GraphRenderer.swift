@@ -4,6 +4,7 @@
 //
 //  Created by Andre on 3/27/19.
 //  Copyright © 2019 BB. All rights reserved.
+//  Updated by leonid@leeloo ©2019 Horns&Hoofs.®
 //
 
 import Foundation
@@ -97,7 +98,9 @@ extension GraphRenderer: GraphRendererProto {
         guard let vertexBuffer = self.vertexBuffer, vertexCount != 0 else {
             return
         }
-        
+        // the trick is simple: we have 2 * vertices
+        // vertices[x0, y0,  x1, y1,  ... xN, yN]
+        // the vertex shader draws 2x vertices (to make the line thick <lineWidth>)
         var chartCx = chartContext(view:view)
         encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
                                index: Int(AAPLVertexInputIndexChartContext.rawValue))

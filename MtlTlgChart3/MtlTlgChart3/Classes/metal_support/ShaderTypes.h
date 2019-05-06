@@ -4,6 +4,7 @@
 //
 //  Created by Andre on 3/27/19.
 //  Copyright © 2019 BB. All rights reserved.
+//  Updated by leonid@leeloo ©2019 Horns&Hoofs.®
 //
 
 #ifndef ShaderTypes_h

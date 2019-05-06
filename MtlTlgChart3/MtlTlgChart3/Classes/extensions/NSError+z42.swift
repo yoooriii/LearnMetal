@@ -2,8 +2,7 @@
 //  NSError+z42.swift
 //  TelegramChart
 //
-//  Created by Yu Lo on 3/19/19.
-//  Copyright © 2019 Horns & Hoovs. All rights reserved.
+//  Created by leonid@leeloo ©2019 Horns&Hoofs.®
 //
 
 import Foundation
