@@ -13,7 +13,7 @@ class ViewController: UIViewController {
     @IBOutlet var mtkView2:MTKView!
     @IBOutlet var infoLabel:UILabel!
     private var renderer: ZMultiGraphRenderer!
-    private var renderer2: MetalChartRenderer!
+    private var renderer2: ZMultiGraphRenderer!
     var graphicsContainer:GraphicsContainer?
 
     override func viewDidLoad() {
@@ -21,7 +21,7 @@ class ViewController: UIViewController {
         
         if let cx = ZGraphAppDelegate.getMetalContext() {
             renderer = ZMultiGraphRenderer(mtkView:mtkView, metalContext: cx)
-            renderer2 = MetalChartRenderer(mtkView:mtkView2, metalContext: cx)
+            renderer2 = ZMultiGraphRenderer(mtkView:mtkView2, metalContext: cx)
         }
         
 

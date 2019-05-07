@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B30D03CD22818179005C365E /* ZGridRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30D03CC22818179005C365E /* ZGridRenderer.swift */; };
 		B3121A2B2266363000D2D913 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3121A2A2266363000D2D913 /* MetalKit.framework */; };
 		B320DC83228089D6007D3DF8 /* ZMultiGraphRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B320DC82228089D6007D3DF8 /* ZMultiGraphRenderer.swift */; };
 		B3E5A0CC2280435F009E992D /* GridRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0A92280435F009E992D /* GridRenderer.swift */; };
@@ -42,6 +43,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B30D03CC22818179005C365E /* ZGridRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZGridRenderer.swift; sourceTree = "<group>"; };
 		B3121A14226635E300D2D913 /* MtlTlgChart3.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MtlTlgChart3.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3121A2A2266363000D2D913 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		B320DC82228089D6007D3DF8 /* ZMultiGraphRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMultiGraphRenderer.swift; sourceTree = "<group>"; };
@@ -147,11 +149,12 @@
 		B3E5A0A82280435F009E992D /* renderers */ = {
 			isa = PBXGroup;
 			children = (
+				B320DC82228089D6007D3DF8 /* ZMultiGraphRenderer.swift */,
+				B30D03CC22818179005C365E /* ZGridRenderer.swift */,
 				B3E5A0AA2280435F009E992D /* MetalChartRenderer.swift */,
 				B3E5A0AC2280435F009E992D /* GraphRenderer.swift */,
 				B3E5A0A92280435F009E992D /* GridRenderer.swift */,
 				B3E5A0AB2280435F009E992D /* RenderProtocols.swift */,
-				B320DC82228089D6007D3DF8 /* ZMultiGraphRenderer.swift */,
 			);
 			path = renderers;
 			sourceTree = "<group>";
@@ -305,6 +308,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B3E5A0DC2280435F009E992D /* NSError+z42.swift in Sources */,
+				B30D03CD22818179005C365E /* ZGridRenderer.swift in Sources */,
 				B3E5A0D12280435F009E992D /* RawModels.swift in Sources */,
 				B3E5A0DE2280435F009E992D /* ZGraphAppDelegate.swift in Sources */,
 				B3E5A0F222807F5D009E992D /* ZSliderIndicator2d.swift in Sources */,

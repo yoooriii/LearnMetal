@@ -1,5 +1,5 @@
 //
-//  GridRenderer.swift
+//  ZGridRenderer.swift
 //  MtlTlgChart3
 //
 //  Created by leonid@leeloo ©2019 Horns&Hoofs.®
@@ -8,11 +8,8 @@
 import UIKit
 import MetalKit
 
-class GridRenderer: NSObject {
-    private let device: MTLDevice!
-    // fake vertex coordinates, the vertex shader just ignores them
-    private let vertexArray = [Float](repeating: Float(0), count: 4)
-    var graphMode:VShaderMode = VShaderModeStroke
+class ZGridRenderer: NSObject {
+    let graphMode = VShaderModeStroke
     let lineCount = uint2(10, 11) // horizontal/vertical lines count
     // absolute coordinates in graph values
     var graphRect = float4(0)
@@ -25,42 +22,29 @@ class GridRenderer: NSObject {
     
     //MARK: -
     
-    init(device: MTLDevice!) {
-        self.device = device
-    }
-    
     func setViewSize(viewSize:int2) {
         graphRect = float4(0,0, Float(viewSize[0]), Float(viewSize[1])) // should we change it here and this way?
     }
-}
 
-private extension GridRenderer {
-    func chartContext(view:MTKView) -> ChartContext! {
-        let screenSize = int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
-        let lineWidth = self.lineWidth * Float(view.contentScaleFactor)
-        return ChartContext.dashLineContext(graphRect: graphRect, screenSize: screenSize, color: strokeColor, lineWidth: lineWidth, lineOffset: gridCellSize, lineCount: lineCount, dashPattern: lineDashPattern)
-    }
-}
-
-extension GridRenderer: GraphRendererProto {
-    func getOriginalGraphRect() -> float4 {
-        // not sure we need it
-        return graphRect
-    }
-    
     func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView) {
-        guard vertexArray.count != 0 else {
-            return
-        }
         // the draw logic is as simple as this: write 4 vertices for every line,
         // then the vertex shader will calculate the real vertex coordinates
         // using ChartContext properties (the current vertex values are to ignore)
         var chartCx = chartContext(view:view)
         encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
                                index: Int(AAPLVertexInputIndexChartContext.rawValue))
-        encoder.setVertexBytes(vertexArray, length: MemoryLayout<Float>.stride * vertexArray.count, index: Int(AAPLVertexInputIndexVertices.rawValue))
+        let fakeVertex = [float4(0)]
+        encoder.setVertexBytes(fakeVertex, length: MemoryLayout<Float>.stride * 4, index: Int(AAPLVertexInputIndexVertices.rawValue))
         encoder.setVertexBytes([float4(0)], length: MemoryLayout<float4>.stride, // we dont use colors
             index: Int(AAPLVertexInputIndexColor.rawValue))
         encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: Int(lineCount[0] + lineCount[1]))
+    }
+}
+
+private extension ZGridRenderer {
+    func chartContext(view:MTKView) -> ChartContext! {
+        let screenSize = int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
+        let lineWidth = self.lineWidth * Float(view.contentScaleFactor)
+        return ChartContext.dashLineContext(graphRect: graphRect, screenSize: screenSize, color: strokeColor, lineWidth: lineWidth, lineOffset: gridCellSize, lineCount: lineCount, dashPattern: lineDashPattern)
     }
 }

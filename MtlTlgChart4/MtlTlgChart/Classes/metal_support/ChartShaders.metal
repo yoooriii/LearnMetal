@@ -20,33 +20,10 @@ typedef struct {
 vertex RasterizerData
 vertexShader(uint vid [[ vertex_id ]],
              uint iid [[ instance_id ]],
-             constant float *vertices [[ buffer(AAPLVertexInputIndexVertices) ]],  // v[n]=x, v[n+1]=y
+             constant float *vertices [[ buffer(AAPLVertexInputIndexVertices) ]],
              constant float4 *colors [[ buffer(AAPLVertexInputIndexColor) ]],
              constant ChartContext *chartContextPtr  [[ buffer(AAPLVertexInputIndexChartContext) ]] )
 {
-    if (chartContextPtr -> vshaderMode == VShaderModeFill) {
-        const float4 graphBox = chartContextPtr->graphRect; // graph size
-        const float2 graphSize = float2(graphBox[2] - graphBox[0], graphBox[3] - graphBox[1]); // width, height in graph logic points
-        
-        const uint vid0 = vid & 0xFFFE;
-        float2 position;
-        position.x = vertices[vid0];
-        position.y = vertices[vid0 + 1];
-        position -= graphBox.xy;  // move to x0, y0
-        position = position / graphSize * 2.0 - 1.0;
-        if (vid & 1) {
-            // move every next vertex to the bottom
-            position.y = -1.0;
-        }
-        
-        RasterizerData out;
-        out.color = chartContextPtr->color;
-        out.color.a = 1.0;
-        out.clipSpacePosition = vector_float4(position.x, position.y, 0.0, 1.0);
-        out.dashMode = 0;
-        return out;
-    }
-    
     if (chartContextPtr -> vshaderMode == VShaderModeDash) {
         const uint2 lineCount = uint2(chartContextPtr->extraInt[0], chartContextPtr->extraInt[1]);
         
@@ -103,13 +80,27 @@ vertexShader(uint vid [[ vertex_id ]],
         const float4 graphBox = chartContextPtr->graphRect; // graph size
         const float2 graphSize = float2(graphBox[2] - graphBox[0], graphBox[3] - graphBox[1]); // width, height in graph logic points
         const uint planeCount = chartContextPtr->extraInt[0]; // one plane [[x0,y00,y01,y02] [x1,y10,y11,y12]]
-        const uint index = vid >> 1;
+        const uint index = vid / 2;
+        const uint indexLast = (chartContextPtr->vertexCount) - 3;
         const uint stride = planeCount + 1;
-        const uint addr = index * stride;
 
         float2 position;
-        position.x = vertices[addr];
-        position.y = vertices[addr + iid + 1];
+        if (index < 2) {
+            // the first 2 points pt[0], pt[1] (pt.fake, pt.0, ...)
+            position.x = vertices[0];
+            position.y = vertices[iid + 1];
+        } else if (index > indexLast) {
+            // the last 2 points pt[n-2], pt[n-1] (..., pt.n + pt.fake)
+            const uint addr = indexLast * stride;
+            position.x = vertices[addr];
+            position.y = vertices[addr + iid + 1];
+        } else {
+            // other points in range
+            const uint addr = (index - 1) * stride;
+            position.x = vertices[addr];
+            position.y = vertices[addr + iid + 1];
+        }
+
         position -= graphBox.xy;  // move to x0, y0
         position = position / graphSize * 2.0 - 1.0;
         if (vid & 1) {
@@ -124,51 +115,64 @@ vertexShader(uint vid [[ vertex_id ]],
         return out;
     } // }}} VShaderModeFill2
     
-    
     // VShaderModeStroke2 {{{
     if (chartContextPtr -> vshaderMode == VShaderModeStroke2) {
         // stroke mode
-        const float4 viewport = chartContextPtr->graphRect; // graph size
-        const float2 positionScaler = float2(viewport[2] - viewport[0], viewport[3] - viewport[1]); // width, height in graph logic points
-        const float2 screenSize = vector_float2(chartContextPtr->screenSize);
+        const float4 graphBox = chartContextPtr->graphRect; // graph size
+        const float2 graphSize = float2(graphBox[2] - graphBox[0], graphBox[3] - graphBox[1]); // width, height in graph logic points
+        const float2 screenSize = float2(chartContextPtr->screenSize);
         const uint planeCount = chartContextPtr->extraInt[0]; // one plane [[x0,y00,y01,y02] [x1,y10,y11,y12]]
-        const uint index = vid >> 1;
+        const uint index = vid / 2;
+        const uint indexLast = (chartContextPtr->vertexCount) - 3;
         const uint stride = planeCount + 1;
-        const uint addr = index * stride;
-        
-        float2 currPt;
-        currPt.x = vertices[addr];
-        currPt.y = vertices[addr + iid + 1];
-        
-        float2 prevPt;
-        if (index >= 1) {
-            const uint addr_before = addr - stride;
-            prevPt.x = vertices[addr_before];
-            prevPt.y = vertices[addr_before + iid + 1];
+        const float sign = (vid & 1) ? 1 : -1; // aka direction
+
+        float2 prevPt, currPt, nextPt;
+        const float dx = (vertices[indexLast * stride] - vertices[0])/indexLast;
+        if (index < 2) {
+            // the first 2 points pt[0], pt[1] (pt.fake, pt.0, ...)
+            currPt.x = vertices[0];
+            currPt.y = vertices[iid + 1];
+            
+            prevPt.x = currPt.x - dx;
+            prevPt.y = currPt.y;
+            
+            nextPt.x = vertices[stride];
+            nextPt.y = vertices[stride + iid + 1];
+        } else if (index > indexLast) {
+            // the last 2 points pt[n-2], pt[n-1] (..., pt.n + pt.fake)
+            const uint addr = indexLast * stride;
+            currPt.x = vertices[addr];
+            currPt.y = vertices[addr + iid + 1];
+            
+            nextPt.x = currPt.x + dx;
+            nextPt.y = currPt.y;
+            
+            const uint addr_prev = addr - stride;
+            prevPt.x = vertices[addr_prev];
+            prevPt.y = vertices[addr_prev + iid + 1];
         } else {
-            prevPt = currPt;
+            // other points in range
+            const uint addr = (index - 1) * stride;
+            currPt.x = vertices[addr];
+            currPt.y = vertices[addr + iid + 1];
+
+            prevPt.x = vertices[addr - stride];
+            prevPt.y = vertices[addr - stride + iid + 1];
+
+            nextPt.x = vertices[addr + stride];
+            nextPt.y = vertices[addr + stride + iid + 1];
         }
         
-        float2 nextPt;
-        if (index >= (chartContextPtr->vertexCount - 1)) {
-            // the last point
-            nextPt = currPt;
-        } else {
-            const uint addr_after = addr + stride;
-            nextPt.x = vertices[addr_after];
-            nextPt.y = vertices[addr_after + iid + 1];
-        }
-        
-        const float2 nScale = screenSize.yx / positionScaler.yx;
+        const float2 nScale = screenSize.yx / graphSize.yx;
         const float2 currentNormal = normalize(nScale * float2(prevPt.y - currPt.y, currPt.x - prevPt.x));
         const float2 nextNormal = normalize(nScale * float2(currPt.y - nextPt.y, nextPt.x - currPt.x));
         
         const float2 miter = normalize(currentNormal + nextNormal);
-        const float sign = (vid & 1) ? 1 : -1; //direction
         float2 resultOffset = miter * sign * chartContextPtr->lineWidth / dot(miter, currentNormal);
         
-        float2 position = currPt.xy - viewport.xy;  // move to x0, y0
-        position = position / positionScaler * 2.0 - 1.0;
+        float2 position = currPt.xy - graphBox.xy;  // move to x0, y0
+        position = position / graphSize * 2.0 - 1.0;
         
         position *= screenSize;
         position += resultOffset;
@@ -180,58 +184,6 @@ vertexShader(uint vid [[ vertex_id ]],
         out.dashMode = 0;
         return out;
     } // }}} VShaderModeStroke2
-    
-    // VShaderModeStroke {{{
-    if (chartContextPtr -> vshaderMode == VShaderModeStroke) {
-        const float4 viewport = chartContextPtr->graphRect; // graph size
-        const float2 positionScaler = float2(viewport[2] - viewport[0], viewport[3] - viewport[1]); // width, height in graph logic points
-        const float2 screenSize = vector_float2(chartContextPtr->screenSize);
-        
-        bool isLast = vid >= chartContextPtr->vertexCount - 2;
-        float2 currPt;
-        const uint vid0 = vid & 0xFFFE;
-        currPt.x = vertices[vid0];
-        currPt.y = vertices[vid0 + 1];
-        
-        float2 prevPt;
-        if (vid >= 2) {
-            const uint vid_before = (vid - 2) & 0xFFFE;
-            prevPt.x = vertices[vid_before];
-            prevPt.y = vertices[vid_before + 1];
-        } else {
-            prevPt = currPt;
-        }
-        
-        float2 nextPt;
-        if (isLast) {
-            nextPt = currPt;
-        } else {
-            const uint vid_after = (vid + 2) & 0xFFFE;
-            nextPt.x = vertices[vid_after];
-            nextPt.y = vertices[vid_after + 1];
-        }
-        
-        const float2 nScale = screenSize.yx / positionScaler.yx;
-        const float2 currentNormal = normalize(nScale * float2(prevPt.y - currPt.y, currPt.x - prevPt.x));
-        const float2 nextNormal = normalize(nScale * float2(currPt.y - nextPt.y, nextPt.x - currPt.x));
-        
-        const float2 miter = normalize(currentNormal + nextNormal);
-        const float direction = (vid & 1) ? 1 : -1;
-        float2 resultOffset = miter * direction * chartContextPtr->lineWidth / dot(miter, currentNormal);
-        
-        float2 position = currPt.xy - viewport.xy;  // move to x0, y0
-        position = position / positionScaler * 2.0 - 1.0;
-        
-        position *= screenSize;
-        position += resultOffset;
-        position /= screenSize;
-        
-        RasterizerData out;
-        out.color = chartContextPtr->color;
-        out.clipSpacePosition = vector_float4(position.x, position.y, 0.0, 1.0);
-        out.dashMode = 0;
-        return out;
-    }
     
     // something must go wrong if we get this far
     RasterizerData out;

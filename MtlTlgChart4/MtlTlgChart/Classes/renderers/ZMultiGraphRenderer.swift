@@ -15,11 +15,12 @@ class ZMultiGraphRenderer: NSObject {
     }
     private var graphMode:VShaderMode = VShaderModeStroke2
     
+    private let gridRenderer = ZGridRenderer()
     private let mtkView:MTKView!
     private let metalContext:ZMetalContext!
     private var msaaTexture: MTLTexture?
     private var vertexBuffer: MTLBuffer?
-    private var verticesCount = Int(0)
+    private var verticesCount = Int(0) // verticesCount = (verticesPerInstance-2) * planeCount
     private var verticesPerInstance = Int(0)
     private var planeCount = Int(0)
     private var plane:Plane?
@@ -65,6 +66,7 @@ class ZMultiGraphRenderer: NSObject {
         for planeIndex in 0 ..< planeCount {
             let ampCount = vAmplitudes[planeIndex].count!
             if minCount > ampCount {
+                print("pt count mismatch \(minCount) vs \(ampCount)") // we should not get here
                 minCount = ampCount
             }
             
@@ -92,38 +94,17 @@ class ZMultiGraphRenderer: NSObject {
         self.plane = plane
         // [x0, y00, y01, y02, y03,  x1, y10, y11, y12, y13, ... xn, yn0, yn1, yn2, yn3]
         var arrCoordinates = [Float]()
-        // the first and the last points are just a fake
-        let dx0 = Float(graphRect[2] - graphRect[0])/Float(timeCount * 2)
-
         for index in 0 ..< minCount {
-            let x0 = Float(vTime.values[index]/1000)
-            let repeatCount:Int
-            var dx:Float
-            if 0 == index {
-                repeatCount = 2
-                dx = -dx0
-            } else if index == (minCount - 1) {
-                repeatCount = 2
-                dx = 0
-            } else {
-                repeatCount = 1
-                dx = 0
-            }
-            
-            // add a fake vertex at the beginning and at the end
-            for _ in 0 ..< repeatCount {
-                let x = x0 + dx
-                arrCoordinates.append(x)
-                for planeIndex in 0 ..< planeCount {
-                    let yi = Float(vAmplitudes[planeIndex].values[index])
-                    arrCoordinates.append(yi)
-                }
-                dx += dx0
+            let x = Float(vTime.values[index]/1000)
+            arrCoordinates.append(x)
+            for planeIndex in 0 ..< planeCount {
+                let y = Float(vAmplitudes[planeIndex].values[index])
+                arrCoordinates.append(y)
             }
         }
         verticesPerInstance = minCount + 2
         verticesCount = arrCoordinates.count
-        print("Plane has [planes x points]:[\(planeCount) x \(minCount)] ==> \(verticesCount) vertices")
+        print("Plane has [planes x points]:[\(planeCount) x \(minCount)] ==> [vals:vpi]:[\(verticesCount), \(verticesPerInstance)]")
 
         vertexBuffer = metalContext.device.makeBuffer(bytes: arrCoordinates,
                                                       length: MemoryLayout<Float>.stride * verticesCount,
@@ -146,8 +127,10 @@ extension ZMultiGraphRenderer: MTKViewDelegate {
     
     func draw(in view: MTKView) {
         let renderPassDescriptor = makeRenderPassDescriptor(view: view)
+        let screenSize = int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
+        gridRenderer.setViewSize(viewSize:screenSize)
         metalContext.draw(in: view, renderPassDescriptor:renderPassDescriptor) { renderEncoder in
-            //encodeGraph(encoder: renderEncoder, view: view, color: strokeColor)
+            self.gridRenderer.encodeGraph(encoder: renderEncoder, view: view)
             self.encodeGraph(encoder: renderEncoder, view: view)
         }
     }
@@ -207,7 +190,7 @@ private extension ZMultiGraphRenderer {
     }
     
     func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView) {
-        guard let vertexBuffer = self.vertexBuffer, colors.count != 0 else {
+        guard let vertexBuffer = vertexBuffer, colors.count != 0, verticesPerInstance > 1 else {
             return
         }
         

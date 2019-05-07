@@ -53,7 +53,7 @@ class MetalChartRenderer: NSObject {
             gridRenderer = GridRenderer(device: metalContext.device)
         }
         let grSize = mtkView.drawableSize
-        gridRenderer!.setViewSize(viewSize: uint2(UInt32(grSize.width), UInt32(grSize.height)))
+        gridRenderer!.setViewSize(viewSize: int2(Int32(grSize.width), Int32(grSize.height)))
         planeRenderers.append(gridRenderer!)
 
         var graphRect = vector_float4(0)
@@ -97,7 +97,7 @@ extension MetalChartRenderer: MTKViewDelegate {
         msaaTexture = nil
         
         if let gridRenderer = self.gridRenderer {
-            gridRenderer.setViewSize(viewSize: uint2(UInt32(size.width), UInt32(size.height)))
+            gridRenderer.setViewSize(viewSize: int2(Int32(size.width), Int32(size.height)))
         }
     }
     
