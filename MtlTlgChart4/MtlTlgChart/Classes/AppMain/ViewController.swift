@@ -12,6 +12,9 @@ class ViewController: UIViewController {
     @IBOutlet var mtkView:MTKView!
     @IBOutlet var mtkView2:MTKView!
     @IBOutlet var infoLabel:UILabel!
+    @IBOutlet var planeSwitches: [UISwitch]!
+    @IBOutlet var fillModeSwitch: UISwitch!
+
     private var renderer: ZMultiGraphRenderer!
     private var renderer2: ZMultiGraphRenderer!
     var graphicsContainer:GraphicsContainer?
@@ -19,11 +22,12 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        resetSwitches()
+        
         if let cx = ZGraphAppDelegate.getMetalContext() {
             renderer = ZMultiGraphRenderer(mtkView:mtkView, metalContext: cx)
             renderer2 = ZMultiGraphRenderer(mtkView:mtkView2, metalContext: cx)
         }
-        
 
         startLoadingData()
     }
@@ -39,6 +43,8 @@ class ViewController: UIViewController {
                 // let planeCopy = plane.copy(in: NSRange(location: 0, length: 4))
                 renderer.setPlane(plane)
                 renderer2.setPlane(plane)
+                setFillMode()
+                updateSwitches(plane: plane)
                 infoLabel.text = "#\(nextPlane): " + plane.info()
                 nextPlane += 1
             }
@@ -53,8 +59,23 @@ class ViewController: UIViewController {
     }
     
     @IBAction func switchMode(_ sw: UISwitch) {
-        renderer.setFillMode(sw.isOn)
-        renderer2.setFillMode(sw.isOn)
+        setFillMode()
+    }
+    
+    @IBAction func switchPlane(_ sw: UISwitch) {
+        var mask = UInt32(0)
+        var flag = UInt32(1)
+        for sw in planeSwitches {
+            if sw.isOn {
+                mask |= flag
+            }
+            flag = flag << 1
+        }
+        
+        print("mask: " + String(format: "0x%02x", mask))
+        
+        renderer.setPlaneMask(mask)
+        renderer2.setPlaneMask(mask)
     }
     
     private func dataDidLoad() {
@@ -105,4 +126,27 @@ class ViewController: UIViewController {
             }
         }
     }
+
+    private func resetSwitches() {
+        fillModeSwitch.isOn = false
+        for sw in planeSwitches {
+            sw.isOn = false
+            sw.isHidden = false
+        }
+    }
+    
+    private func updateSwitches(plane:Plane) {
+        var ampCount = Int(plane.vAmplitudes.count)
+        for sw in planeSwitches {
+            let isOff = ampCount <= 0
+            sw.isHidden = isOff
+            sw.isOn = !isOff
+            ampCount -= 1
+        }
+    }
+
+    private func setFillMode() {
+        renderer.setFillMode(fillModeSwitch.isOn)
+        renderer2.setFillMode(fillModeSwitch.isOn)
+    }    
 }

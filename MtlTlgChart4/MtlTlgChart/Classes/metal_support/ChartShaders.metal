@@ -16,13 +16,21 @@ typedef struct {
     float2 dashPattern;
 } RasterizerData;
 
+typedef enum {
+    LineOrientationNone = 0,
+    LineOrientationHorizontal = 1,
+    LineOrientationVertical = 2,
+    LineOrientationDiscard  // discard fragment
+} LineOrientation;
+
+
 /// Line Chart Vertex Function
 vertex RasterizerData
 vertexShader(uint vid [[ vertex_id ]],
-             uint iid [[ instance_id ]],
-             constant float *vertices [[ buffer(AAPLVertexInputIndexVertices) ]],
-             constant float4 *colors [[ buffer(AAPLVertexInputIndexColor) ]],
-             constant ChartContext *chartContextPtr  [[ buffer(AAPLVertexInputIndexChartContext) ]] )
+             uint iid0 [[ instance_id ]],
+             constant float *vertices [[ buffer(ZVxShaderBidVertices) ]],
+             constant float4 *colors [[ buffer(ZVxShaderBidColor) ]],
+             constant ChartContext *chartContextPtr  [[ buffer(ZVxShaderBidChartContext) ]] )
 {
     if (chartContextPtr -> vshaderMode == VShaderModeDash) {
         const uint2 lineCount = uint2(chartContextPtr->extraInt[0], chartContextPtr->extraInt[1]);
@@ -34,7 +42,7 @@ vertexShader(uint vid [[ vertex_id ]],
         const float2 graphSize = float2(graphBox[2] - graphBox[0], graphBox[3] - graphBox[1]); // width, height in graph logic points
         
         float2 position = -graphBox.xy;
-        const uint lineNumber = iid;
+        const uint lineNumber = iid0;
         const int horizontalNumber = lineNumber - lineCount[0];
         if (horizontalNumber < 0) { // vertical
             if (vid & 2) {  // 2,3 vert, bottom side
@@ -84,6 +92,35 @@ vertexShader(uint vid [[ vertex_id ]],
         const uint indexLast = (chartContextPtr->vertexCount) - 3;
         const uint stride = planeCount + 1;
 
+        // map iid (turn a plane on/off)
+        int iid = -1;   // the result mapped iid, -1 is a wrong result
+        uint planeMask = (chartContextPtr->extraInt[1]) & 0xFF;
+        if (planeMask == 0xFF) {
+            iid = iid0;
+        } else {
+            if (planeMask && (iid0 < planeCount)) {
+                uint bitIndex = 0;
+                for (uint i=0; i< planeCount; ++i) {
+                    if (planeMask & 1) {
+                        if (bitIndex == iid0) {
+                            iid = i;
+                            break;
+                        }
+                        ++bitIndex;
+                    }
+                    planeMask >>= 1;
+                }
+            }
+            if (iid < 0) {
+                // error
+                RasterizerData out;
+                out.color = float4(1.0, 0.0, 0.0, 1.0);
+                out.clipSpacePosition = float4(0);
+                out.dashMode = LineOrientationDiscard;
+                return out;
+            }
+        }
+
         float2 position;
         if (index < 2) {
             // the first 2 points pt[0], pt[1] (pt.fake, pt.0, ...)
@@ -126,6 +163,35 @@ vertexShader(uint vid [[ vertex_id ]],
         const uint indexLast = (chartContextPtr->vertexCount) - 3;
         const uint stride = planeCount + 1;
         const float sign = (vid & 1) ? 1 : -1; // aka direction
+        
+        // map iid (turn a plane on/off)
+        int iid = -1;   // the result mapped iid, -1 is a wrong result
+        uint planeMask = (chartContextPtr->extraInt[1]) & 0xFF;
+        if (planeMask == 0xFF) {
+            iid = iid0;
+        } else {
+            if (planeMask && (iid0 < planeCount)) {
+                uint bitIndex = 0;
+                for (uint i=0; i< planeCount; ++i) {
+                    if (planeMask & 1) {
+                        if (bitIndex == iid0) {
+                            iid = i;
+                            break;
+                        }
+                        ++bitIndex;
+                    }
+                    planeMask >>= 1;
+                }
+            }
+            if (iid < 0) {
+                // error
+                RasterizerData out;
+                out.color = float4(1.0, 0.0, 0.0, 1.0);
+                out.clipSpacePosition = float4(0);
+                out.dashMode = LineOrientationDiscard;
+                return out;
+            }
+        }
 
         float2 prevPt, currPt, nextPt;
         const float dx = (vertices[indexLast * stride] - vertices[0])/indexLast;

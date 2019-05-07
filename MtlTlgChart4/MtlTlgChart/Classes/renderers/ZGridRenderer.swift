@@ -32,11 +32,11 @@ class ZGridRenderer: NSObject {
         // using ChartContext properties
         var chartCx = chartContext(view:view)
         encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
-                               index: Int(AAPLVertexInputIndexChartContext.rawValue))
+                               index: Int(ZVxShaderBidChartContext.rawValue))
         let fakeVertex = [float4(0)]  // any data will do, the shader does not use it
-        encoder.setVertexBytes(fakeVertex, length: MemoryLayout<Float>.stride * 4, index: Int(AAPLVertexInputIndexVertices.rawValue))
+        encoder.setVertexBytes(fakeVertex, length: MemoryLayout<Float>.stride * 4, index: Int(ZVxShaderBidVertices.rawValue))
         encoder.setVertexBytes([float4(0)], length: MemoryLayout<float4>.stride, // we dont use colors
-            index: Int(AAPLVertexInputIndexColor.rawValue))
+            index: Int(ZVxShaderBidColor.rawValue))
         encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: Int(lineCount[0] + lineCount[1]))
     }
 }

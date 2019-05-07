@@ -12,23 +12,18 @@
 
 #include <simd/simd.h>
 
+// vertex buffer index: [[ buffer(ZVxShaderBid...) ]]
 typedef enum {
-    AAPLVertexInputIndexVertices = 0,
-    AAPLVertexInputIndexChartContext = 1,
-    AAPLVertexInputIndexColor
-} AAPLVertexInputIndex;
+    ZVxShaderBidVertices,
+    ZVxShaderBidChartContext,
+    ZVxShaderBidColor
+} ZVxShaderBid;
 
 typedef enum {
     VShaderModeStroke = 0,
     VShaderModeFill = 1,
     VShaderModeDash = 2
 } VShaderMode;
-
-typedef enum {
-    LineOrientationNone = 0,
-    LineOrientationHorizontal = 1,
-    LineOrientationVertical = 2
-} LineOrientation;
 
 /// line chart
 typedef struct {
@@ -42,6 +37,6 @@ typedef struct {
     // extra
     float extraFloat[8];
     uint32_t extraInt[8];
-} ChartContext;  // <-- AAPLVertexInputIndexChartContext
+} ChartContext;  // <-- ZVxShaderBidChartContext
 
 #endif /* ShaderTypes_h */

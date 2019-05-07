@@ -35,8 +35,8 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8J3-S6-ndd">
-                                <rect key="frame" x="181" y="501" width="51" height="31"/>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="8J3-S6-ndd">
+                                <rect key="frame" x="301" y="446" width="51" height="31"/>
                                 <connections>
                                     <action selector="switchMode:" destination="BYZ-38-t0r" eventType="valueChanged" id="DSt-Ye-HBX"/>
                                 </connections>
@@ -175,10 +175,47 @@
                                     <outlet property="scrollView" destination="vRZ-PP-Cfu" id="PiO-9Y-Jqg"/>
                                 </connections>
                             </view>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="DGk-gl-d77">
+                                <rect key="frame" x="50" y="332" width="49" height="195"/>
+                                <subviews>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7EX-0o-08b">
+                                        <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
+                                        <connections>
+                                            <action selector="switchPlane:" destination="BYZ-38-t0r" eventType="valueChanged" id="Eoq-GU-5EU"/>
+                                        </connections>
+                                    </switch>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fjJ-Yh-i6U">
+                                        <rect key="frame" x="0.0" y="41" width="51" height="31"/>
+                                        <connections>
+                                            <action selector="switchPlane:" destination="BYZ-38-t0r" eventType="valueChanged" id="oJj-mr-YK9"/>
+                                        </connections>
+                                    </switch>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Aox-ty-86E">
+                                        <rect key="frame" x="0.0" y="82" width="51" height="31"/>
+                                        <connections>
+                                            <action selector="switchPlane:" destination="BYZ-38-t0r" eventType="valueChanged" id="jzB-hC-xzK"/>
+                                        </connections>
+                                    </switch>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="h41-JP-Vht">
+                                        <rect key="frame" x="0.0" y="123" width="51" height="31"/>
+                                        <connections>
+                                            <action selector="switchPlane:" destination="BYZ-38-t0r" eventType="valueChanged" id="zNo-WW-SI2"/>
+                                        </connections>
+                                    </switch>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OCe-AT-4fa">
+                                        <rect key="frame" x="0.0" y="164" width="51" height="31"/>
+                                        <connections>
+                                            <action selector="switchPlane:" destination="BYZ-38-t0r" eventType="valueChanged" id="UNL-9g-Lny"/>
+                                        </connections>
+                                    </switch>
+                                </subviews>
+                            </stackView>
                         </subviews>
                         <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="P8c-RA-cQI" firstAttribute="width" secondItem="QDA-su-14K" secondAttribute="width" multiplier="0.6" id="00s-8X-3ea"/>
+                            <constraint firstItem="ffw-f5-khc" firstAttribute="trailing" secondItem="8J3-S6-ndd" secondAttribute="trailing" constant="25" id="4OJ-db-HCV"/>
+                            <constraint firstItem="DGk-gl-d77" firstAttribute="bottom" secondItem="QDA-su-14K" secondAttribute="bottom" constant="-20" id="A7K-VW-Rfn"/>
                             <constraint firstItem="QDA-su-14K" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="10" id="Duz-jD-cqd"/>
                             <constraint firstItem="ffw-f5-khc" firstAttribute="trailing" secondItem="DEQ-8k-Eln" secondAttribute="trailing" constant="10" id="Lfm-iD-GeJ"/>
                             <constraint firstItem="19C-uT-RGV" firstAttribute="top" secondItem="DEQ-8k-Eln" secondAttribute="bottom" constant="10" id="Mg6-e7-Vve"/>
@@ -192,16 +229,22 @@
                             <constraint firstItem="DEQ-8k-Eln" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="10" id="olV-mK-t7A"/>
                             <constraint firstAttribute="trailing" secondItem="QDA-su-14K" secondAttribute="trailing" constant="10" id="saE-Lg-sj6"/>
                             <constraint firstItem="aid-eW-ajC" firstAttribute="bottom" secondItem="QDA-su-14K" secondAttribute="bottom" constant="-10" id="sjr-fE-aTQ"/>
-                            <constraint firstItem="8J3-S6-ndd" firstAttribute="bottom" secondItem="QDA-su-14K" secondAttribute="bottom" constant="-15" id="tgf-S0-Hz3"/>
-                            <constraint firstItem="aid-eW-ajC" firstAttribute="leading" secondItem="8J3-S6-ndd" secondAttribute="trailing" constant="25" id="vr3-dL-JVS"/>
+                            <constraint firstItem="8J3-S6-ndd" firstAttribute="bottom" secondItem="QDA-su-14K" secondAttribute="bottom" constant="-70" id="tgf-S0-Hz3"/>
                             <constraint firstItem="aid-eW-ajC" firstAttribute="trailing" secondItem="QDA-su-14K" secondAttribute="trailing" constant="-10" id="yIi-Te-SiQ"/>
+                            <constraint firstItem="DGk-gl-d77" firstAttribute="leading" secondItem="ffw-f5-khc" secondAttribute="leading" constant="50" id="z4k-O8-bfB"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="ffw-f5-khc"/>
                     </view>
                     <connections>
+                        <outlet property="fillModeSwitch" destination="8J3-S6-ndd" id="k5N-pG-nD8"/>
                         <outlet property="infoLabel" destination="1Aj-a9-Rno" id="lto-Vm-bPy"/>
                         <outlet property="mtkView" destination="QDA-su-14K" id="196-l0-mPA"/>
                         <outlet property="mtkView2" destination="k2S-vS-2hl" id="Fc7-th-2bu"/>
+                        <outletCollection property="planeSwitches" destination="7EX-0o-08b" collectionClass="NSMutableArray" id="lYn-Ik-gtg"/>
+                        <outletCollection property="planeSwitches" destination="fjJ-Yh-i6U" collectionClass="NSMutableArray" id="Blk-vq-0tf"/>
+                        <outletCollection property="planeSwitches" destination="Aox-ty-86E" collectionClass="NSMutableArray" id="OhH-Dd-d5T"/>
+                        <outletCollection property="planeSwitches" destination="h41-JP-Vht" collectionClass="NSMutableArray" id="GtI-U6-hec"/>
+                        <outletCollection property="planeSwitches" destination="OCe-AT-4fa" collectionClass="NSMutableArray" id="ELY-Lh-077"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

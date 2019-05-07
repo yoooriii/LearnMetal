@@ -43,6 +43,7 @@ extension ChartContext {
                                 color: float4,
                                 lineWidth:Float,
                                 planeCount:Int,
+                                planeMask:UInt32,
                                 vertexCount:Int,
                                 vshaderMode:VShaderMode) -> ChartContext
     {
@@ -50,6 +51,7 @@ extension ChartContext {
         var cx = ChartContext(graphRect: graphRect, screenSize: screenSize,
                         color: color, lineWidth: lineWidth, vertexCount: vertexCount, vshaderMode: vshaderMode)
         cx.extraInt.0 = UInt32(planeCount)
+        cx.extraInt.1 = planeMask
         return cx
     }
 }

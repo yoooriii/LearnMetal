@@ -23,6 +23,7 @@ class ZMultiGraphRenderer: NSObject {
     private var verticesCount = Int(0) // verticesCount = (verticesPerInstance-2) * planeCount
     private var verticesPerInstance = Int(0)
     private var planeCount = Int(0)
+    private var planeMask = UInt32(0xFF) // bit mask to hide/show a plane
     private var plane:Plane?
     private var commonGraphRect = float4(1)
     private var colors = [float4]()
@@ -104,11 +105,14 @@ class ZMultiGraphRenderer: NSObject {
         }
         verticesPerInstance = minCount + 2
         verticesCount = arrCoordinates.count
-        print("Plane has [planes x points]:[\(planeCount) x \(minCount)] ==> [vals:vpi]:[\(verticesCount), \(verticesPerInstance)]")
-
         vertexBuffer = metalContext.device.makeBuffer(bytes: arrCoordinates,
                                                       length: MemoryLayout<Float>.stride * verticesCount,
                                                       options: .cpuCacheModeWriteCombined)
+    }
+    
+    func setPlaneMask(_ mask: UInt32) {
+        planeMask = mask
+        mtkView.setNeedsDisplay()
     }
     
     func setFillMode(_ fillMode:Bool) {
@@ -169,6 +173,7 @@ private extension ZMultiGraphRenderer {
     }
 
     func cleanup() {
+        planeMask = 0xFF
         verticesPerInstance = 0
         verticesCount = 0
         planeCount = 0
@@ -185,22 +190,41 @@ private extension ZMultiGraphRenderer {
                                             color:color,
                                             lineWidth:lineWidth,
                                             planeCount:planeCount,
+                                            planeMask:planeMask,
                                             vertexCount:verticesPerInstance,
                                             vshaderMode:graphMode)
     }
     
-    func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView) {
-        guard let vertexBuffer = vertexBuffer, colors.count != 0, verticesPerInstance > 1 else {
-            return
+    func visiblePlaneCount() -> Int {
+        if planeCount == 0 || planeMask == 0 {
+            return 0;
         }
+        var mask = planeMask
+        var count = 0
+        for _ in 0 ..< planeCount {
+            if 0 != (mask & 1) {
+                count += 1
+            }
+            mask = mask >> 1
+        }
+        return count;
+    }
+    
+    func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView) {
+        let visibleCount = visiblePlaneCount()
+        guard let vertexBuffer = vertexBuffer,
+            colors.count != 0,
+            verticesPerInstance > 1,
+            visibleCount > 0 else { return }
         
         var chartCx = chartContext(view:view, color:float4(1)) // no color
         encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
-                               index: Int(AAPLVertexInputIndexChartContext.rawValue))
+                               index: Int(ZVxShaderBidChartContext.rawValue))
         encoder.setVertexBuffer(vertexBuffer, offset: 0,
-                                index: Int(AAPLVertexInputIndexVertices.rawValue))
+                                index: Int(ZVxShaderBidVertices.rawValue))
         encoder.setVertexBytes(colors, length: MemoryLayout<float4>.stride * colors.count,
-                               index: Int(AAPLVertexInputIndexColor.rawValue))
-        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: verticesPerInstance * 2, instanceCount:planeCount)
+                               index: Int(ZVxShaderBidColor.rawValue))
+        print("visible count = \(visibleCount)")
+        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: verticesPerInstance * 2, instanceCount:visibleCount)
     }
 }
