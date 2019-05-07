@@ -21,9 +21,7 @@ typedef enum {
 typedef enum {
     VShaderModeStroke = 0,
     VShaderModeFill = 1,
-    VShaderModeDash = 2,
-    VShaderModeStroke2,
-    VShaderModeFill2
+    VShaderModeDash = 2
 } VShaderMode;
 
 typedef enum {

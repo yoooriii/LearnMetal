@@ -27,13 +27,13 @@ class ZGridRenderer: NSObject {
     }
 
     func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView) {
-        // the draw logic is as simple as this: write 4 vertices for every line,
-        // then the vertex shader will calculate the real vertex coordinates
-        // using ChartContext properties (the current vertex values are to ignore)
+        // the draw logic is as simple as this: write fake data for every line,
+        // then the vertex shader calculates the real vertex coordinates
+        // using ChartContext properties
         var chartCx = chartContext(view:view)
         encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
                                index: Int(AAPLVertexInputIndexChartContext.rawValue))
-        let fakeVertex = [float4(0)]
+        let fakeVertex = [float4(0)]  // any data will do, the shader does not use it
         encoder.setVertexBytes(fakeVertex, length: MemoryLayout<Float>.stride * 4, index: Int(AAPLVertexInputIndexVertices.rawValue))
         encoder.setVertexBytes([float4(0)], length: MemoryLayout<float4>.stride, // we dont use colors
             index: Int(AAPLVertexInputIndexColor.rawValue))

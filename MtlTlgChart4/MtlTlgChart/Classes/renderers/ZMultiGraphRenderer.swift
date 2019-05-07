@@ -13,7 +13,7 @@ class ZMultiGraphRenderer: NSObject {
     var lineWidth = Float(1) {
         didSet { mtkView.setNeedsDisplay() }
     }
-    private var graphMode:VShaderMode = VShaderModeStroke2
+    private var graphMode:VShaderMode = VShaderModeStroke
     
     private let gridRenderer = ZGridRenderer()
     private let mtkView:MTKView!
@@ -112,7 +112,7 @@ class ZMultiGraphRenderer: NSObject {
     }
     
     func setFillMode(_ fillMode:Bool) {
-        graphMode = fillMode ? VShaderModeFill2 : VShaderModeStroke2
+        graphMode = fillMode ? VShaderModeFill : VShaderModeStroke
         mtkView.setNeedsDisplay()
     }
 }

@@ -75,8 +75,8 @@ vertexShader(uint vid [[ vertex_id ]],
         
     }  // VShaderModeDash = end
     
-    // VShaderModeFill2 {{{
-    if (chartContextPtr -> vshaderMode == VShaderModeFill2) {
+    // VShaderModeFill {{{
+    if (chartContextPtr -> vshaderMode == VShaderModeFill) {
         const float4 graphBox = chartContextPtr->graphRect; // graph size
         const float2 graphSize = float2(graphBox[2] - graphBox[0], graphBox[3] - graphBox[1]); // width, height in graph logic points
         const uint planeCount = chartContextPtr->extraInt[0]; // one plane [[x0,y00,y01,y02] [x1,y10,y11,y12]]
@@ -113,10 +113,10 @@ vertexShader(uint vid [[ vertex_id ]],
         out.clipSpacePosition = vector_float4(position.x, position.y, 0.0, 1.0);
         out.dashMode = 0;
         return out;
-    } // }}} VShaderModeFill2
+    } // }}} VShaderModeFill
     
-    // VShaderModeStroke2 {{{
-    if (chartContextPtr -> vshaderMode == VShaderModeStroke2) {
+    // VShaderModeStroke {{{
+    if (chartContextPtr -> vshaderMode == VShaderModeStroke) {
         // stroke mode
         const float4 graphBox = chartContextPtr->graphRect; // graph size
         const float2 graphSize = float2(graphBox[2] - graphBox[0], graphBox[3] - graphBox[1]); // width, height in graph logic points
@@ -183,7 +183,7 @@ vertexShader(uint vid [[ vertex_id ]],
         out.clipSpacePosition = float4(position.x, position.y, 0.0, 1.0);
         out.dashMode = 0;
         return out;
-    } // }}} VShaderModeStroke2
+    } // }}} VShaderModeStroke
     
     // something must go wrong if we get this far
     RasterizerData out;

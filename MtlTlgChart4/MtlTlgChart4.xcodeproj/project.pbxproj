@@ -10,10 +10,6 @@
 		B30D03CD22818179005C365E /* ZGridRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30D03CC22818179005C365E /* ZGridRenderer.swift */; };
 		B3121A2B2266363000D2D913 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3121A2A2266363000D2D913 /* MetalKit.framework */; };
 		B320DC83228089D6007D3DF8 /* ZMultiGraphRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B320DC82228089D6007D3DF8 /* ZMultiGraphRenderer.swift */; };
-		B3E5A0CC2280435F009E992D /* GridRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0A92280435F009E992D /* GridRenderer.swift */; };
-		B3E5A0CD2280435F009E992D /* MetalChartRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0AA2280435F009E992D /* MetalChartRenderer.swift */; };
-		B3E5A0CE2280435F009E992D /* RenderProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0AB2280435F009E992D /* RenderProtocols.swift */; };
-		B3E5A0CF2280435F009E992D /* GraphRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0AC2280435F009E992D /* GraphRenderer.swift */; };
 		B3E5A0D02280435F009E992D /* CollectionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0AD2280435F009E992D /* CollectionUtils.swift */; };
 		B3E5A0D12280435F009E992D /* RawModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0AF2280435F009E992D /* RawModels.swift */; };
 		B3E5A0D22280435F009E992D /* GraphPlaneSlice.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0B02280435F009E992D /* GraphPlaneSlice.swift */; };
@@ -47,10 +43,6 @@
 		B3121A14226635E300D2D913 /* MtlTlgChart3.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MtlTlgChart3.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3121A2A2266363000D2D913 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		B320DC82228089D6007D3DF8 /* ZMultiGraphRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMultiGraphRenderer.swift; sourceTree = "<group>"; };
-		B3E5A0A92280435F009E992D /* GridRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GridRenderer.swift; sourceTree = "<group>"; };
-		B3E5A0AA2280435F009E992D /* MetalChartRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalChartRenderer.swift; sourceTree = "<group>"; };
-		B3E5A0AB2280435F009E992D /* RenderProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RenderProtocols.swift; sourceTree = "<group>"; };
-		B3E5A0AC2280435F009E992D /* GraphRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GraphRenderer.swift; sourceTree = "<group>"; };
 		B3E5A0AD2280435F009E992D /* CollectionUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionUtils.swift; sourceTree = "<group>"; };
 		B3E5A0AF2280435F009E992D /* RawModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RawModels.swift; sourceTree = "<group>"; };
 		B3E5A0B02280435F009E992D /* GraphPlaneSlice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GraphPlaneSlice.swift; sourceTree = "<group>"; };
@@ -151,10 +143,6 @@
 			children = (
 				B320DC82228089D6007D3DF8 /* ZMultiGraphRenderer.swift */,
 				B30D03CC22818179005C365E /* ZGridRenderer.swift */,
-				B3E5A0AA2280435F009E992D /* MetalChartRenderer.swift */,
-				B3E5A0AC2280435F009E992D /* GraphRenderer.swift */,
-				B3E5A0A92280435F009E992D /* GridRenderer.swift */,
-				B3E5A0AB2280435F009E992D /* RenderProtocols.swift */,
 			);
 			path = renderers;
 			sourceTree = "<group>";
@@ -314,14 +302,11 @@
 				B3E5A0F222807F5D009E992D /* ZSliderIndicator2d.swift in Sources */,
 				B3E5A0E12280435F009E992D /* ChartShaders.metal in Sources */,
 				B3E5A0D62280435F009E992D /* PathModels.swift in Sources */,
-				B3E5A0CC2280435F009E992D /* GridRenderer.swift in Sources */,
 				B3E5A0E02280435F009E992D /* ViewPort.swift in Sources */,
 				B3E5A0D02280435F009E992D /* CollectionUtils.swift in Sources */,
 				B3E5A0ED22806610009E992D /* ZMetalContext.swift in Sources */,
 				B3E5A0D22280435F009E992D /* GraphPlaneSlice.swift in Sources */,
-				B3E5A0CD2280435F009E992D /* MetalChartRenderer.swift in Sources */,
 				B3E5A0D42280435F009E992D /* UIModels.swift in Sources */,
-				B3E5A0CE2280435F009E992D /* RenderProtocols.swift in Sources */,
 				B3E5A0DF2280435F009E992D /* ViewController.swift in Sources */,
 				B3E5A0DA2280435F009E992D /* ChartContext_ext.swift in Sources */,
 				B3E5A0D32280435F009E992D /* LogicCanvas.swift in Sources */,
@@ -331,7 +316,6 @@
 				B3E5A0F122807F5D009E992D /* ZScrollSlider2d.swift in Sources */,
 				B3E5A0D82280435F009E992D /* RenderingContext.swift in Sources */,
 				B3E5A0DB2280435F009E992D /* Extentions.swift in Sources */,
-				B3E5A0CF2280435F009E992D /* GraphRenderer.swift in Sources */,
 				B320DC83228089D6007D3DF8 /* ZMultiGraphRenderer.swift in Sources */,
 				B3E5A0D52280435F009E992D /* Models.swift in Sources */,
 				B3E5A0D72280435F009E992D /* TestModels.swift in Sources */,
