@@ -21,8 +21,9 @@ typedef enum {
 
 typedef enum {
     VShaderModeStroke = 0,
-    VShaderModeFill = 1,
-    VShaderModeDash = 2
+    VShaderModeFill,
+    VShaderModeDash,
+    VShaderModeArrow
 } VShaderMode;
 
 /// line chart
@@ -36,7 +37,7 @@ typedef struct {
     vector_float4 color;
     // extra
     float extraFloat[8];
-    uint32_t extraInt[8];
+    int32_t extraInt[8];
 } ChartContext;  // <-- ZVxShaderBidChartContext
 
 #endif /* ShaderTypes_h */

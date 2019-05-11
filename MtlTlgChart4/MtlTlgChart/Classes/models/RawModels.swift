@@ -11,7 +11,7 @@ import Foundation
 /// Raw Models used to hold json models
 /// no UIKit classes available here since the models supposed to work on macOS as well
 
-struct RawColumn: Decodable {
+struct RawColumn: Decodable, Encodable {
     let id: String!
     let values: [Int64]!
     let minValue: Int64!
@@ -34,9 +34,17 @@ struct RawColumn: Decodable {
         minValue = minVal
         maxValue = maxVal
     }
+    
+    func encode(to encoder: Encoder) throws {
+        var elements = encoder.unkeyedContainer()
+        try elements.encode(id)
+        for v in values {
+            try elements.encode(v)
+        }
+    }
 }
 
-struct RawPlane: Decodable {
+struct RawPlane: Decodable, Encodable {
     let columns: [RawColumn]!
     let colors: [String: String]!
     let names: [String: String]!

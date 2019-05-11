@@ -25,7 +25,7 @@ extension ChartContext {
                                 color: float4,
                                 lineWidth:Float,
                                 lineOffset:float2,
-                                lineCount:uint2,
+                                lineCount:int2,
                                 dashPattern:float2) -> ChartContext
     {
         var instance = ChartContext(graphRect: graphRect, screenSize: screenSize, color: color, lineWidth: lineWidth, vertexCount: 0, vshaderMode: VShaderModeDash)
@@ -45,13 +45,22 @@ extension ChartContext {
                                 planeCount:Int,
                                 planeMask:UInt32,
                                 vertexCount:Int,
-                                vshaderMode:VShaderMode) -> ChartContext
+                                vshaderMode:VShaderMode,
+                                arrowPositionX:Float,
+                                selectedIndices:(Int, Int)?) -> ChartContext
     {
         // ignore color
         var cx = ChartContext(graphRect: graphRect, screenSize: screenSize,
                         color: color, lineWidth: lineWidth, vertexCount: vertexCount, vshaderMode: vshaderMode)
-        cx.extraInt.0 = UInt32(planeCount)
-        cx.extraInt.1 = planeMask
+        cx.extraFloat.0 = arrowPositionX
+        cx.extraInt.0 = Int32(planeCount)
+        cx.extraInt.1 = Int32(planeMask)
+        if let selectedIndices = selectedIndices {
+            cx.extraInt.2 = Int32(selectedIndices.0)
+            cx.extraInt.3 = Int32(selectedIndices.1)
+        } else {
+            cx.extraInt.2 = -1
+        }
         return cx
     }
 }

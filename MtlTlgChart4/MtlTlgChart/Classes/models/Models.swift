@@ -234,11 +234,48 @@ class Plane {
         
         return nil
     }
+    
+    // find nearest indices // Binary search algorithm
+    // it returns nil if there is no values in vector
+    // it returns (startIndex, length) where startIndex = [0...count],
+    // length = [-1, 0, 1] -> the -1 length if the value is before the 0 element
+    // if the length is 0 then it is the exact index
+    // if startIndex is count-1 and length is 1 then the value is greater of all the values in the vector
+    func nearestIndices(normalizedTime:Float) -> (Int, Int)? {
+        let plane = self
+        guard let vTime = plane.vTime else {
+            return nil
+        }
+        if vTime.count < 1 {
+            return nil
+        }
+        let ctrValue = vTime.minValue + Int64(Double(normalizedTime) * Double(vTime.maxValue - vTime.minValue))
+        if ctrValue <= vTime.minValue {
+            return (0, -1)
+        }
+        if ctrValue >= vTime.maxValue {
+            return (vTime.count-1, 1)
+        }
+        
+        var iFirst = Int(0), iLast = plane.vTime.count - 1
+        while (iLast - iFirst > 1) {
+            let iMid = iFirst + (iLast - iFirst)/2
+            let val = vTime.values[iMid]
+            if ctrValue > val {
+                iFirst = iMid
+            } else if ctrValue < val {
+                iLast = iMid
+            } else {
+                return (iMid, 0)
+            }
+        }
+        return (iFirst, 1)
+    }
 }
 
 struct GraphicsContainer: Decodable {
     let planes: [Plane]!
-    var size:Int { get { return planes.count } }
+    let size:Int!
 
     init(from decoder: Decoder) throws {
         var rawItems = try decoder.unkeyedContainer()
@@ -249,6 +286,7 @@ struct GraphicsContainer: Decodable {
             planes.append(plane)
         }
         self.planes = planes
+        size = planes.count
     }
 
     func setLocalizedNames(localizedNames: [String:String]?) {

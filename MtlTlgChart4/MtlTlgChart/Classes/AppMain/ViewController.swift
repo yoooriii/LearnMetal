@@ -18,15 +18,23 @@ class ViewController: UIViewController {
     private var renderer: ZMultiGraphRenderer!
     private var renderer2: ZMultiGraphRenderer!
     var graphicsContainer:GraphicsContainer?
+    
+    private var position2d = float2(0.0, 0.2)
+    private var heightScale = float2(0, 1)
+    
+    //MARK: -
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         resetSwitches()
+//        setActivePlane(nil)
         
         if let cx = ZGraphAppDelegate.getMetalContext() {
             renderer = ZMultiGraphRenderer(mtkView:mtkView, metalContext: cx)
+            renderer.lineWidth = 4
             renderer2 = ZMultiGraphRenderer(mtkView:mtkView2, metalContext: cx)
+            renderer.lineWidth = 2
         }
 
         startLoadingData()
@@ -40,22 +48,18 @@ class ViewController: UIViewController {
             }
             if nextPlane < container.planes.count {
                 let plane = container.planes[nextPlane]
-                // let planeCopy = plane.copy(in: NSRange(location: 0, length: 4))
-                renderer.setPlane(plane)
-                renderer2.setPlane(plane)
-                setFillMode()
-                updateSwitches(plane: plane)
-                infoLabel.text = "#\(nextPlane): " + plane.info()
+                setActivePlane(plane)
                 nextPlane += 1
             }
         } else {
             startLoadingData()
         }
     }
-
-    @IBAction func acrLineWidth(_ slider: UISlider) {
-        renderer.lineWidth = 1.0 + 10.0 * slider.value
-        renderer2.lineWidth = 1.0 + 10.0 * slider.value
+    
+    @IBAction func actSetHeight(_ slider: UISlider) {
+        heightScale.x = 0
+        heightScale.w = 0.5 + (1.0 - slider.value)
+        applyPosition()
     }
     
     @IBAction func switchMode(_ sw: UISwitch) {
@@ -110,8 +114,8 @@ class ViewController: UIViewController {
                     let decoder = JSONDecoder()
                     do {
                         graphicsContainer = try decoder.decode(GraphicsContainer.self, from: jsonData)
-                    } catch {
-                        err = NSError("cannot decode json")
+                    } catch (let eee) {
+                        err = NSError("cannot decode json \(eee.localizedDescription)")
                     }
                 }
                 catch {
@@ -127,21 +131,53 @@ class ViewController: UIViewController {
         }
     }
 
+    func setActivePlane(_ plane:Plane) {
+        renderer.setPlane(plane)
+        renderer2.setPlane(plane)
+        setFillMode()
+        applyPosition()
+        updateSwitches(plane: plane)
+        infoLabel.text = "#\(nextPlane): " + plane.info()
+    }
+    
+    private func dbgTestIndices() {
+        let vals:[Float] = [-1, -0.1, 0, 0.1, 0.2, 0.5, 0.9, 1.0, 1.05, 1.1, 100]
+        var ii = 0
+        for v in vals {
+            if let ind = renderer.findIndices(normalizedX: v) {
+                print("#\(ii): " + String(format: "%2.2f -> [%d, %d]", v, ind.0, ind.1))
+            } else {
+                print("#\(ii): <nil>")
+            }
+            ii += 1
+        }
+    }
+    
     private func resetSwitches() {
         fillModeSwitch.isOn = false
         for sw in planeSwitches {
             sw.isOn = false
-            sw.isHidden = false
+            sw.isHidden = true
         }
     }
     
     private func updateSwitches(plane:Plane) {
-        var ampCount = Int(plane.vAmplitudes.count)
-        for sw in planeSwitches {
-            let isOff = ampCount <= 0
-            sw.isHidden = isOff
-            sw.isOn = !isOff
-            ampCount -= 1
+        let ampCount = Int(plane.vAmplitudes.count)
+        let count = max(ampCount, planeSwitches.count)
+        for i in 0 ..< count {
+            if (i < planeSwitches.count) {
+                let sw = planeSwitches[i]
+                if (i < ampCount) {
+                    let amp = plane.vAmplitudes[i]
+                    sw.isHidden = false
+                    sw.isOn = true
+                    sw.tintColor = amp.color
+                    sw.onTintColor = amp.color
+                } else {
+                    sw.isHidden = true
+                    sw.isOn = false
+                }
+            }
         }
     }
 
@@ -149,4 +185,33 @@ class ViewController: UIViewController {
         renderer.setFillMode(fillModeSwitch.isOn)
         renderer2.setFillMode(fillModeSwitch.isOn)
     }    
+
+    private func applyPosition() {
+        var visibleRect = renderer.getBoundingBox()
+        visibleRect.x += visibleRect.width * position2d.x
+        visibleRect.width *= position2d.w
+        
+        visibleRect.y += visibleRect.height * heightScale.x
+        visibleRect.height *= heightScale.w
+        renderer.visibleRect = visibleRect
+    }
+}
+
+extension ViewController: ZScrollSlider2dDelegate {
+    func scrollSlider(_ slider:ZScrollSlider2d, positionDidChange pos2d:float2) {
+        position2d = pos2d
+        applyPosition()
+    }
+}
+
+extension ViewController: ZOvelayInfoViewDelegate {
+    func overlayInfo(_ overlay:ZOvelayInfoView, didChange position: Float) {
+        let realPosition = position2d.x + position2d.w * position
+        renderer.arrowPositionX = realPosition
+        var info = String(format: "%2.1f", 100.0 * realPosition)
+        if let ind2 = renderer.getArrowIndices() {
+            info += ":[\(ind2.0):\(ind2.1)]"
+        }
+        overlay.setInfo(text: info)
+    }
 }

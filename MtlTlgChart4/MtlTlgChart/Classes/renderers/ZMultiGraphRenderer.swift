@@ -10,7 +10,8 @@ import MetalKit
 import simd
 
 class ZMultiGraphRenderer: NSObject {
-    var lineWidth = Float(1) {
+    private let defaultLineWidth = Float(2)
+    var lineWidth: Float {
         didSet { mtkView.setNeedsDisplay() }
     }
     private var graphMode:VShaderMode = VShaderModeStroke
@@ -25,14 +26,25 @@ class ZMultiGraphRenderer: NSObject {
     private var planeCount = Int(0)
     private var planeMask = UInt32(0xFF) // bit mask to hide/show a plane
     private var plane:Plane?
-    private var commonGraphRect = float4(1)
     private var colors = [float4]()
-
+    private var boundingBox = float4() // (x, y, w, h)
+    var arrowPositionX = Float(0) {
+        didSet {
+            doUpdateArrowPosition()
+            mtkView.setNeedsDisplay()
+        }
+    }
+    private var arrowIndices:(Int, Int)?
+    var visibleRect = float4(0) {
+        didSet { mtkView.setNeedsDisplay() }
+    }
+    
     //MARK: -
     
     init(mtkView: MTKView, metalContext:ZMetalContext) {
         self.mtkView = mtkView
         self.metalContext = metalContext
+        lineWidth = defaultLineWidth
         super.init()
         metalContext.setupMetalView(mtkView)
         mtkView.delegate = self
@@ -91,7 +103,8 @@ class ZMultiGraphRenderer: NSObject {
         }
         
         // OK, input data is correct, we can proceed
-        commonGraphRect = graphRect
+        boundingBox = float4(graphRect[0], graphRect[1], graphRect[2]-graphRect[0], graphRect[3]-graphRect[1])
+        visibleRect = boundingBox // fully visible at first
         self.plane = plane
         // [x0, y00, y01, y02, y03,  x1, y10, y11, y12, y13, ... xn, yn0, yn1, yn2, yn3]
         var arrCoordinates = [Float]()
@@ -119,6 +132,21 @@ class ZMultiGraphRenderer: NSObject {
         graphMode = fillMode ? VShaderModeFill : VShaderModeStroke
         mtkView.setNeedsDisplay()
     }
+    
+    func getBoundingBox() -> float4 {
+        return boundingBox
+    }
+    
+    func getArrowIndices() -> (Int, Int)? {
+        return arrowIndices
+    }
+    
+    func findIndices(normalizedX:Float) -> (Int, Int)? {
+        guard let plane = plane else {
+            return nil
+        }
+        return plane.nearestIndices(normalizedTime: normalizedX)
+    }
 }
 
 
@@ -131,8 +159,8 @@ extension ZMultiGraphRenderer: MTKViewDelegate {
     
     func draw(in view: MTKView) {
         let renderPassDescriptor = makeRenderPassDescriptor(view: view)
-        let screenSize = int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
-        gridRenderer.setViewSize(viewSize:screenSize)
+        let drawableSize = int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
+        gridRenderer.setViewSize(viewSize:drawableSize)
         metalContext.draw(in: view, renderPassDescriptor:renderPassDescriptor) { renderEncoder in
             self.gridRenderer.encodeGraph(encoder: renderEncoder, view: view)
             self.encodeGraph(encoder: renderEncoder, view: view)
@@ -142,7 +170,7 @@ extension ZMultiGraphRenderer: MTKViewDelegate {
 
 
 private extension ZMultiGraphRenderer {
-    private func makeMSAATexture(size:vector_int2) -> MTLTexture? {
+    func makeMSAATexture(size:vector_int2) -> MTLTexture? {
         let desc = MTLTextureDescriptor()
         desc.textureType = MTLTextureType.type2DMultisample
         desc.width = Int(size.x)
@@ -155,7 +183,7 @@ private extension ZMultiGraphRenderer {
         return metalContext.device.makeTexture(descriptor: desc)
     }
     
-    private func makeRenderPassDescriptor(view: MTKView) -> MTLRenderPassDescriptor? {
+    func makeRenderPassDescriptor(view: MTKView) -> MTLRenderPassDescriptor? {
         if let _ = msaaTexture { /* use cached tx */ } else {
             let drawableSize = view.drawableSize
             let size = vector_int2(Int32(drawableSize.width), Int32(drawableSize.height))
@@ -179,20 +207,22 @@ private extension ZMultiGraphRenderer {
         planeCount = 0
         colors.removeAll()
         vertexBuffer = nil
-        commonGraphRect = float4(0)
+        boundingBox = float4(0)
     }
 
     func chartContext(view:MTKView, color:float4) -> ChartContext! {
         let screenSize = int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
         let lineWidth = self.lineWidth * Float(view.contentScaleFactor)
-        return ChartContext.combinedContext(graphRect:commonGraphRect,
+        return ChartContext.combinedContext(graphRect:visibleRect,
                                             screenSize:screenSize,
                                             color:color,
                                             lineWidth:lineWidth,
                                             planeCount:planeCount,
                                             planeMask:planeMask,
                                             vertexCount:verticesPerInstance,
-                                            vshaderMode:graphMode)
+                                            vshaderMode:graphMode,
+                                            arrowPositionX:arrowPositionX,
+                                            selectedIndices: arrowIndices)
     }
     
     func visiblePlaneCount() -> Int {
@@ -210,12 +240,17 @@ private extension ZMultiGraphRenderer {
         return count;
     }
     
+    func doUpdateArrowPosition() {
+        arrowIndices = findIndices(normalizedX: arrowPositionX)
+    }
+    
     func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView) {
         let visibleCount = visiblePlaneCount()
         guard let vertexBuffer = vertexBuffer,
             colors.count != 0,
             verticesPerInstance > 1,
-            visibleCount > 0 else { return }
+            visibleCount > 0
+        else { return }
         
         var chartCx = chartContext(view:view, color:float4(1)) // no color
         encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
@@ -224,7 +259,6 @@ private extension ZMultiGraphRenderer {
                                 index: Int(ZVxShaderBidVertices.rawValue))
         encoder.setVertexBytes(colors, length: MemoryLayout<float4>.stride * colors.count,
                                index: Int(ZVxShaderBidColor.rawValue))
-        print("visible count = \(visibleCount)")
         encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: verticesPerInstance * 2, instanceCount:visibleCount)
     }
 }

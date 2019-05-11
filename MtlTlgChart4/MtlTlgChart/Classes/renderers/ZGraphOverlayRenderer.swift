@@ -1,5 +1,5 @@
 //
-//  ZGridRenderer.swift
+//  ZGraphOverlayRenderer
 //  MtlTlgChart3
 //
 //  Created by leonid@leeloo ©2019 Horns&Hoofs.®
@@ -8,7 +8,7 @@
 import UIKit
 import MetalKit
 
-class ZGridRenderer: NSObject {
+class ZGraphOverlayRenderer: NSObject {
     let graphMode = VShaderModeStroke
     let lineCount = int2(10, 11) // horizontal/vertical lines count
     // absolute coordinates in graph values
@@ -25,7 +25,7 @@ class ZGridRenderer: NSObject {
     func setViewSize(viewSize:int2) {
         graphRect = float4(0,0, Float(viewSize[0]), Float(viewSize[1])) // should we change it here and this way?
     }
-
+    
     func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView) {
         // the draw logic is as simple as this: write fake data for every line,
         // then the vertex shader calculates the real vertex coordinates
@@ -41,7 +41,7 @@ class ZGridRenderer: NSObject {
     }
 }
 
-private extension ZGridRenderer {
+private extension ZGraphOverlayRenderer {
     func chartContext(view:MTKView) -> ChartContext! {
         let screenSize = int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
         let lineWidth = self.lineWidth * Float(view.contentScaleFactor)

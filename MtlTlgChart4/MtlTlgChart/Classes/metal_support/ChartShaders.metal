@@ -23,6 +23,29 @@ typedef enum {
     LineOrientationDiscard  // discard fragment
 } LineOrientation;
 
+RasterizerData
+vShaderArrow(uint vid,
+             uint iid,
+             constant float *vertices,
+             constant float4 *colors,
+             constant ChartContext *chartContextPtr)
+{
+    RasterizerData out;
+    //TODO: implement it
+    return out;
+}
+
+RasterizerData
+vShaderDash(uint vid,
+          uint iid,
+          constant float *vertices,
+          constant float4 *colors,
+          constant ChartContext *chartContextPtr)
+{
+    RasterizerData out;
+    //TODO: implement it
+    return out;
+}
 
 /// Line Chart Vertex Function
 vertex RasterizerData
@@ -34,21 +57,19 @@ vertexShader(uint vid [[ vertex_id ]],
 {
     if (chartContextPtr -> vshaderMode == VShaderModeDash) {
         const uint2 lineCount = uint2(chartContextPtr->extraInt[0], chartContextPtr->extraInt[1]);
-        
         const float2 dashPattern = float2(chartContextPtr->extraFloat[0], chartContextPtr->extraFloat[1]);
         const float2 cellSize = float2(chartContextPtr->extraFloat[2], chartContextPtr->extraFloat[3]);
         const float lineWidth2 = chartContextPtr->lineWidth / 2.0; // half line width
         const float4 graphBox = chartContextPtr->graphRect; // graph size
-        const float2 graphSize = float2(graphBox[2] - graphBox[0], graphBox[3] - graphBox[1]); // width, height in graph logic points
         
         float2 position = -graphBox.xy;
         const uint lineNumber = iid0;
         const int horizontalNumber = lineNumber - lineCount[0];
         if (horizontalNumber < 0) { // vertical
             if (vid & 2) {  // 2,3 vert, bottom side
-                position.y = graphBox[1];
+                position.y = graphBox.y;
             } else {        // 0,1 vert, top side
-                position.y = graphBox[3];
+                position.y = graphBox.y + graphBox.w;
             }
             
             position.x += cellSize.x * lineNumber;
@@ -59,9 +80,9 @@ vertexShader(uint vid [[ vertex_id ]],
             }
         } else { // horizontal
             if (vid & 2) {  // 2,3 vert, bottom side
-                position.x = graphBox[0];
+                position.x = graphBox.x;
             } else {        // 0,1 vert, top side
-                position.x = graphBox[2];
+                position.x = graphBox.z;
             }
             
             position.y += cellSize.y * horizontalNumber;
@@ -72,6 +93,7 @@ vertexShader(uint vid [[ vertex_id ]],
             }
         }
         
+        const float2 graphSize = graphBox.zw; // width, height in graph logic points
         position = position / graphSize * 2.0 - 1.0;
         
         RasterizerData out;
@@ -86,7 +108,6 @@ vertexShader(uint vid [[ vertex_id ]],
     // VShaderModeFill {{{
     if (chartContextPtr -> vshaderMode == VShaderModeFill) {
         const float4 graphBox = chartContextPtr->graphRect; // graph size
-        const float2 graphSize = float2(graphBox[2] - graphBox[0], graphBox[3] - graphBox[1]); // width, height in graph logic points
         const uint planeCount = chartContextPtr->extraInt[0]; // one plane [[x0,y00,y01,y02] [x1,y10,y11,y12]]
         const uint index = vid / 2;
         const uint indexLast = (chartContextPtr->vertexCount) - 3;
@@ -139,6 +160,7 @@ vertexShader(uint vid [[ vertex_id ]],
         }
 
         position -= graphBox.xy;  // move to x0, y0
+        const float2 graphSize = graphBox.zw; // width, height in graph logic points
         position = position / graphSize * 2.0 - 1.0;
         if (vid & 1) {
             // move every next vertex to the bottom
@@ -152,18 +174,29 @@ vertexShader(uint vid [[ vertex_id ]],
         return out;
     } // }}} VShaderModeFill
     
+    // VShaderModeArrow {{{
+    if (chartContextPtr -> vshaderMode == VShaderModeArrow) {
+        return vShaderArrow(vid,
+                        iid0,
+                         vertices,
+                         colors,
+                         chartContextPtr);
+    }
+    // }}} VShaderModeArrow
+
     // VShaderModeStroke {{{
     if (chartContextPtr -> vshaderMode == VShaderModeStroke) {
         // stroke mode
         const float4 graphBox = chartContextPtr->graphRect; // graph size
-        const float2 graphSize = float2(graphBox[2] - graphBox[0], graphBox[3] - graphBox[1]); // width, height in graph logic points
         const float2 screenSize = float2(chartContextPtr->screenSize);
         const uint planeCount = chartContextPtr->extraInt[0]; // one plane [[x0,y00,y01,y02] [x1,y10,y11,y12]]
         const uint index = vid / 2;
         const uint indexLast = (chartContextPtr->vertexCount) - 3;
         const uint stride = planeCount + 1;
         const float sign = (vid & 1) ? 1 : -1; // aka direction
-        
+
+        RasterizerData out;
+
         // map iid (turn a plane on/off)
         int iid = -1;   // the result mapped iid, -1 is a wrong result
         uint planeMask = (chartContextPtr->extraInt[1]) & 0xFF;
@@ -185,14 +218,15 @@ vertexShader(uint vid [[ vertex_id ]],
             }
             if (iid < 0) {
                 // error
-                RasterizerData out;
-                out.color = float4(1.0, 0.0, 0.0, 1.0);
                 out.clipSpacePosition = float4(0);
                 out.dashMode = LineOrientationDiscard;
                 return out;
             }
         }
 
+        out.dashMode = 0;
+        out.color = colors[iid];
+                
         float2 prevPt, currPt, nextPt;
         const float dx = (vertices[indexLast * stride] - vertices[0])/indexLast;
         if (index < 2) {
@@ -230,6 +264,29 @@ vertexShader(uint vid [[ vertex_id ]],
             nextPt.y = vertices[addr + stride + iid + 1];
         }
         
+        if (true) {
+            const int2 arrowIndices = int2(chartContextPtr->extraInt[2], chartContextPtr->extraInt[3]);
+            if (arrowIndices[0] >= 0 && arrowIndices[1] >= 0) {
+                if (int(index) == arrowIndices[0]+1 ){
+                    //                || int(index) == arrowIndices[0] + arrowIndices[1]) {
+                    //            out.color = float4(0,0,0,1);
+                    out.dashMode = LineOrientationDiscard;
+                    
+                    const float arwPositionX = chartContextPtr->extraFloat[0];
+                    const float x0 = graphBox.x + graphBox.z * arwPositionX;
+                    
+                    const float2 pt1 = prevPt;
+                    const float2 pt2 = currPt;
+                    const float normX = (x0 - pt1.x)/(pt2.x - pt1.x);
+                    const float y0 = pt1.y + normX * (pt2.y - pt1.y);
+                    
+                    //                const float normX =
+                    
+                }
+            }
+        }
+        
+        const float2 graphSize = graphBox.zw; // width, height in graph logic points
         const float2 nScale = screenSize.yx / graphSize.yx;
         const float2 currentNormal = normalize(nScale * float2(prevPt.y - currPt.y, currPt.x - prevPt.x));
         const float2 nextNormal = normalize(nScale * float2(currPt.y - nextPt.y, nextPt.x - currPt.x));
@@ -243,11 +300,8 @@ vertexShader(uint vid [[ vertex_id ]],
         position *= screenSize;
         position += resultOffset;
         position /= screenSize;
-        
-        RasterizerData out;
-        out.color = colors[iid];
         out.clipSpacePosition = float4(position.x, position.y, 0.0, 1.0);
-        out.dashMode = 0;
+
         return out;
     } // }}} VShaderModeStroke
     
