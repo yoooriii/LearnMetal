@@ -12,7 +12,8 @@ class ZGridRenderer: NSObject {
     let graphMode = VShaderModeStroke
     let lineCount = int2(10, 11) // horizontal/vertical lines count
     // absolute coordinates in graph values
-    var graphRect = float4(0)
+    var visibleRect = float4(0)
+    var boundingBox = float4(0)
     // grid properties
     var strokeColor = float4(0.5, 0.5, 0.5, 1.0)
     var lineWidth = Float(1)
@@ -23,7 +24,7 @@ class ZGridRenderer: NSObject {
     //MARK: -
     
     func setViewSize(viewSize:int2) {
-        graphRect = float4(0,0, Float(viewSize[0]), Float(viewSize[1])) // should we change it here and this way?
+        visibleRect = float4(0,0, Float(viewSize[0]), Float(viewSize[1])) // should we change it here and this way?
     }
 
     func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView) {
@@ -45,6 +46,13 @@ private extension ZGridRenderer {
     func chartContext(view:MTKView) -> ChartContext! {
         let screenSize = int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
         let lineWidth = self.lineWidth * Float(view.contentScaleFactor)
-        return ChartContext.dashLineContext(graphRect: graphRect, screenSize: screenSize, color: strokeColor, lineWidth: lineWidth, lineOffset: gridCellSize, lineCount: lineCount, dashPattern: lineDashPattern)
+        return ChartContext.dashLineContext(visibleRect: visibleRect,
+                                            boundingBox: boundingBox,
+                                            screenSize: screenSize,
+                                            color: strokeColor,
+                                            lineWidth: lineWidth,
+                                            lineOffset: gridCellSize,
+                                            lineCount: lineCount,
+                                            dashPattern: lineDashPattern)
     }
 }

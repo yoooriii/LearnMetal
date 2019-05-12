@@ -2,9 +2,7 @@
 //  ShaderTypes.h
 //  GraphPresenter
 //
-//  Created by Andre on 3/27/19.
-//  Copyright © 2019 BB. All rights reserved.
-//  Updated by leonid@leeloo ©2019 Horns&Hoofs.®
+//  Created by leonid@leeloo ©2019 Horns&Hoofs.®
 //
 
 #ifndef ShaderTypes_h
@@ -26,18 +24,21 @@ typedef enum {
     VShaderModeArrow
 } VShaderMode;
 
-/// line chart
+#define ArrowCircleStepCount 10
+// ArrowCircleVertexCount = (ArrowCircleStepCount * 2 + 2)
+#define ArrowCircleVertexCount 22
+
 typedef struct {
-    vector_float4 graphRect;
+    vector_float4 visibleRect;
+    vector_float4 boundingBox;
     vector_int2 screenSize;
     float lineWidth;
     uint vertexCount;
     uint32_t vshaderMode; // VShaderMode
-
     vector_float4 color;
     // extra
     float extraFloat[8];
     int32_t extraInt[8];
-} ChartContext;  // <-- ZVxShaderBidChartContext
+} ChartContext;         // metal buffer index ZVxShaderBidChartContext
 
 #endif /* ShaderTypes_h */

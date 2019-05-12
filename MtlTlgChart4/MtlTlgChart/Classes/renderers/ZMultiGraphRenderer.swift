@@ -14,6 +14,7 @@ class ZMultiGraphRenderer: NSObject {
     var lineWidth: Float {
         didSet { mtkView.setNeedsDisplay() }
     }
+    var arrowPointRadius = Float(10)
     private var graphMode:VShaderMode = VShaderModeStroke
     
     private let gridRenderer = ZGridRenderer()
@@ -28,15 +29,32 @@ class ZMultiGraphRenderer: NSObject {
     private var plane:Plane?
     private var colors = [float4]()
     private var boundingBox = float4() // (x, y, w, h)
-    var arrowPositionX = Float(0) {
+
+    var arrowOffsetInVisibleRect = Float(0) {
         didSet {
             doUpdateArrowPosition()
             mtkView.setNeedsDisplay()
         }
     }
+
+    private var arrowPositionX:Float {
+        get { return position2d.x + position2d.w * arrowOffsetInVisibleRect }
+    }
+
     private var arrowIndices:(Int, Int)?
-    var visibleRect = float4(0) {
-        didSet { mtkView.setNeedsDisplay() }
+
+    var position2d: float2 = float2(0.5) {
+        didSet {
+            doUpdateArrowPosition()
+            mtkView.setNeedsDisplay()
+        }
+    }
+    
+    var heightScale: float2 = float2(0, 1) {
+        didSet {
+            doUpdateArrowPosition()
+            mtkView.setNeedsDisplay()
+        }
     }
     
     //MARK: -
@@ -104,7 +122,6 @@ class ZMultiGraphRenderer: NSObject {
         
         // OK, input data is correct, we can proceed
         boundingBox = float4(graphRect[0], graphRect[1], graphRect[2]-graphRect[0], graphRect[3]-graphRect[1])
-        visibleRect = boundingBox // fully visible at first
         self.plane = plane
         // [x0, y00, y01, y02, y03,  x1, y10, y11, y12, y13, ... xn, yn0, yn1, yn2, yn3]
         var arrCoordinates = [Float]()
@@ -132,20 +149,31 @@ class ZMultiGraphRenderer: NSObject {
         graphMode = fillMode ? VShaderModeFill : VShaderModeStroke
         mtkView.setNeedsDisplay()
     }
-    
+
     func getBoundingBox() -> float4 {
         return boundingBox
     }
-    
+
     func getArrowIndices() -> (Int, Int)? {
         return arrowIndices
     }
-    
+
     func findIndices(normalizedX:Float) -> (Int, Int)? {
         guard let plane = plane else {
             return nil
         }
         return plane.nearestIndices(normalizedTime: normalizedX)
+    }
+
+    func visibleRect() -> float4 {
+        // conver bounding box to visible rect using position2d & heightScale
+        var visibleRect = boundingBox
+        visibleRect.x += visibleRect.width * position2d.x
+        visibleRect.width *= position2d.w
+        
+        visibleRect.y += visibleRect.height * heightScale.x
+        visibleRect.height *= heightScale.w
+        return visibleRect
     }
 }
 
@@ -161,6 +189,7 @@ extension ZMultiGraphRenderer: MTKViewDelegate {
         let renderPassDescriptor = makeRenderPassDescriptor(view: view)
         let drawableSize = int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
         gridRenderer.setViewSize(viewSize:drawableSize)
+        gridRenderer.boundingBox = boundingBox
         metalContext.draw(in: view, renderPassDescriptor:renderPassDescriptor) { renderEncoder in
             self.gridRenderer.encodeGraph(encoder: renderEncoder, view: view)
             self.encodeGraph(encoder: renderEncoder, view: view)
@@ -213,7 +242,8 @@ private extension ZMultiGraphRenderer {
     func chartContext(view:MTKView, color:float4) -> ChartContext! {
         let screenSize = int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
         let lineWidth = self.lineWidth * Float(view.contentScaleFactor)
-        return ChartContext.combinedContext(graphRect:visibleRect,
+        return ChartContext.combinedContext(visibleRect:visibleRect(),
+                                            boundingBox: boundingBox,
                                             screenSize:screenSize,
                                             color:color,
                                             lineWidth:lineWidth,
@@ -223,6 +253,24 @@ private extension ZMultiGraphRenderer {
                                             vshaderMode:graphMode,
                                             arrowPositionX:arrowPositionX,
                                             selectedIndices: arrowIndices)
+    }
+    
+    func arrowContext(view:MTKView, color:float4) -> ChartContext! {
+        let screenSize = int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
+        let lineWidth = self.lineWidth * Float(view.contentScaleFactor)
+        let ptRadius = arrowPointRadius * Float(view.contentScaleFactor)
+        var cx = ChartContext.arrowContext(visibleRect:visibleRect(),
+                                         boundingBox:boundingBox,
+                                         screenSize:screenSize,
+                                         lineWidth:lineWidth,
+                                         planeCount:planeCount,
+                                         planeMask:planeMask,
+                                         vertexCount:verticesPerInstance,
+                                         arrowPositionX:arrowPositionX,
+                                         arrowPointRadius:ptRadius,
+                                         selectedIndices:arrowIndices)
+        cx.color = color
+        return cx;
     }
     
     func visiblePlaneCount() -> Int {
@@ -260,5 +308,36 @@ private extension ZMultiGraphRenderer {
         encoder.setVertexBytes(colors, length: MemoryLayout<float4>.stride * colors.count,
                                index: Int(ZVxShaderBidColor.rawValue))
         encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: verticesPerInstance * 2, instanceCount:visibleCount)
+        
+        // draw an arrow (circle pointers)
+        var arrowCx = arrowContext(view:view, color:float4(1))
+        encoder.setVertexBytes(&arrowCx, length: MemoryLayout<ChartContext>.stride,
+                               index: Int(ZVxShaderBidChartContext.rawValue))
+        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: Int(ArrowCircleVertexCount)*2, instanceCount:visibleCount)
+    }
+    
+    // TODO: debug func, no use; remove it when done;
+    func makeTestCircularVertices(center: float2, radius:Float, steps:Int) -> [float2] {
+        var resVertices = [float2]()
+        if steps < 3 {
+            print("too few steps \(steps)")
+            return resVertices
+        }
+
+        let minR = radius / 2.0
+        let pi2 = Float.pi * 2.0
+
+        for i in 0 ..< steps * 2 {
+            let a = pi2 * Float(i) / Float(steps * 2)
+            let r = (i & 1 == 0) ? radius : minR
+            let pos = float2(sin(a), cos(a)) * r + center
+            resVertices.append(pos)
+        }
+
+        // close the path
+        resVertices.append(resVertices[0])
+        resVertices.append(resVertices[1])
+
+        return resVertices
     }
 }

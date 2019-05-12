@@ -187,13 +187,8 @@ class ViewController: UIViewController {
     }    
 
     private func applyPosition() {
-        var visibleRect = renderer.getBoundingBox()
-        visibleRect.x += visibleRect.width * position2d.x
-        visibleRect.width *= position2d.w
-        
-        visibleRect.y += visibleRect.height * heightScale.x
-        visibleRect.height *= heightScale.w
-        renderer.visibleRect = visibleRect
+        renderer.heightScale = heightScale
+        renderer.position2d = position2d
     }
 }
 
@@ -207,7 +202,7 @@ extension ViewController: ZScrollSlider2dDelegate {
 extension ViewController: ZOvelayInfoViewDelegate {
     func overlayInfo(_ overlay:ZOvelayInfoView, didChange position: Float) {
         let realPosition = position2d.x + position2d.w * position
-        renderer.arrowPositionX = realPosition
+        renderer.arrowOffsetInVisibleRect = position // it depends on the visible rect
         var info = String(format: "%2.1f", 100.0 * realPosition)
         if let ind2 = renderer.getArrowIndices() {
             info += ":[\(ind2.0):\(ind2.1)]"
