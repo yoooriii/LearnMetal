@@ -201,7 +201,7 @@
                                         <color key="backgroundColor" white="0.0" alpha="0.30230629279999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </view>
                                     <view userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="59a-tH-f8W" userLabel="Center Handle View">
-                                        <rect key="frame" x="104" y="0.0" width="100" height="70"/>
+                                        <rect key="frame" x="104" y="-2" width="100" height="74"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <gestureRecognizers/>
                                         <constraints>
@@ -272,8 +272,8 @@
                                     <constraint firstAttribute="bottom" secondItem="I2i-bc-zk3" secondAttribute="bottom" id="e6l-iA-3Xw"/>
                                     <constraint firstAttribute="bottom" secondItem="vRZ-PP-Cfu" secondAttribute="bottom" id="e8n-ld-Ig6"/>
                                     <constraint firstItem="vRZ-PP-Cfu" firstAttribute="width" relation="greaterThanOrEqual" secondItem="59a-tH-f8W" secondAttribute="width" id="gCd-Hw-rRm"/>
-                                    <constraint firstAttribute="bottom" secondItem="59a-tH-f8W" secondAttribute="bottom" id="h4E-aY-yDr"/>
-                                    <constraint firstItem="59a-tH-f8W" firstAttribute="top" secondItem="DEQ-8k-Eln" secondAttribute="top" id="jgG-gI-Nz3"/>
+                                    <constraint firstAttribute="bottom" secondItem="59a-tH-f8W" secondAttribute="bottom" constant="-2" id="h4E-aY-yDr"/>
+                                    <constraint firstItem="59a-tH-f8W" firstAttribute="top" secondItem="DEQ-8k-Eln" secondAttribute="top" constant="-2" id="jgG-gI-Nz3"/>
                                     <constraint firstItem="vRZ-PP-Cfu" firstAttribute="leading" secondItem="DEQ-8k-Eln" secondAttribute="leading" constant="10" id="krF-7o-Fiq"/>
                                     <constraint firstAttribute="trailing" secondItem="k2S-vS-2hl" secondAttribute="trailing" constant="10" id="pED-4T-Fi5"/>
                                     <constraint firstItem="Etg-v0-HfE" firstAttribute="leading" secondItem="vRZ-PP-Cfu" secondAttribute="leading" priority="250" id="tAZ-F8-b2J"/>

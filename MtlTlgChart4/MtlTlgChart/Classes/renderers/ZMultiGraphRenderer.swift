@@ -43,7 +43,7 @@ class ZMultiGraphRenderer: NSObject {
 
     private var arrowIndices:(Int, Int)?
 
-    var position2d: float2 = float2(0.5) {
+    var position2d: float2 = float2(0, 1) {
         didSet {
             doUpdateArrowPosition()
             mtkView.setNeedsDisplay()
