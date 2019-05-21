@@ -22,12 +22,11 @@ class ZMultiGraphRenderer: NSObject {
     private let metalContext:ZMetalContext!
     private var msaaTexture: MTLTexture?
     private var vertexBuffer: MTLBuffer?
-    private var verticesCount = Int(0) // verticesCount = (verticesPerInstance-2) * planeCount
-    private var verticesPerInstance = Int(0)
+    private var pointsCount = Int(0)
     private var planeCount = Int(0)
     private var planeMask = UInt32(0xFF) // bit mask to hide/show a plane
     private var plane:Plane?
-    private var colors = [float4]()
+    private var instanceDescriptors = [InstanceDescriptor]()
     private var boundingBox = float4() // (x, y, w, h)
 
     var arrowOffsetInVisibleRect = Float(0) {
@@ -112,7 +111,8 @@ class ZMultiGraphRenderer: NSObject {
             }
             
             let color = vAmplitudes[planeIndex].colorVector
-            colors.append(color)
+            let instDescriptor = InstanceDescriptor(color: color, stride:UInt32(planeCount + 1), offsetIY: UInt32(planeIndex + 1))
+            instanceDescriptors.append(instDescriptor)
         }
         
         if minCount < 2 {
@@ -123,20 +123,39 @@ class ZMultiGraphRenderer: NSObject {
         // OK, input data is correct, we can proceed
         boundingBox = float4(graphRect[0], graphRect[1], graphRect[2]-graphRect[0], graphRect[3]-graphRect[1])
         self.plane = plane
+        let dx = boundingBox.width / 500.0 // value small enough 
         // [x0, y00, y01, y02, y03,  x1, y10, y11, y12, y13, ... xn, yn0, yn1, yn2, yn3]
         var arrCoordinates = [Float]()
+        arrCoordinates.reserveCapacity((minCount + 2) * (planeCount + 1))
         for index in 0 ..< minCount {
             let x = Float(vTime.values[index]/1000)
+            // repeat the 1st point -dx
+            if 0 == index {
+                arrCoordinates.append(x - dx)
+                for planeIndex in 0 ..< planeCount {
+                    let y = Float(vAmplitudes[planeIndex].values[index])
+                    arrCoordinates.append(y)
+                }
+            }
+            
             arrCoordinates.append(x)
             for planeIndex in 0 ..< planeCount {
                 let y = Float(vAmplitudes[planeIndex].values[index])
                 arrCoordinates.append(y)
             }
+            
+            // repeat the last point +dx
+            if minCount - 1 == index {
+                arrCoordinates.append(x + dx)
+                for planeIndex in 0 ..< planeCount {
+                    let y = Float(vAmplitudes[planeIndex].values[index])
+                    arrCoordinates.append(y)
+                }
+            }
         }
-        verticesPerInstance = minCount + 2
-        verticesCount = arrCoordinates.count
+        pointsCount = minCount
         vertexBuffer = metalContext.device.makeBuffer(bytes: arrCoordinates,
-                                                      length: MemoryLayout<Float>.stride * verticesCount,
+                                                      length: MemoryLayout<Float>.stride * arrCoordinates.count,
                                                       options: .cpuCacheModeWriteCombined)
     }
     
@@ -191,7 +210,7 @@ extension ZMultiGraphRenderer: MTKViewDelegate {
         gridRenderer.setViewSize(viewSize:drawableSize)
         gridRenderer.boundingBox = boundingBox
         metalContext.draw(in: view, renderPassDescriptor:renderPassDescriptor) { renderEncoder in
-            self.gridRenderer.encodeGraph(encoder: renderEncoder, view: view)
+//            self.gridRenderer.encodeGraph(encoder: renderEncoder, view: view)
             self.encodeGraph(encoder: renderEncoder, view: view)
         }
     }
@@ -231,10 +250,9 @@ private extension ZMultiGraphRenderer {
 
     func cleanup() {
         planeMask = 0xFF
-        verticesPerInstance = 0
-        verticesCount = 0
+        pointsCount = 0
         planeCount = 0
-        colors.removeAll()
+        instanceDescriptors.removeAll()
         vertexBuffer = nil
         boundingBox = float4(0)
     }
@@ -249,7 +267,7 @@ private extension ZMultiGraphRenderer {
                                             lineWidth:lineWidth,
                                             planeCount:planeCount,
                                             planeMask:planeMask,
-                                            vertexCount:verticesPerInstance,
+                                            vertexCount:vertexPerInstanceCount(),
                                             vshaderMode:graphMode,
                                             arrowPositionX:arrowPositionX,
                                             selectedIndices: arrowIndices)
@@ -265,7 +283,7 @@ private extension ZMultiGraphRenderer {
                                          lineWidth:lineWidth,
                                          planeCount:planeCount,
                                          planeMask:planeMask,
-                                         vertexCount:verticesPerInstance,
+                                         vertexCount:vertexPerInstanceCount(),
                                          arrowPositionX:arrowPositionX,
                                          arrowPointRadius:ptRadius,
                                          selectedIndices:arrowIndices)
@@ -273,31 +291,34 @@ private extension ZMultiGraphRenderer {
         return cx;
     }
     
-    func visiblePlaneCount() -> Int {
+    func visibleInstanceDescriptors() -> [InstanceDescriptor] {
+        var descriptors = [InstanceDescriptor]()
         if planeCount == 0 || planeMask == 0 {
-            return 0;
+            return descriptors;
         }
         var mask = planeMask
-        var count = 0
-        for _ in 0 ..< planeCount {
+        for i in 0 ..< planeCount {
             if 0 != (mask & 1) {
-                count += 1
+                descriptors.append(instanceDescriptors[i])
             }
-            mask = mask >> 1
+            mask >>= 1
         }
-        return count;
+        return descriptors
     }
     
     func doUpdateArrowPosition() {
         arrowIndices = findIndices(normalizedX: arrowPositionX)
     }
     
+    func vertexPerInstanceCount() -> Int {
+        return pointsCount * 2 + 2
+    }
+    
     func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView) {
-        let visibleCount = visiblePlaneCount()
+        let visibleDescriptors:[InstanceDescriptor] = visibleInstanceDescriptors()
         guard let vertexBuffer = vertexBuffer,
-            colors.count != 0,
-            verticesPerInstance > 1,
-            visibleCount > 0
+            visibleDescriptors.count != 0,
+            pointsCount > 1
         else { return }
         
         var chartCx = chartContext(view:view, color:float4(1)) // no color
@@ -305,15 +326,15 @@ private extension ZMultiGraphRenderer {
                                index: Int(ZVxShaderBidChartContext.rawValue))
         encoder.setVertexBuffer(vertexBuffer, offset: 0,
                                 index: Int(ZVxShaderBidVertices.rawValue))
-        encoder.setVertexBytes(colors, length: MemoryLayout<float4>.stride * colors.count,
-                               index: Int(ZVxShaderBidColor.rawValue))
-        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: verticesPerInstance * 2, instanceCount:visibleCount)
+        encoder.setVertexBytes(visibleDescriptors, length: MemoryLayout<InstanceDescriptor>.stride * visibleDescriptors.count,
+                               index: Int(ZVxShaderBidInstanceDescriptor.rawValue))
+        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: vertexPerInstanceCount(), instanceCount:visibleDescriptors.count)
         
         // draw an arrow (circle pointers)
-        var arrowCx = arrowContext(view:view, color:float4(1))
-        encoder.setVertexBytes(&arrowCx, length: MemoryLayout<ChartContext>.stride,
-                               index: Int(ZVxShaderBidChartContext.rawValue))
-        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: Int(ArrowCircleVertexCount)*2, instanceCount:visibleCount)
+//        var arrowCx = arrowContext(view:view, color:float4(1))
+//        encoder.setVertexBytes(&arrowCx, length: MemoryLayout<ChartContext>.stride,
+//                               index: Int(ZVxShaderBidChartContext.rawValue))
+//        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: Int(ArrowCircleVertexCount)*2, instanceCount:visibleDescriptors.count)
     }
     
     // TODO: debug func, no use; remove it when done;

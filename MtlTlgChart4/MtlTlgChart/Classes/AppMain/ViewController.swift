@@ -28,11 +28,14 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         resetSwitches()
+        planeSwitches.sort { (swL, swR) -> Bool in
+            return swL.tag > swR.tag
+        }
 //        setActivePlane(nil)
         
         if let cx = ZGraphAppDelegate.getMetalContext() {
             renderer = ZMultiGraphRenderer(mtkView:mtkView, metalContext: cx)
-            renderer.lineWidth = 4
+            renderer.lineWidth = 12//4
             renderer2 = ZMultiGraphRenderer(mtkView:mtkView2, metalContext: cx)
             renderer.lineWidth = 2
         }
@@ -57,9 +60,10 @@ class ViewController: UIViewController {
     }
     
     @IBAction func actSetHeight(_ slider: UISlider) {
-        heightScale.x = 0
-        heightScale.w = 0.5 + (1.0 - slider.value)
-        applyPosition()
+//        heightScale.x = 0
+//        heightScale.w = 0.5 + (1.0 - slider.value)
+//        applyPosition()
+        renderer.lineWidth = 3 + (10.0 * slider.value)
     }
     
     @IBAction func switchMode(_ sw: UISwitch) {

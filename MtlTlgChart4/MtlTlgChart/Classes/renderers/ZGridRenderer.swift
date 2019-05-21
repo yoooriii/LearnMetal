@@ -31,14 +31,14 @@ class ZGridRenderer: NSObject {
         // the draw logic is as simple as this: write fake data for every line,
         // then the vertex shader calculates the real vertex coordinates
         // using ChartContext properties
-        var chartCx = chartContext(view:view)
-        encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
-                               index: Int(ZVxShaderBidChartContext.rawValue))
-        let fakeVertex = [float4(0)]  // any data will do, the shader does not use it
-        encoder.setVertexBytes(fakeVertex, length: MemoryLayout<Float>.stride * 4, index: Int(ZVxShaderBidVertices.rawValue))
-        encoder.setVertexBytes([float4(0)], length: MemoryLayout<float4>.stride, // we dont use colors
-            index: Int(ZVxShaderBidColor.rawValue))
-        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: Int(lineCount[0] + lineCount[1]))
+//        var chartCx = chartContext(view:view)
+//        encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
+//                               index: Int(ZVxShaderBidChartContext.rawValue))
+//        let fakeVertex = [float4(0)]  // any data will do, the shader does not use it
+//        encoder.setVertexBytes(fakeVertex, length: MemoryLayout<Float>.stride * 4, index: Int(ZVxShaderBidVertices.rawValue))
+//        encoder.setVertexBytes([float4(0)], length: MemoryLayout<float4>.stride, // we dont use colors
+//            index: Int(ZVxShaderBidInstanceDescriptor.rawValue))
+//        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: Int(lineCount[0] + lineCount[1]))
     }
 }
 

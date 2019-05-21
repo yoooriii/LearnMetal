@@ -14,7 +14,7 @@
 typedef enum {
     ZVxShaderBidVertices,
     ZVxShaderBidChartContext,
-    ZVxShaderBidColor
+    ZVxShaderBidInstanceDescriptor
 } ZVxShaderBid;
 
 typedef enum {
@@ -40,5 +40,11 @@ typedef struct {
     float extraFloat[8];
     int32_t extraInt[8];
 } ChartContext;         // metal buffer index ZVxShaderBidChartContext
+
+typedef struct {
+    vector_float4 color;
+    uint stride;
+    uint offsetIY;   // in buffer an offset from X
+} InstanceDescriptor;
 
 #endif /* ShaderTypes_h */

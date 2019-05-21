@@ -42,7 +42,7 @@
 
 /* Begin PBXFileReference section */
 		B30D03CC22818179005C365E /* ZGridRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZGridRenderer.swift; sourceTree = "<group>"; };
-		B3121A14226635E300D2D913 /* MtlTlgChart3.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MtlTlgChart3.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B3121A14226635E300D2D913 /* MtlTlgChart4.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MtlTlgChart4.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3121A2A2266363000D2D913 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		B320DC82228089D6007D3DF8 /* ZMultiGraphRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMultiGraphRenderer.swift; sourceTree = "<group>"; };
 		B340F1412286C1D40095846E /* GeometryUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometryUtils.swift; sourceTree = "<group>"; };
@@ -104,7 +104,7 @@
 		B3121A15226635E300D2D913 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B3121A14226635E300D2D913 /* MtlTlgChart3.app */,
+				B3121A14226635E300D2D913 /* MtlTlgChart4.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -240,9 +240,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B3121A13226635E300D2D913 /* MtlTlgChart3 */ = {
+		B3121A13226635E300D2D913 /* MtlTlgChart4 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B3121A26226635E500D2D913 /* Build configuration list for PBXNativeTarget "MtlTlgChart3" */;
+			buildConfigurationList = B3121A26226635E500D2D913 /* Build configuration list for PBXNativeTarget "MtlTlgChart4" */;
 			buildPhases = (
 				B3121A10226635E300D2D913 /* Sources */,
 				B3121A11226635E300D2D913 /* Frameworks */,
@@ -252,9 +252,9 @@
 			);
 			dependencies = (
 			);
-			name = MtlTlgChart3;
+			name = MtlTlgChart4;
 			productName = MtlTlgChart3;
-			productReference = B3121A14226635E300D2D913 /* MtlTlgChart3.app */;
+			productReference = B3121A14226635E300D2D913 /* MtlTlgChart4.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -285,7 +285,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B3121A13226635E300D2D913 /* MtlTlgChart3 */,
+				B3121A13226635E300D2D913 /* MtlTlgChart4 */,
 			);
 		};
 /* End PBXProject section */
@@ -509,7 +509,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B3121A26226635E500D2D913 /* Build configuration list for PBXNativeTarget "MtlTlgChart3" */ = {
+		B3121A26226635E500D2D913 /* Build configuration list for PBXNativeTarget "MtlTlgChart4" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B3121A27226635E500D2D913 /* Debug */,

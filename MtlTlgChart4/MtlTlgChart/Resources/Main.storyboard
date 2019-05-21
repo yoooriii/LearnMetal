@@ -102,34 +102,34 @@
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="DGk-gl-d77">
                                         <rect key="frame" x="40" y="262" width="49" height="195"/>
                                         <subviews>
-                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7EX-0o-08b">
+                                            <switch opaque="NO" tag="1004" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7EX-0o-08b">
                                                 <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
                                                 <connections>
-                                                    <action selector="switchPlane:" destination="BYZ-38-t0r" eventType="valueChanged" id="Eoq-GU-5EU"/>
+                                                    <action selector="switchPlane:" destination="BYZ-38-t0r" eventType="valueChanged" id="Nuq-sp-yig"/>
                                                 </connections>
                                             </switch>
-                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fjJ-Yh-i6U">
+                                            <switch opaque="NO" tag="1003" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fjJ-Yh-i6U">
                                                 <rect key="frame" x="0.0" y="41" width="51" height="31"/>
                                                 <connections>
-                                                    <action selector="switchPlane:" destination="BYZ-38-t0r" eventType="valueChanged" id="oJj-mr-YK9"/>
+                                                    <action selector="switchPlane:" destination="BYZ-38-t0r" eventType="valueChanged" id="nDL-vY-q0b"/>
                                                 </connections>
                                             </switch>
-                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Aox-ty-86E">
+                                            <switch opaque="NO" tag="1002" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Aox-ty-86E">
                                                 <rect key="frame" x="0.0" y="82" width="51" height="31"/>
                                                 <connections>
-                                                    <action selector="switchPlane:" destination="BYZ-38-t0r" eventType="valueChanged" id="jzB-hC-xzK"/>
+                                                    <action selector="switchPlane:" destination="BYZ-38-t0r" eventType="valueChanged" id="xXS-OA-E0g"/>
                                                 </connections>
                                             </switch>
-                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="h41-JP-Vht">
+                                            <switch opaque="NO" tag="1001" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="h41-JP-Vht">
                                                 <rect key="frame" x="0.0" y="123" width="51" height="31"/>
                                                 <connections>
-                                                    <action selector="switchPlane:" destination="BYZ-38-t0r" eventType="valueChanged" id="zNo-WW-SI2"/>
+                                                    <action selector="switchPlane:" destination="BYZ-38-t0r" eventType="valueChanged" id="Jjf-GV-uzk"/>
                                                 </connections>
                                             </switch>
-                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OCe-AT-4fa">
+                                            <switch opaque="NO" tag="1000" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="OCe-AT-4fa">
                                                 <rect key="frame" x="0.0" y="164" width="51" height="31"/>
                                                 <connections>
-                                                    <action selector="switchPlane:" destination="BYZ-38-t0r" eventType="valueChanged" id="UNL-9g-Lny"/>
+                                                    <action selector="switchPlane:" destination="BYZ-38-t0r" eventType="valueChanged" id="UIw-ys-Jr3"/>
                                                 </connections>
                                             </switch>
                                         </subviews>
