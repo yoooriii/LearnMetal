@@ -3,3 +3,4 @@ _tmp/
 *.zip
 project.xcworkspace
 xcuserdata
+DynamicTerrainWithArgumentBuffers/
