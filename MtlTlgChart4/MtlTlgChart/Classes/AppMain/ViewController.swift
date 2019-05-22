@@ -15,8 +15,8 @@ class ViewController: UIViewController {
     @IBOutlet var planeSwitches: [UISwitch]!
     @IBOutlet var fillModeSwitch: UISwitch!
 
-    private var renderer: ZMultiGraphRenderer!
-    private var renderer2: ZMultiGraphRenderer!
+    private var renderer: ZMultiGraphRenderer!  // large view
+    private var renderer2: ZMultiGraphRenderer! // small scroll view
     var graphicsContainer:GraphicsContainer?
     
     private var position2d = float2(0.0, 0.2)
@@ -35,9 +35,11 @@ class ViewController: UIViewController {
         
         if let cx = ZGraphAppDelegate.getMetalContext() {
             renderer = ZMultiGraphRenderer(mtkView:mtkView, metalContext: cx)
-            renderer.lineWidth = 12//4
+            renderer.lineWidth = 4//4
+            renderer.isGridEnabled = true
             renderer2 = ZMultiGraphRenderer(mtkView:mtkView2, metalContext: cx)
-            renderer.lineWidth = 2
+            renderer2.lineWidth = 2
+            renderer2.isGridEnabled = false
         }
 
         startLoadingData()
@@ -60,12 +62,18 @@ class ViewController: UIViewController {
     }
     
     @IBAction func actSetHeight(_ slider: UISlider) {
-//        heightScale.x = 0
-//        heightScale.w = 0.5 + (1.0 - slider.value)
-//        applyPosition()
-        renderer.lineWidth = 3 + (10.0 * slider.value)
+        heightScale.w = 0.5 + (1.0 - slider.value)
+        applyPosition()
+
+//        renderer.lineWidth = 3 + (10.0 * slider.value)
     }
-    
+    @IBAction func actSetHeight2(_ slider: UISlider) {
+        heightScale.x = slider.value * 0.5
+        applyPosition()
+        
+        print("heightScale:\(heightScale)")
+    }
+
     @IBAction func switchMode(_ sw: UISwitch) {
         setFillMode()
     }
@@ -149,7 +157,7 @@ class ViewController: UIViewController {
         var ii = 0
         for v in vals {
             if let ind = renderer.findIndices(normalizedX: v) {
-                print("#\(ii): " + String(format: "%2.2f -> [%d, %d]", v, ind.0, ind.1))
+                print("#\(ii): " + String(format: "%2.2f -> [%d, %d]", v, ind.location, ind.length))
             } else {
                 print("#\(ii): <nil>")
             }
@@ -209,7 +217,7 @@ extension ViewController: ZOvelayInfoViewDelegate {
         renderer.arrowOffsetInVisibleRect = position // it depends on the visible rect
         var info = String(format: "%2.1f", 100.0 * realPosition)
         if let ind2 = renderer.getArrowIndices() {
-            info += ":[\(ind2.0):\(ind2.1)]"
+            info += ":[\(ind2.location):\(ind2.length)]"
         }
         overlay.setInfo(text: info)
     }

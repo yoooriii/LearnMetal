@@ -241,7 +241,7 @@ class Plane {
     // length = [-1, 0, 1] -> the -1 length if the value is before the 0 element
     // if the length is 0 then it is the exact index
     // if startIndex is count-1 and length is 1 then the value is greater of all the values in the vector
-    func nearestIndices(normalizedTime:Float) -> (Int, Int)? {
+    func nearestIndices(normalizedTime:Float) -> NSRange? {
         let plane = self
         guard let vTime = plane.vTime else {
             return nil
@@ -251,10 +251,10 @@ class Plane {
         }
         let ctrValue = vTime.minValue + Int64(Double(normalizedTime) * Double(vTime.maxValue - vTime.minValue))
         if ctrValue <= vTime.minValue {
-            return (0, -1)
+            return NSMakeRange(0, -1)
         }
         if ctrValue >= vTime.maxValue {
-            return (vTime.count-1, 1)
+            return NSMakeRange(vTime.count-1, 1)
         }
         
         var iFirst = Int(0), iLast = plane.vTime.count - 1
@@ -266,10 +266,10 @@ class Plane {
             } else if ctrValue < val {
                 iLast = iMid
             } else {
-                return (iMid, 0)
+                return NSMakeRange(iMid, 0)
             }
         }
-        return (iFirst, 1)
+        return NSMakeRange(iFirst, 1)
     }
 }
 

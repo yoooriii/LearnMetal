@@ -11,29 +11,54 @@ import simd
 //vector_float4 visibleRect;//graphRect;
 //vector_float4 boundingBox;
 
+struct ArrowPointer {
+    var radius1: Float
+    var radius2: Float
+    var offsetNX: Float
+    var range: NSRange?
+    
+    init(radius:Float, offsetNX:Float, range:NSRange?) {
+        self.radius1 = radius/2.0
+        self.radius2 = radius
+        self.offsetNX = offsetNX
+        self.range = range
+    }
+}
+
 extension ChartContext {
     
     init(visibleRect: float4,
          boundingBox: float4,
          screenSize: int2,
-         color: float4,
          lineWidth:Float,
          vertexCount:Int,
-         vshaderMode:VShaderMode) {
+         vshaderMode:VShaderMode,
+         arrowPointer:ArrowPointer?)
+    {
         self.init()
         self.visibleRect = visibleRect
         self.boundingBox = boundingBox
         self.screenSize = screenSize
-        self.color = color
         self.lineWidth = lineWidth
         self.vertexCount = UInt32(vertexCount)
         self.vshaderMode = vshaderMode.rawValue
+        if let arrowPointer = arrowPointer {
+            self.ptRadius1 = arrowPointer.radius1
+            self.ptRadius2 = arrowPointer.radius2
+            self.ptOffsetNX = arrowPointer.offsetNX
+            let range = arrowPointer.range ?? NSMakeRange(-1, -1)
+            self.ptRange = int2(Int32(range.location), Int32(range.length))
+        } else {
+            self.ptRadius1 = 0
+            self.ptRadius2 = 0
+            self.ptOffsetNX = -1
+            self.ptRange = int2(-1)
+        }
     }
     
     static func dashLineContext(visibleRect: float4,
                                 boundingBox: float4,
                                 screenSize: int2,
-                                color: float4,
                                 lineWidth:Float,
                                 lineOffset:float2,
                                 lineCount:int2,
@@ -42,10 +67,10 @@ extension ChartContext {
         var instance = ChartContext(visibleRect: visibleRect,
                                     boundingBox: boundingBox,
                                     screenSize: screenSize,
-                                    color: color,
                                     lineWidth: lineWidth,
                                     vertexCount: 0,
-                                    vshaderMode: VShaderModeDash)
+                                    vshaderMode: VShaderModeDash,
+                                    arrowPointer:nil)
         instance.extraFloat.0 = dashPattern[0]      // color filled line space
         instance.extraFloat.1 = dashPattern[1]      // empty line space
         instance.extraFloat.2 = lineOffset[0]       // line x offset
@@ -55,66 +80,7 @@ extension ChartContext {
         return instance
     }
 
-    static func combinedContext(visibleRect:float4,
-                                boundingBox:float4,
-                                screenSize:int2,
-                                color: float4,
-                                lineWidth:Float,
-                                planeCount:Int,
-                                planeMask:UInt32,
-                                vertexCount:Int,
-                                vshaderMode:VShaderMode,
-                                arrowPositionX:Float,
-                                selectedIndices:(Int, Int)?) -> ChartContext
-    {
-        // ignore color
-        var cx = ChartContext(visibleRect: visibleRect,
-                              boundingBox: boundingBox,
-                              screenSize: screenSize,
-                              color: color,
-                              lineWidth: lineWidth,
-                              vertexCount: vertexCount,
-                              vshaderMode: vshaderMode)
-        cx.extraFloat.0 = arrowPositionX
-        cx.extraInt.0 = Int32(planeCount)
-        cx.extraInt.1 = Int32(planeMask)
-        if let selectedIndices = selectedIndices {
-            cx.extraInt.2 = Int32(selectedIndices.0)
-            cx.extraInt.3 = Int32(selectedIndices.1)
-        } else {
-            cx.extraInt.2 = -1
-        }
-        return cx
-    }
-
-    static func arrowContext(visibleRect:float4,
-                                boundingBox:float4,
-                                screenSize:int2,
-                                lineWidth:Float,
-                                planeCount:Int,
-                                planeMask:UInt32,
-                                vertexCount:Int,
-                                arrowPositionX:Float,
-                                arrowPointRadius:Float,
-                                selectedIndices:(Int, Int)?) -> ChartContext
-    {
-        var cx = ChartContext(visibleRect: visibleRect,
-                              boundingBox: boundingBox,
-                              screenSize: screenSize,
-                              color: float4(0,0,0,1), // ignore color, set black as default
-                              lineWidth: lineWidth,
-                              vertexCount: vertexCount,
-                              vshaderMode: VShaderModeArrow)
-        cx.extraFloat.0 = arrowPositionX
-        cx.extraFloat.1 = arrowPointRadius
-        cx.extraInt.0 = Int32(planeCount)
-        cx.extraInt.1 = Int32(planeMask)
-        if let selectedIndices = selectedIndices {
-            cx.extraInt.2 = Int32(selectedIndices.0)
-            cx.extraInt.3 = Int32(selectedIndices.1)
-        } else {
-            cx.extraInt.2 = -1
-        }
-        return cx
+    mutating func setMode(_ mode: VShaderMode) {
+        vshaderMode = mode.rawValue
     }
 }

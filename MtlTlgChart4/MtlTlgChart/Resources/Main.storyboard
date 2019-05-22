@@ -13,7 +13,7 @@
         <!--my VC-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" userLabel="my VC" customClass="ViewController" customModule="MtlTlgChart3" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" userLabel="my VC" customClass="ViewController" customModule="MtlTlgChart4" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="X1I-fI-w18"/>
                         <viewControllerLayoutGuide type="bottom" id="19C-uT-RGV"/>
@@ -29,7 +29,7 @@
                                         <rect key="frame" x="0.0" y="0.0" width="355" height="477"/>
                                         <color key="clearColor" name="selectedControlColor" catalog="System" colorSpace="catalog"/>
                                     </mtkView>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Baa-GA-xVc" customClass="ZOvelayInfoView" customModule="MtlTlgChart3" customModuleProvider="target">
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Baa-GA-xVc" customClass="ZOvelayInfoView" customModule="MtlTlgChart4" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="355" height="477"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="82B-9a-9AQ" userLabel="Vertical arrow View">
@@ -99,6 +99,12 @@
                                             <action selector="actSetHeight:" destination="BYZ-38-t0r" eventType="valueChanged" id="gC7-v6-I0w"/>
                                         </connections>
                                     </slider>
+                                    <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="48P-AS-kxR">
+                                        <rect key="frame" x="128" y="73" width="217" height="31"/>
+                                        <connections>
+                                            <action selector="actSetHeight2:" destination="BYZ-38-t0r" eventType="valueChanged" id="4ai-4k-Uo4"/>
+                                        </connections>
+                                    </slider>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="DGk-gl-d77">
                                         <rect key="frame" x="40" y="262" width="49" height="195"/>
                                         <subviews>
@@ -150,8 +156,11 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstItem="Baa-GA-xVc" firstAttribute="leading" secondItem="g0w-vQ-oT5" secondAttribute="leading" id="18W-bJ-ps8"/>
+                                    <constraint firstItem="48P-AS-kxR" firstAttribute="top" secondItem="P8c-RA-cQI" secondAttribute="bottom" constant="30" id="3cJ-Nn-Xap"/>
+                                    <constraint firstItem="48P-AS-kxR" firstAttribute="trailing" secondItem="P8c-RA-cQI" secondAttribute="trailing" id="6a2-T8-WeW"/>
                                     <constraint firstAttribute="trailing" secondItem="Baa-GA-xVc" secondAttribute="trailing" id="7Mt-1J-ZfV"/>
                                     <constraint firstItem="aid-eW-ajC" firstAttribute="top" secondItem="8J3-S6-ndd" secondAttribute="bottom" constant="16" id="9QE-8v-VS1"/>
+                                    <constraint firstItem="48P-AS-kxR" firstAttribute="leading" secondItem="P8c-RA-cQI" secondAttribute="leading" id="E40-Jq-tsd"/>
                                     <constraint firstItem="P8c-RA-cQI" firstAttribute="top" secondItem="g0w-vQ-oT5" secondAttribute="top" constant="13" id="JeB-c3-r4Z"/>
                                     <constraint firstAttribute="bottom" secondItem="aid-eW-ajC" secondAttribute="bottom" constant="10" id="KoR-J8-GUg"/>
                                     <constraint firstItem="DGk-gl-d77" firstAttribute="leading" secondItem="g0w-vQ-oT5" secondAttribute="leading" constant="40" id="LT7-aJ-Uuk"/>
@@ -177,7 +186,7 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DEQ-8k-Eln" customClass="ZScrollSlider2d" customModule="MtlTlgChart3" customModuleProvider="target">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DEQ-8k-Eln" customClass="ZScrollSlider2d" customModule="MtlTlgChart4" customModuleProvider="target">
                                 <rect key="frame" x="10" y="587" width="355" height="70"/>
                                 <subviews>
                                     <mtkView contentMode="scaleToFill" colorPixelFormat="BGRA8Unorm" depthStencilPixelFormat="Invalid" paused="YES" enableSetNeedsDisplay="YES" translatesAutoresizingMaskIntoConstraints="NO" id="k2S-vS-2hl">

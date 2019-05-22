@@ -14,7 +14,9 @@ class ZMultiGraphRenderer: NSObject {
     var lineWidth: Float {
         didSet { mtkView.setNeedsDisplay() }
     }
-    var arrowPointRadius = Float(10)
+    var lineDashPattern: float2 = float2(15, 5)
+    var isGridEnabled = false
+    var arrowPointRadius:Float { get { return max(10.0, lineWidth * 2.0) } }
     private var graphMode:VShaderMode = VShaderModeStroke
     
     private let gridRenderer = ZGridRenderer()
@@ -40,7 +42,7 @@ class ZMultiGraphRenderer: NSObject {
         get { return position2d.x + position2d.w * arrowOffsetInVisibleRect }
     }
 
-    private var arrowIndices:(Int, Int)?
+    private var arrowIndices:NSRange?
 
     var position2d: float2 = float2(0, 1) {
         didSet {
@@ -51,10 +53,11 @@ class ZMultiGraphRenderer: NSObject {
     
     var heightScale: float2 = float2(0, 1) {
         didSet {
-            doUpdateArrowPosition()
             mtkView.setNeedsDisplay()
         }
     }
+    
+    private var margins:float2 = float2(0.1, 0.1) // normalized margin top & bottom
     
     //MARK: -
     
@@ -173,11 +176,11 @@ class ZMultiGraphRenderer: NSObject {
         return boundingBox
     }
 
-    func getArrowIndices() -> (Int, Int)? {
+    func getArrowIndices() -> NSRange? {
         return arrowIndices
     }
 
-    func findIndices(normalizedX:Float) -> (Int, Int)? {
+    func findIndices(normalizedX:Float) -> NSRange? {
         guard let plane = plane else {
             return nil
         }
@@ -190,8 +193,17 @@ class ZMultiGraphRenderer: NSObject {
         visibleRect.x += visibleRect.width * position2d.x
         visibleRect.width *= position2d.w
         
-        visibleRect.y += visibleRect.height * heightScale.x
+        // apply margins
+//        let heightScale = float2(self.heightScale.x * ,
+//                                 self.heightScale.w)
+
+        visibleRect.y -= visibleRect.height * heightScale.x
         visibleRect.height *= heightScale.w
+        
+        // apply margins
+//        visibleRect.y -= margins[0] * visibleRect.height
+//        visibleRect.height *= 1.0 - margins[0] - margins[1]
+        
         return visibleRect
     }
 }
@@ -257,53 +269,33 @@ private extension ZMultiGraphRenderer {
         boundingBox = float4(0)
     }
 
-    func chartContext(view:MTKView, color:float4) -> ChartContext! {
-        let screenSize = int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
-        let lineWidth = self.lineWidth * Float(view.contentScaleFactor)
-        return ChartContext.combinedContext(visibleRect:visibleRect(),
-                                            boundingBox: boundingBox,
-                                            screenSize:screenSize,
-                                            color:color,
-                                            lineWidth:lineWidth,
-                                            planeCount:planeCount,
-                                            planeMask:planeMask,
-                                            vertexCount:vertexPerInstanceCount(),
-                                            vshaderMode:graphMode,
-                                            arrowPositionX:arrowPositionX,
-                                            selectedIndices: arrowIndices)
-    }
-    
-    func arrowContext(view:MTKView, color:float4) -> ChartContext! {
+    func chartContext(view:MTKView, mode:VShaderMode) -> ChartContext! {
         let screenSize = int2(Int32(view.drawableSize.width), Int32(view.drawableSize.height))
         let lineWidth = self.lineWidth * Float(view.contentScaleFactor)
         let ptRadius = arrowPointRadius * Float(view.contentScaleFactor)
-        var cx = ChartContext.arrowContext(visibleRect:visibleRect(),
-                                         boundingBox:boundingBox,
-                                         screenSize:screenSize,
-                                         lineWidth:lineWidth,
-                                         planeCount:planeCount,
-                                         planeMask:planeMask,
-                                         vertexCount:vertexPerInstanceCount(),
-                                         arrowPositionX:arrowPositionX,
-                                         arrowPointRadius:ptRadius,
-                                         selectedIndices:arrowIndices)
-        cx.color = color
-        return cx;
+        let pointer = ArrowPointer(radius:ptRadius, offsetNX:arrowPositionX, range:arrowIndices)
+        
+        return ChartContext(visibleRect:visibleRect(),
+                            boundingBox: boundingBox,
+                            screenSize:screenSize,
+                            lineWidth:lineWidth,
+                            vertexCount:vertexPerInstanceCount(),
+                            vshaderMode:mode,
+                            arrowPointer:pointer)
     }
     
-    func visibleInstanceDescriptors() -> [InstanceDescriptor] {
-        var descriptors = [InstanceDescriptor]()
-        if planeCount == 0 || planeMask == 0 {
-            return descriptors;
-        }
-        var mask = planeMask
-        for i in 0 ..< planeCount {
-            if 0 != (mask & 1) {
-                descriptors.append(instanceDescriptors[i])
+    func visibleDrawDescriptors() -> [InstanceDescriptor] {
+        var instDescriptors = [InstanceDescriptor]()
+        if planeCount != 0 && planeMask != 0 {
+            var mask = planeMask
+            for i in 0 ..< planeCount {
+                if 0 != (mask & 1) {
+                    instDescriptors.append(instanceDescriptors[i])
+                }
+                mask >>= 1
             }
-            mask >>= 1
         }
-        return descriptors
+        return instDescriptors
     }
     
     func doUpdateArrowPosition() {
@@ -315,26 +307,68 @@ private extension ZMultiGraphRenderer {
     }
     
     func encodeGraph(encoder:MTLRenderCommandEncoder, view: MTKView) {
-        let visibleDescriptors:[InstanceDescriptor] = visibleInstanceDescriptors()
+        let instanceDescriptors = visibleDrawDescriptors()
         guard let vertexBuffer = vertexBuffer,
-            visibleDescriptors.count != 0,
+            instanceDescriptors.count != 0,
             pointsCount > 1
         else { return }
         
-        var chartCx = chartContext(view:view, color:float4(1)) // no color
+        var chartCx = chartContext(view:view, mode: graphMode)! // no color
         encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
                                index: Int(ZVxShaderBidChartContext.rawValue))
         encoder.setVertexBuffer(vertexBuffer, offset: 0,
                                 index: Int(ZVxShaderBidVertices.rawValue))
-        encoder.setVertexBytes(visibleDescriptors, length: MemoryLayout<InstanceDescriptor>.stride * visibleDescriptors.count,
+        encoder.setVertexBytes(instanceDescriptors, length: MemoryLayout<InstanceDescriptor>.stride * instanceDescriptors.count,
                                index: Int(ZVxShaderBidInstanceDescriptor.rawValue))
-        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: vertexPerInstanceCount(), instanceCount:visibleDescriptors.count)
+        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: vertexPerInstanceCount(), instanceCount:instanceDescriptors.count)
         
-        // draw an arrow (circle pointers)
-//        var arrowCx = arrowContext(view:view, color:float4(1))
-//        encoder.setVertexBytes(&arrowCx, length: MemoryLayout<ChartContext>.stride,
-//                               index: Int(ZVxShaderBidChartContext.rawValue))
-//        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: Int(ArrowCircleVertexCount)*2, instanceCount:visibleDescriptors.count)
+        
+        // draw an arrow (circle pointers); it does not use vertices;
+        chartCx.setMode(VShaderModeArrow)
+        encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
+                               index: Int(ZVxShaderBidChartContext.rawValue))
+        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: Int(ArrowCircleVertexCount)*2, instanceCount:instanceDescriptors.count)
+        
+        if isGridEnabled {
+            // draw lines
+            let lineDescriptors = makeLineDescriptors()
+            if lineDescriptors.count > 0 {
+                chartCx.setMode(VShaderModeDash)
+                encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
+                                       index: Int(ZVxShaderBidChartContext.rawValue))
+                encoder.setVertexBytes(lineDescriptors, length: MemoryLayout<LineDescriptor>.stride * lineDescriptors.count,
+                                       index: Int(ZVxShaderBidInstanceDescriptor.rawValue))
+                encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount:lineDescriptors.count)
+            }
+        }
+    }
+    
+    func makeLineDescriptors() -> [LineDescriptor] {
+        let color = float4(0.5, 0.5, 0.5, 1)
+        let scale = Float(mtkView.contentScaleFactor)
+        let pattern = lineDashPattern * scale
+        let lineWidth = 1.0 * scale
+        
+        var lnDescriptors = [LineDescriptor]()
+        let stepsY = 10
+        let dy = boundingBox.height/Float(stepsY)
+        
+        for i in 0 ... stepsY {
+            let y = boundingBox.y + dy * Float(i)
+            let line = LineDescriptor(color: color, isVertical: 0, dashPattern: pattern, lineWidth: lineWidth, offset: y)
+            lnDescriptors.append(line)
+        }
+
+        let color2 = float4(0.7, 0.7, 0.5, 1)
+        let dx = boundingBox.width/30.0
+        for x in stride(from: boundingBox.x, to: boundingBox.maxX, by: dx) {
+            let line = LineDescriptor(color: color2, isVertical: 1, dashPattern: pattern, lineWidth: lineWidth, offset: x)
+            lnDescriptors.append(line)
+        }
+        let line3 = LineDescriptor(color: color2, isVertical: 1, dashPattern: pattern, lineWidth: lineWidth, offset: boundingBox.maxX)
+        lnDescriptors.append(line3)
+
+        return lnDescriptors
     }
     
     // TODO: debug func, no use; remove it when done;

@@ -49,7 +49,7 @@ private extension ZGridRenderer {
         return ChartContext.dashLineContext(visibleRect: visibleRect,
                                             boundingBox: boundingBox,
                                             screenSize: screenSize,
-                                            color: strokeColor,
+//                                            color: strokeColor,
                                             lineWidth: lineWidth,
                                             lineOffset: gridCellSize,
                                             lineCount: lineCount,

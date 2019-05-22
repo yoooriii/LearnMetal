@@ -23,80 +23,72 @@ typedef struct {
     float2 dashPattern;
 } RasterizerData;
 
-//RasterizerData
-//vShaderArrow(uint vid,
-//             uint iid0,
-//             constant float *vertices,
-//             constant float4 *colors,
-//             constant ChartContext *context)
-//{
-//    RasterizerData out;
-//    const float4 visibleRect = context->visibleRect; // logic absolute coordinates
-//    const uint index = vid / 2;
-//
-//    // map iid (turn a plane on/off)
-//    const int iid = convertIID(iid0, context);
-//    if (iid < 0) {
-//        // error
-//        out.clipSpacePosition = float4(0);
-//        out.mode = LineOrientationDiscard;
-//        return out;
-//    }
-//
-//    const int2 aid2 = int2(context->extraInt[2], context->extraInt[3]); // vx (index, leng)
-//    if (aid2[0] < 0 || aid2[0] >= int(context->vertexCount)) {
-//        out.mode = LineOrientationDiscard;
-//        return out;
-//    }
-//
-//    const uint stride = context->extraInt[0] + 1; // stride = plane.count + 1
-//    const uint ivx1 = (aid2[0]) * stride;
-//    const uint ivx2 = (aid2[0] + 1) * stride;
-//    const float2 pt1 = float2(vertices[ivx1], vertices[ivx1 + iid + 1]);
-//    const float2 pt2 = (aid2[1] <= 0) ? pt1 : float2(vertices[ivx2], vertices[ivx2 + iid + 1]);
-//
-//    const float4 boundBox = context->boundingBox;
-//    const float x0 = boundBox.x + boundBox.z * context->extraFloat[0];
-//    const float dx12 = pt2.x - pt1.x;
-//    const float kx = (dx12 < 0.01) ? 0 : (x0 - pt1.x)/dx12; // kx = [0...1] --> between [x1...x2]
-//    const float y0 = pt1.y + kx * (pt2.y - pt1.y);
-//    const float2 center = float2(x0, y0);
-//
-//    float2 resultOffset;
-//    const float initialRadius = context->extraFloat[1];
-//    if (vid < ArrowCircleVertexCount) {
-//        // circle vertices, 1st pass
-//        out.color = colors[iid];
-//        const float radius = (vid & 1) ? initialRadius : initialRadius * 0.5;
-//        const float a = M_PI_F * 2.0 * float(index) / float(ArrowCircleStepCount);
-//        resultOffset = float2(sin(a), cos(a)) * radius;
-//    } else {
-//        // circle vertices, 2nd pass
-//        const uint vid2 = vid - ArrowCircleVertexCount;
-//        const uint index2 = vid2/2;
-//
-//        out.color = context->color;
-//        const float radius = (vid & 1) ? initialRadius * 0.5 : 0;
-//        const float a = M_PI_F * 2.0 * float(index2) / float(ArrowCircleStepCount);
-//        resultOffset = float2(sin(a), cos(a)) * radius;
-//    }
-//
-//    const float2 graphSize = visibleRect.zw; // width, height in graph logic points
-//    const float2 screenSize = float2(context->screenSize); // int --> float
-//
-//    float2 position = center.xy - visibleRect.xy;  // move to x0, y0
-//    position = position / graphSize * 2.0 - 1.0;
-//
-//    position *= screenSize;
-//    position += resultOffset;
-//    position /= screenSize;
-//
-//    out.clipSpacePosition = float4(position.x, position.y, 0.0, 1.0);
-//    out.mode = 0;
-//    return out;
-//}
-
 #define GET_POINT_AT(addr) float2(vertices[addr], vertices[addr + iiy])
+
+RasterizerData
+vShaderArrow(const uint vid,
+             constant float *vertices,
+             constant InstanceDescriptor *instanceDescriptor,
+             constant ChartContext *context)
+{
+    RasterizerData out;
+    
+    const int2 aid2 = context->ptRange; // vx (index, leng)
+    if (aid2[0] < 0 || aid2[0] >= int(context->vertexCount)) {
+        out.mode = LineOrientationDiscard;
+        return out;
+    }
+    
+    const uint stride = instanceDescriptor->stride;
+    const uint offsetIY = instanceDescriptor->offsetIY;
+    const uint ivx1 = (aid2[0]+1) * stride;
+    const uint ivx2 = (aid2[0]+2) * stride;
+    const float2 pt1 = float2(vertices[ivx1], vertices[ivx1 + offsetIY]);
+    const float2 pt2 = (aid2[1] <= 0) ? pt1 : float2(vertices[ivx2], vertices[ivx2 + offsetIY]);
+    
+    const float4 boundBox = context->boundingBox;
+    const float x0 = boundBox.x + boundBox.z * context->ptOffsetNX;
+    const float dx12 = pt2.x - pt1.x;
+    const float kx = (dx12 < 0.01) ? 0 : (x0 - pt1.x)/dx12; // kx = [0...1] --> between [x1...x2]
+    const float y0 = pt1.y + kx * (pt2.y - pt1.y);
+    const float2 center = float2(x0, y0);
+    
+    float2 resultOffset;
+    if (vid < ArrowCircleVertexCount) {
+        // circle vertices, 1st pass
+        out.color = instanceDescriptor->color;
+        const float radius = (vid & 1) ? context->ptRadius1 : context->ptRadius2;
+        
+        const uint index = vid/2;
+        const float a = M_PI_F * 2.0 * float(index) / float(ArrowCircleStepCount);
+        resultOffset = float2(sin(a), cos(a)) * radius;
+    } else {
+        // circle vertices, 2nd pass
+        out.color = float4(1);
+        out.color.w = 0.1;
+        const float radius = (vid & 1) ? context->ptRadius1 : 0;
+        
+        const uint index2 = (vid - ArrowCircleVertexCount)/2;
+        const float a = M_PI_F * 2.0 * float(index2) / float(ArrowCircleStepCount);
+        resultOffset = float2(sin(a), cos(a)) * radius;
+    }
+
+    const float4 visibleRect = context->visibleRect; // logic absolute coordinates
+    const float2 graphSize = visibleRect.zw; // width, height in graph logic points
+    const float2 screenSize = float2(context->screenSize); // int --> float
+    
+    float2 position = center.xy - visibleRect.xy;  // move to x0, y0
+    position = position / graphSize * 2.0 - 1.0;
+    
+    position *= screenSize;
+    position += resultOffset;
+    position /= screenSize;
+    
+    out.clipSpacePosition = float4(position.x, position.y, 0.0, 1.0);
+    out.mode = 0;
+    return out;
+}
+
 
 RasterizerData
 vShaderStroke(const uint vid,
@@ -148,6 +140,7 @@ vShaderStroke(const uint vid,
     return out;
 }
 
+
 RasterizerData
 vShaderFill(uint vid,
             constant float *vertices,
@@ -180,80 +173,85 @@ vShaderFill(uint vid,
     return out;
 }
 
-//RasterizerData
-//vShaderDash(uint vid,
-//          uint iid0,
-//          constant float *vertices,
-//          constant float4 *colors,
-//          constant ChartContext *chartContextPtr)
-//{
-//    const uint2 lineCount = uint2(chartContextPtr->extraInt[0], chartContextPtr->extraInt[1]);
-//    const float2 dashPattern = float2(chartContextPtr->extraFloat[0], chartContextPtr->extraFloat[1]);
-//    const float2 cellSize = float2(chartContextPtr->extraFloat[2], chartContextPtr->extraFloat[3]);
-//    const float lineWidth2 = chartContextPtr->lineWidth / 2.0; // half line width
-//    const float4 graphBox = chartContextPtr->visibleRect; // graph size
-//
-//    float2 position = -graphBox.xy;
-//    const uint lineNumber = iid0;
-//    const int horizontalNumber = lineNumber - lineCount[0];
-//    if (horizontalNumber < 0) { // vertical
-//        if (vid & 2) {  // 2,3 vert, bottom side
-//            position.y = graphBox.y;
-//        } else {        // 0,1 vert, top side
-//            position.y = graphBox.y + graphBox.w;
-//        }
-//
-//        position.x += cellSize.x * lineNumber;
-//        if (vid & 1) {  // move left or rightward
-//            position.x += lineWidth2;
-//        } else {
-//            position.x -= lineWidth2;
-//        }
-//    } else { // horizontal
-//        if (vid & 2) {  // 2,3 vert, bottom side
-//            position.x = graphBox.x;
-//        } else {        // 0,1 vert, top side
-//            position.x = graphBox.z;
-//        }
-//
-//        position.y += cellSize.y * horizontalNumber;
-//        if (vid & 1) {  // move left or rightward
-//            position.y += lineWidth2;
-//        } else {
-//            position.y -= lineWidth2;
-//        }
-//    }
-//
-//    const float2 graphSize = graphBox.zw; // width, height in graph logic points
-//    position = position / graphSize * 2.0 - 1.0;
-//
-//    RasterizerData out;
-//    out.color = chartContextPtr->color;
-//    out.clipSpacePosition = float4(position.x, position.y, 0.0, 1.0);
-//    out.mode = (horizontalNumber < 0) ? LineOrientationVertical : LineOrientationHorizontal;
-//    out.dashPattern = dashPattern;
-//    return out;
-//}
+
+RasterizerData
+vShaderDash(uint vid,
+            constant LineDescriptor *lineDescriptor,
+            constant ChartContext *context)
+{
+    RasterizerData out;
+    out.mode = lineDescriptor->isVertical ? LineOrientationVertical : LineOrientationHorizontal;
+    out.color = lineDescriptor->color;
+    out.dashPattern = lineDescriptor->dashPattern;
+    
+    const float4 graphBox = context->visibleRect; // graph size
+    const float2 graphSize = graphBox.zw; // width, height in graph logic points
+    const float lineWidth2 = lineDescriptor->lineWidth / 2.0; // half line width
+
+    float2 currPt;
+    float2 resultOffset = float2(0);
+    if (lineDescriptor->isVertical) {
+        currPt.y = context->boundingBox.y;
+        currPt.x = lineDescriptor->offset;
+        if (vid & 2) {
+            currPt.y += context->boundingBox.w;
+        }
+        resultOffset.x = (vid & 1) ? lineWidth2 : -lineWidth2;
+
+    } else {
+        currPt.x = context->boundingBox.x;
+        currPt.y = lineDescriptor->offset;
+        if (vid & 2) {
+            currPt.x += context->boundingBox.z;
+        }
+        resultOffset.y = (vid & 1) ? lineWidth2 : -lineWidth2;
+    }
+    
+    float2 position = (currPt - graphBox.xy) / graphSize * 2.0 - 1.0; // move to x0, y0 and scale to clip space 2x2
+    
+    
+    const float2 screenSize = float2(context->screenSize);
+    position *= screenSize;
+    position += resultOffset;
+    position /= screenSize;
+
+    out.clipSpacePosition = float4(position.x, position.y, 0.0, 1.0);
+    return out;
+}
+
 
 /// Line Chart Vertex Function
 vertex RasterizerData
 vertexShader(uint vid [[ vertex_id ]],
              uint iid [[ instance_id ]],
              constant float *vertices [[ buffer(ZVxShaderBidVertices) ]],
-             constant InstanceDescriptor *descriptors [[ buffer(ZVxShaderBidInstanceDescriptor) ]],
+             constant void *anyDescriptor [[ buffer(ZVxShaderBidInstanceDescriptor) ]],
              constant ChartContext *context  [[ buffer(ZVxShaderBidChartContext) ]] )
 {
-    constant InstanceDescriptor *descriptor = &descriptors[iid];
     switch (context -> vshaderMode) {
-//        case VShaderModeDash:
-//            return vShaderDash(vid, iid, vertices, instanceDescriptors, chartContextPtr);
-        case VShaderModeFill:
-            return vShaderFill(vid, vertices, descriptor, context);
-//        case VShaderModeArrow:
-//            return vShaderArrow(vid, iid, vertices, instanceDescriptors, chartContextPtr);
-        case VShaderModeStroke:
-            return vShaderStroke(vid, vertices, descriptor, context);
+        case VShaderModeDash: {
+            constant LineDescriptor *descriptors = static_cast<constant LineDescriptor*>(anyDescriptor);
+            constant LineDescriptor *lnDescriptor = &descriptors[iid];
+            return vShaderDash(vid, lnDescriptor, context);
+        }
             
+        case VShaderModeFill: {
+            constant InstanceDescriptor *descriptors = static_cast<constant InstanceDescriptor*>(anyDescriptor);
+            constant InstanceDescriptor *instDescriptor = &descriptors[iid];
+            return vShaderFill(vid, vertices, instDescriptor, context);
+        }
+            
+        case VShaderModeArrow: {
+            constant InstanceDescriptor *descriptors = static_cast<constant InstanceDescriptor*>(anyDescriptor);
+            constant InstanceDescriptor *instDescriptor = &descriptors[iid];
+            return vShaderArrow(vid, vertices, instDescriptor, context);
+        }
+            
+        case VShaderModeStroke: {
+            constant InstanceDescriptor *descriptors = static_cast<constant InstanceDescriptor*>(anyDescriptor);
+            constant InstanceDescriptor *instDescriptor = &descriptors[iid];
+            return vShaderStroke(vid, vertices, instDescriptor, context);
+        }
         default: break;
     }
     

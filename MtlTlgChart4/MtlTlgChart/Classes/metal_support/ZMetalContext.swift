@@ -69,16 +69,16 @@ class ZMetalContext {
         //        pipelineStateDescriptor.depthAttachmentPixelFormat = mtkView.depthStencilPixelFormat
         //        pipelineStateDescriptor.stencilAttachmentPixelFormat = mtkView.depthStencilPixelFormat
         
-        //        if let renderAttachment = pipelineStateDescriptor.colorAttachments[0] {
-        //            renderAttachment.isBlendingEnabled = true
-        //            renderAttachment.alphaBlendOperation = .add
-        //            renderAttachment.rgbBlendOperation = .add
-        //            renderAttachment.sourceRGBBlendFactor = .sourceAlpha
-        //            renderAttachment.sourceAlphaBlendFactor = .sourceAlpha
-        //            renderAttachment.destinationRGBBlendFactor = .oneMinusSourceAlpha
-        //            renderAttachment.destinationAlphaBlendFactor = .oneMinusSourceAlpha
-        //        }
-        
+        if let renderAttachment = pipelineStateDescriptor.colorAttachments[0] {
+            renderAttachment.isBlendingEnabled = true
+            renderAttachment.alphaBlendOperation = .add
+            renderAttachment.rgbBlendOperation = .add
+            renderAttachment.sourceRGBBlendFactor = .sourceAlpha
+            renderAttachment.sourceAlphaBlendFactor = .sourceAlpha
+            renderAttachment.destinationRGBBlendFactor = .oneMinusSourceAlpha
+            renderAttachment.destinationAlphaBlendFactor = .oneMinusSourceAlpha
+        }
+
         // make pipelineState async (dont block main thread); or use the sync variant:
         // pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
         device.makeRenderPipelineState(descriptor: pipelineStateDescriptor) { (pipelineState, error) in
