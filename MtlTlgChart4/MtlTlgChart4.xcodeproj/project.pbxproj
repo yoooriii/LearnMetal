@@ -13,6 +13,7 @@
 		B340F1422286C1D40095846E /* GeometryUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B340F1412286C1D40095846E /* GeometryUtils.swift */; };
 		B340F14422871F690095846E /* ZOvelayInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B340F14322871F690095846E /* ZOvelayInfoView.swift */; };
 		B340F14622873AE40095846E /* ZGraphOverlayRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B340F14522873AE40095846E /* ZGraphOverlayRenderer.swift */; };
+		B3B300842295E8B80066D606 /* ZAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B300832295E8B80066D606 /* ZAnimator.swift */; };
 		B3E5A0D02280435F009E992D /* CollectionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0AD2280435F009E992D /* CollectionUtils.swift */; };
 		B3E5A0D12280435F009E992D /* RawModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0AF2280435F009E992D /* RawModels.swift */; };
 		B3E5A0D32280435F009E992D /* LogicCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0B12280435F009E992D /* LogicCanvas.swift */; };
@@ -48,6 +49,7 @@
 		B340F1412286C1D40095846E /* GeometryUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometryUtils.swift; sourceTree = "<group>"; };
 		B340F14322871F690095846E /* ZOvelayInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZOvelayInfoView.swift; sourceTree = "<group>"; };
 		B340F14522873AE40095846E /* ZGraphOverlayRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZGraphOverlayRenderer.swift; sourceTree = "<group>"; };
+		B3B300832295E8B80066D606 /* ZAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZAnimator.swift; sourceTree = "<group>"; };
 		B3E5A0AD2280435F009E992D /* CollectionUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionUtils.swift; sourceTree = "<group>"; };
 		B3E5A0AF2280435F009E992D /* RawModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RawModels.swift; sourceTree = "<group>"; };
 		B3E5A0B12280435F009E992D /* LogicCanvas.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogicCanvas.swift; sourceTree = "<group>"; };
@@ -125,6 +127,14 @@
 			path = geometry;
 			sourceTree = "<group>";
 		};
+		B3B300822295E8A00066D606 /* anime */ = {
+			isa = PBXGroup;
+			children = (
+				B3B300832295E8B80066D606 /* ZAnimator.swift */,
+			);
+			path = anime;
+			sourceTree = "<group>";
+		};
 		B3E5A0A62280435F009E992D /* MtlTlgChart */ = {
 			isa = PBXGroup;
 			children = (
@@ -138,6 +148,7 @@
 		B3E5A0A72280435F009E992D /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				B3B300822295E8A00066D606 /* anime */,
 				B340F1402286C1B20095846E /* geometry */,
 				B3E5A0EE22807F5D009E992D /* ui_controls */,
 				B3E5A0E922804668009E992D /* _others */,
@@ -333,6 +344,7 @@
 				B3E5A0DB2280435F009E992D /* Extentions.swift in Sources */,
 				B320DC83228089D6007D3DF8 /* ZMultiGraphRenderer.swift in Sources */,
 				B340F14422871F690095846E /* ZOvelayInfoView.swift in Sources */,
+				B3B300842295E8B80066D606 /* ZAnimator.swift in Sources */,
 				B3E5A0D52280435F009E992D /* Models.swift in Sources */,
 				B3E5A0D72280435F009E992D /* TestModels.swift in Sources */,
 			);

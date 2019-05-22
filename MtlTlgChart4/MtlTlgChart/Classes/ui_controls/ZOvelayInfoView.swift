@@ -24,8 +24,9 @@ class ZOvelayInfoView: UIView {
     
     private let histeresisStep = Float(0.03)
     
+    var prevPosition: Float = 0
     var position: Float = 0 {
-        didSet { positionDidChange() }
+        willSet { prevPosition = position }
     }
     
     var isBannerLeftward: Bool = false {
@@ -43,6 +44,7 @@ class ZOvelayInfoView: UIView {
     @IBAction func tapAction(_ recognizer: UITapGestureRecognizer) {
         let pt = recognizer.location(in: self)
         position = Float(pt.x/bounds.width)
+        updatePosition(animated: true)
     }
     
     @IBAction func dragAction(_ recognizer: UIPanGestureRecognizer) {
@@ -55,40 +57,62 @@ class ZOvelayInfoView: UIView {
             recognizer.setTranslation(pt, in: self)
         case .changed:
             position = Float(pt.x/bounds.width)
+            updatePosition(animated: false)
             
-        case .ended:
+        case .ended, .cancelled, .failed:
             break
-        case .cancelled:
-            break
-        case .failed:
-            break
-
         }
     }
     
-    private func positionDidChange() {
+    private var animeID = Int(-1)
+    
+    private func updatePosition(animated:Bool) {
         let constantX = bounds.width * CGFloat(position)
-        constraintArrow.constant = constantX
+        let startVal = constraintArrow.constant
         
-        let dh = position - 0.5
-        if isBannerLeftward {
-            if dh > histeresisStep {
-                isBannerLeftward = false
+        func moveBanner(pos:Float) {
+            let dh = pos - 0.5
+            if isBannerLeftward {
+                if dh > histeresisStep {
+                    isBannerLeftward = false
+                }
+            } else {
+                if dh < -histeresisStep {
+                    isBannerLeftward = true
+                }
             }
+            
+            let hideBanner = position < -0.05 || position > 1.05
+            bannerView.isHidden = hideBanner
+        }
+        
+        ZAnimator.shared.removeAnime(id: animeID)
+        animeID = -1
+        if animated {
+            func stepFunc(animator:ZAnimator, progress:Float) {
+                let constant = startVal + (constantX - startVal) * CGFloat(progress)
+                constraintArrow.constant = constant
+                self.layoutIfNeeded()
+                
+                let pos = prevPosition + (position - prevPosition) * progress
+                moveBanner(pos: pos)
+                if let delegate = delegate {
+                    delegate.overlayInfo(self, didChange: pos)
+                }
+            }
+            
+            let id = ZAnimator.shared.animate(duration: 0.5, stepBlock: stepFunc) { [weak self] animator, success in
+                if let self = self {
+                    self.animeID = -1
+                    stepFunc(animator:animator, progress:1.0)
+                }
+            }
+            animeID = id
         } else {
-            if dh < -histeresisStep {
-                isBannerLeftward = true
-            }
+            moveBanner(pos: position)
+            constraintArrow.constant = constantX
+            delegate?.overlayInfo(self, didChange: position)
         }
-        
-        let hideBanner = position < -0.05 || position > 1.05
-        bannerView.isHidden = hideBanner
-
-        UIView.animate(withDuration: 0.2) {
-            self.layoutIfNeeded()
-        }
-        
-        delegate?.overlayInfo(self, didChange: position)
     }
     
     func setInfo(text:String) {
