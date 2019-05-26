@@ -16,6 +16,7 @@ class ZMultiGraphRenderer: NSObject {
     }
     var lineDashPattern: float2 = float2(15, 5)
     var isGridEnabled = false
+    var isMarkersEnabled = false
     var arrowPointRadius:Float { get { return max(10.0, lineWidth * 2.0) } }
     private var graphMode:VShaderMode = VShaderModeStroke
     
@@ -59,6 +60,9 @@ class ZMultiGraphRenderer: NSObject {
     
     private var margins:float2 = float2(0.1, 0.1) // normalized margin top & bottom
     
+    private var verticalLineIndices: [Int]?
+    private var cachedVerticalLineDescriptor: VerticalLineDescriptor?
+    
     //MARK: -
     
     init(mtkView: MTKView, metalContext:ZMetalContext) {
@@ -94,8 +98,8 @@ class ZMultiGraphRenderer: NSObject {
         let timeCount = vTime.count!
         var minCount = timeCount
         var graphRect = float4(0) // minX, minY, maxX, maxY
-        graphRect[0] = Float(vTime.minValue/1000)
-        graphRect[2] = Float(vTime.maxValue/1000)
+        graphRect[0] = vTime.minScaled1000()
+        graphRect[2] = vTime.maxScaled1000()
         for planeIndex in 0 ..< planeCount {
             let ampCount = vAmplitudes[planeIndex].count!
             if minCount > ampCount {
@@ -114,7 +118,7 @@ class ZMultiGraphRenderer: NSObject {
             }
             
             let color = vAmplitudes[planeIndex].colorVector
-            let instDescriptor = InstanceDescriptor(color: color, stride:UInt32(planeCount + 1), offsetIY: UInt32(planeIndex + 1))
+            let instDescriptor = InstanceDescriptor(color: color, offsetIY: UInt32(planeIndex + 1))
             instanceDescriptors.append(instDescriptor)
         }
         
@@ -131,7 +135,7 @@ class ZMultiGraphRenderer: NSObject {
         var arrCoordinates = [Float]()
         arrCoordinates.reserveCapacity((minCount + 2) * (planeCount + 1))
         for index in 0 ..< minCount {
-            let x = Float(vTime.values[index]/1000)
+            let x = vTime.scaled1000(at: index)
             // repeat the 1st point -dx
             if 0 == index {
                 arrCoordinates.append(x - dx)
@@ -267,6 +271,7 @@ private extension ZMultiGraphRenderer {
         instanceDescriptors.removeAll()
         vertexBuffer = nil
         boundingBox = float4(0)
+        cachedVerticalLineDescriptor = nil
     }
 
     func chartContext(view:MTKView, mode:VShaderMode) -> ChartContext! {
@@ -280,6 +285,7 @@ private extension ZMultiGraphRenderer {
                             screenSize:screenSize,
                             lineWidth:lineWidth,
                             vertexCount:vertexPerInstanceCount(),
+                            stride:planeCount + 1,
                             vshaderMode:mode,
                             arrowPointer:pointer)
     }
@@ -331,7 +337,7 @@ private extension ZMultiGraphRenderer {
         
         if isGridEnabled {
             // draw lines
-            let lineDescriptors = makeLineDescriptors()
+            let lineDescriptors = makeHorizontalLineDescriptors()
             if lineDescriptors.count > 0 {
                 chartCx.setMode(VShaderModeDash)
                 encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
@@ -340,11 +346,54 @@ private extension ZMultiGraphRenderer {
                                        index: Int(ZVxShaderBidInstanceDescriptor.rawValue))
                 encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount:lineDescriptors.count)
             }
+            
+            
+            if var vLines = cachedVerticalLineDescriptor, vLines.count > 0 {
+                chartCx.setMode(VShaderModeVerticalLine)
+                encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
+                                       index: Int(ZVxShaderBidChartContext.rawValue))
+                encoder.setVertexBytes(&vLines, length: MemoryLayout<VerticalLineDescriptor>.stride,
+                                       index: Int(ZVxShaderBidInstanceDescriptor.rawValue))
+                encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount:Int(vLines.count))
+            }
+        }
+        
+        if isMarkersEnabled {
+            let markerDescriptors = makeMarkerDescriptors()
+            if markerDescriptors.count > 0 {
+                chartCx.setMode(VShaderModeExtMarker)
+                encoder.setVertexBytes(&chartCx, length: MemoryLayout<ChartContext>.stride,
+                                       index: Int(ZVxShaderBidChartContext.rawValue))
+                encoder.setVertexBytes(markerDescriptors, length: MemoryLayout<ExtMarkerDescriptor>.stride * markerDescriptors.count,
+                                       index: Int(ZVxShaderBidInstanceDescriptor.rawValue))
+                encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3, instanceCount:markerDescriptors.count)
+            }
         }
     }
     
-    func makeLineDescriptors() -> [LineDescriptor] {
-        let color = float4(0.5, 0.5, 0.5, 1)
+    func makeMarkerDescriptors() -> [ExtMarkerDescriptor] {
+        var mrkDescriptors = [ExtMarkerDescriptor]()
+        guard let plane = plane, let amplitudes = plane.vAmplitudes else {
+            return mrkDescriptors
+        }
+        
+        let nPlane = 0
+        let extremums = SortFunctions.findMaximums(vector: amplitudes[nPlane], countInSet: 10)
+
+        let markSize = mtkView.contentScaleFactor * 20.0
+        let stride = amplitudes.count + 1
+        for item in extremums {
+            let color = float4(0,0,0,1)// amplitudes[item.plane].colorVector
+            let desc = ExtMarkerDescriptor(color: color, stride: uint(stride), offsetIY: uint(1 + nPlane), size: Float(markSize), direction: 1.0, index: uint(item))
+            mrkDescriptors.append(desc)
+        }
+
+        return mrkDescriptors
+    }
+    
+    func makeHorizontalLineDescriptors() -> [LineDescriptor] {
+        let lnColorH = float4(0.5, 0.5, 0.5, 1)
+        
         let scale = Float(mtkView.contentScaleFactor)
         let pattern = lineDashPattern * scale
         let lineWidth = 1.0 * scale
@@ -353,22 +402,26 @@ private extension ZMultiGraphRenderer {
         let stepsY = 10
         let dy = boundingBox.height/Float(stepsY)
         
+        // horizontal lines
         for i in 0 ... stepsY {
             let y = boundingBox.y + dy * Float(i)
-            let line = LineDescriptor(color: color, isVertical: 0, dashPattern: pattern, lineWidth: lineWidth, offset: y)
+            let line = LineDescriptor.horizontal(color: lnColorH, dashPattern: pattern, lineWidth: lineWidth, offset: y)
             lnDescriptors.append(line)
         }
-
-        let color2 = float4(0.7, 0.7, 0.5, 1)
-        let dx = boundingBox.width/30.0
-        for x in stride(from: boundingBox.x, to: boundingBox.maxX, by: dx) {
-            let line = LineDescriptor(color: color2, isVertical: 1, dashPattern: pattern, lineWidth: lineWidth, offset: x)
-            lnDescriptors.append(line)
-        }
-        let line3 = LineDescriptor(color: color2, isVertical: 1, dashPattern: pattern, lineWidth: lineWidth, offset: boundingBox.maxX)
-        lnDescriptors.append(line3)
-
+        
         return lnDescriptors
+    }
+    
+    func makeVerticalLineDescriptor(indices:[Int]?) -> VerticalLineDescriptor? {
+        guard let indices = indices, pointsCount >= 1 else {
+            return nil
+        }
+
+        let lnColor = float4(0.5, 0.5, 0.9, 1)
+        let scale = Float(mtkView.contentScaleFactor)
+        let pattern = lineDashPattern * scale
+        let lineWidth = 3.0 * scale
+        return DrawDescriptors.verticalLineDescriptor(color:lnColor, dashPattern: pattern, lineWidth:lineWidth, indices:indices)
     }
     
     // TODO: debug func, no use; remove it when done;
@@ -394,5 +447,17 @@ private extension ZMultiGraphRenderer {
         resVertices.append(resVertices[1])
 
         return resVertices
+    }
+}
+
+extension ZMultiGraphRenderer: GraphViewProtocol {
+    func getWidth() -> Float {
+        return Float(mtkView.frame.width)
+    }
+    
+    func setVerticalLineIndices(_ indices:[Int]?) {
+        verticalLineIndices = indices
+        cachedVerticalLineDescriptor = makeVerticalLineDescriptor(indices:verticalLineIndices)
+        mtkView.setNeedsDisplay()
     }
 }

@@ -13,7 +13,13 @@
 		B340F1422286C1D40095846E /* GeometryUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B340F1412286C1D40095846E /* GeometryUtils.swift */; };
 		B340F14422871F690095846E /* ZOvelayInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B340F14322871F690095846E /* ZOvelayInfoView.swift */; };
 		B340F14622873AE40095846E /* ZGraphOverlayRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B340F14522873AE40095846E /* ZGraphOverlayRenderer.swift */; };
+		B3A8735D2299747D00A2D0B3 /* DrawDescriptors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A8735C2299747D00A2D0B3 /* DrawDescriptors.swift */; };
+		B3A87360229B1E6900A2D0B3 /* Hysteresis.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A8735F229B1E6900A2D0B3 /* Hysteresis.swift */; };
+		B3A87362229B35E600A2D0B3 /* ZTimelineLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A87361229B35E600A2D0B3 /* ZTimelineLabelView.swift */; };
+		B3A87364229B400200A2D0B3 /* ZTimelineLabelDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A87363229B400200A2D0B3 /* ZTimelineLabelDataSource.swift */; };
+		B3A87366229B44A000A2D0B3 /* ZGraphController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A87365229B44A000A2D0B3 /* ZGraphController.swift */; };
 		B3B300842295E8B80066D606 /* ZAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B300832295E8B80066D606 /* ZAnimator.swift */; };
+		B3B30086229727330066D606 /* SortFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B30085229727330066D606 /* SortFunctions.swift */; };
 		B3E5A0D02280435F009E992D /* CollectionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0AD2280435F009E992D /* CollectionUtils.swift */; };
 		B3E5A0D12280435F009E992D /* RawModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0AF2280435F009E992D /* RawModels.swift */; };
 		B3E5A0D32280435F009E992D /* LogicCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E5A0B12280435F009E992D /* LogicCanvas.swift */; };
@@ -49,7 +55,13 @@
 		B340F1412286C1D40095846E /* GeometryUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometryUtils.swift; sourceTree = "<group>"; };
 		B340F14322871F690095846E /* ZOvelayInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZOvelayInfoView.swift; sourceTree = "<group>"; };
 		B340F14522873AE40095846E /* ZGraphOverlayRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZGraphOverlayRenderer.swift; sourceTree = "<group>"; };
+		B3A8735C2299747D00A2D0B3 /* DrawDescriptors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DrawDescriptors.swift; sourceTree = "<group>"; };
+		B3A8735F229B1E6900A2D0B3 /* Hysteresis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hysteresis.swift; sourceTree = "<group>"; };
+		B3A87361229B35E600A2D0B3 /* ZTimelineLabelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZTimelineLabelView.swift; sourceTree = "<group>"; };
+		B3A87363229B400200A2D0B3 /* ZTimelineLabelDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZTimelineLabelDataSource.swift; sourceTree = "<group>"; };
+		B3A87365229B44A000A2D0B3 /* ZGraphController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZGraphController.swift; sourceTree = "<group>"; };
 		B3B300832295E8B80066D606 /* ZAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZAnimator.swift; sourceTree = "<group>"; };
+		B3B30085229727330066D606 /* SortFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortFunctions.swift; sourceTree = "<group>"; };
 		B3E5A0AD2280435F009E992D /* CollectionUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionUtils.swift; sourceTree = "<group>"; };
 		B3E5A0AF2280435F009E992D /* RawModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RawModels.swift; sourceTree = "<group>"; };
 		B3E5A0B12280435F009E992D /* LogicCanvas.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogicCanvas.swift; sourceTree = "<group>"; };
@@ -123,8 +135,19 @@
 			isa = PBXGroup;
 			children = (
 				B340F1412286C1D40095846E /* GeometryUtils.swift */,
+				B3B30085229727330066D606 /* SortFunctions.swift */,
 			);
 			path = geometry;
+			sourceTree = "<group>";
+		};
+		B3A8735E229B1E3E00A2D0B3 /* LogicModels */ = {
+			isa = PBXGroup;
+			children = (
+				B3A8735F229B1E6900A2D0B3 /* Hysteresis.swift */,
+				B3A87363229B400200A2D0B3 /* ZTimelineLabelDataSource.swift */,
+				B3A87365229B44A000A2D0B3 /* ZGraphController.swift */,
+			);
+			path = LogicModels;
 			sourceTree = "<group>";
 		};
 		B3B300822295E8A00066D606 /* anime */ = {
@@ -148,6 +171,7 @@
 		B3E5A0A72280435F009E992D /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				B3A8735E229B1E3E00A2D0B3 /* LogicModels */,
 				B3B300822295E8A00066D606 /* anime */,
 				B340F1402286C1B20095846E /* geometry */,
 				B3E5A0EE22807F5D009E992D /* ui_controls */,
@@ -165,6 +189,7 @@
 		B3E5A0A82280435F009E992D /* renderers */ = {
 			isa = PBXGroup;
 			children = (
+				B3A8735C2299747D00A2D0B3 /* DrawDescriptors.swift */,
 				B320DC82228089D6007D3DF8 /* ZMultiGraphRenderer.swift */,
 				B30D03CC22818179005C365E /* ZGridRenderer.swift */,
 				B340F14522873AE40095846E /* ZGraphOverlayRenderer.swift */,
@@ -244,6 +269,7 @@
 				B3E5A0EF22807F5D009E992D /* ZScrollSlider2d.swift */,
 				B3E5A0F022807F5D009E992D /* ZSliderIndicator2d.swift */,
 				B340F14322871F690095846E /* ZOvelayInfoView.swift */,
+				B3A87361229B35E600A2D0B3 /* ZTimelineLabelView.swift */,
 			);
 			path = ui_controls;
 			sourceTree = "<group>";
@@ -331,21 +357,27 @@
 				B340F1422286C1D40095846E /* GeometryUtils.swift in Sources */,
 				B3E5A0E02280435F009E992D /* ViewPort.swift in Sources */,
 				B3E5A0D02280435F009E992D /* CollectionUtils.swift in Sources */,
+				B3B30086229727330066D606 /* SortFunctions.swift in Sources */,
 				B3E5A0ED22806610009E992D /* ZMetalContext.swift in Sources */,
 				B3E5A0D42280435F009E992D /* UIModels.swift in Sources */,
 				B3E5A0DF2280435F009E992D /* ViewController.swift in Sources */,
 				B3E5A0DA2280435F009E992D /* ChartContext_ext.swift in Sources */,
 				B3E5A0D32280435F009E992D /* LogicCanvas.swift in Sources */,
+				B3A87362229B35E600A2D0B3 /* ZTimelineLabelView.swift in Sources */,
 				B3E5A0D92280435F009E992D /* DimensionsConverter.swift in Sources */,
 				B3E5A0E22280435F009E992D /* ChartData.swift in Sources */,
 				B3E5A0DD2280435F009E992D /* UIColor+z42.swift in Sources */,
+				B3A87364229B400200A2D0B3 /* ZTimelineLabelDataSource.swift in Sources */,
 				B3E5A0F122807F5D009E992D /* ZScrollSlider2d.swift in Sources */,
 				B3E5A0D82280435F009E992D /* RenderingContext.swift in Sources */,
+				B3A87360229B1E6900A2D0B3 /* Hysteresis.swift in Sources */,
 				B3E5A0DB2280435F009E992D /* Extentions.swift in Sources */,
 				B320DC83228089D6007D3DF8 /* ZMultiGraphRenderer.swift in Sources */,
 				B340F14422871F690095846E /* ZOvelayInfoView.swift in Sources */,
 				B3B300842295E8B80066D606 /* ZAnimator.swift in Sources */,
 				B3E5A0D52280435F009E992D /* Models.swift in Sources */,
+				B3A87366229B44A000A2D0B3 /* ZGraphController.swift in Sources */,
+				B3A8735D2299747D00A2D0B3 /* DrawDescriptors.swift in Sources */,
 				B3E5A0D72280435F009E992D /* TestModels.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

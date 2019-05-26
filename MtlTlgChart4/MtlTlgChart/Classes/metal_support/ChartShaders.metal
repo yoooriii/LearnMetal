@@ -39,7 +39,7 @@ vShaderArrow(const uint vid,
         return out;
     }
     
-    const uint stride = instanceDescriptor->stride;
+    const uint stride = context->stride;
     const uint offsetIY = instanceDescriptor->offsetIY;
     const uint ivx1 = (aid2[0]+1) * stride;
     const uint ivx2 = (aid2[0]+2) * stride;
@@ -107,7 +107,7 @@ vShaderStroke(const uint vid,
     
     // map iid (turn a plane on/off)
     const uint iiy = instanceDescriptor->offsetIY;
-    const uint stride = instanceDescriptor->stride;
+    const uint stride = context->stride;
     const uint index = (vid + 1)/2;
     const uint addr = index * stride;
 
@@ -154,7 +154,7 @@ vShaderFill(uint vid,
     const float4 graphBox = context->visibleRect; // graph size
     const float2 graphSize = graphBox.zw; // width, height in graph logic points
     const uint iiy = instanceDescriptor->offsetIY;
-    const uint stride = instanceDescriptor->stride;
+    const uint stride = context->stride;
     const uint index = (vid + 1)/2;
     const uint addr = index * stride;
     const uint vertexCount = context->vertexCount;
@@ -219,11 +219,89 @@ vShaderDash(uint vid,
     return out;
 }
 
+// 3 vertices, the marker points upward, to point downward multiply y by -1
+constant float2 vxMarkerArray[3] = { float2(0, 0), float2(0.5, -1), float2(-0.5, -1)};
+
+RasterizerData
+vShaderExtMarker(uint vid,
+            constant float *vertices,
+            constant ExtMarkerDescriptor *markerDescriptor,
+            constant ChartContext *context)
+{
+    RasterizerData out;
+    if (markerDescriptor->index + 1 >= context->vertexCount) {
+        out.mode = LineOrientationDiscard;
+        return out;
+    }
+    out.color = markerDescriptor->color;
+    out.mode = LineOrientationNone;
+
+    const float4 graphBox = context->visibleRect; // graph size
+    const float2 screenSize = float2(context->screenSize);
+    const float2 graphSize = graphBox.zw; // width, height in graph logic points
+    
+    // map iid (turn a plane on/off)
+    const uint iiy = markerDescriptor->offsetIY;
+    const uint addr = (markerDescriptor->index + 1) * markerDescriptor->stride;
+    const float2 currPt = GET_POINT_AT(addr);
+    float2 resultOffset = vxMarkerArray[vid] * markerDescriptor->size;
+    resultOffset.y *= markerDescriptor->direction; // up or down
+    
+    float2 position = (currPt - graphBox.xy) / graphSize * 2.0 - 1.0; // move to x0, y0 and scale to clip space 2x2
+    position *= screenSize;
+    position += resultOffset;
+    position /= screenSize;
+    out.clipSpacePosition = float4(position.x, position.y, 0.0, 1.0);
+    
+    return out;
+}
+
+RasterizerData
+vShaderVerticalLine(uint vid,
+                    uint iid,
+                    constant float *vertices,
+            constant VerticalLineDescriptor *vLineDescriptor,
+            constant ChartContext *context)
+{
+    RasterizerData out;
+    out.mode = LineOrientationVertical;
+    out.color = vLineDescriptor->color;
+    out.dashPattern = vLineDescriptor->dashPattern;
+
+//    out.clipSpacePosition = float4(0, 0, 0.0, 1.0);
+//    return out;
+
+    const float4 graphBox = context->visibleRect; // graph size
+    const float2 graphSize = graphBox.zw; // width, height in graph logic points
+    const float lineWidth2 = vLineDescriptor->lineWidth / 2.0; // half line width
+    const uint stride = context->stride;
+    const uint index = vLineDescriptor->vxIndices[iid];
+    
+    if (index >= context->vertexCount) {
+        out.mode = LineOrientationDiscard;
+        return out;
+    }
+    
+    // X connected to a vertex; Y either top or bottom boundingBox value
+    float2 pt0;
+    pt0.x = vertices[(index + 1) * stride];
+    pt0.y = (vid & 2) ? context->boundingBox.y : context->boundingBox.y + context->boundingBox.w;
+    float2 position = (pt0 - graphBox.xy) / graphSize * 2.0 - 1.0; // move to x0, y0 and scale to clip space 2x2
+    
+    const float resultOffsetX = (vid & 1) ? lineWidth2 : -lineWidth2;
+    const float2 screenSize = float2(context->screenSize);
+    position *= screenSize;
+    position.x += resultOffsetX;
+    position /= screenSize;
+    
+    out.clipSpacePosition = float4(position.x, position.y, 0.0, 1.0);
+    return out;
+}
 
 /// Line Chart Vertex Function
 vertex RasterizerData
-vertexShader(uint vid [[ vertex_id ]],
-             uint iid [[ instance_id ]],
+vertexShader(const uint vid [[ vertex_id ]],
+             const uint iid [[ instance_id ]],
              constant float *vertices [[ buffer(ZVxShaderBidVertices) ]],
              constant void *anyDescriptor [[ buffer(ZVxShaderBidInstanceDescriptor) ]],
              constant ChartContext *context  [[ buffer(ZVxShaderBidChartContext) ]] )
@@ -252,6 +330,18 @@ vertexShader(uint vid [[ vertex_id ]],
             constant InstanceDescriptor *instDescriptor = &descriptors[iid];
             return vShaderStroke(vid, vertices, instDescriptor, context);
         }
+            
+        case VShaderModeExtMarker: {
+            constant ExtMarkerDescriptor *descriptors = static_cast<constant ExtMarkerDescriptor*>(anyDescriptor);
+            constant ExtMarkerDescriptor *markerDescriptor = &descriptors[iid];
+            return vShaderExtMarker(vid, vertices, markerDescriptor, context);
+        }
+            
+        case VShaderModeVerticalLine: {
+            constant VerticalLineDescriptor *descriptor = static_cast<constant VerticalLineDescriptor*>(anyDescriptor);
+            return vShaderVerticalLine(vid, iid, vertices, descriptor, context);
+        }
+            
         default: break;
     }
     

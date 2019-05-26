@@ -16,8 +16,11 @@ import CoreGraphics
 protocol Vector {
     var id: String! {get set}
     var values: [Int64]! {get set}
-    var minValue: Int64 {get set}
-    var maxValue: Int64 {get set}
+    var minValue: Int64 {get}
+    var maxValue: Int64 {get}
+    func scaled1000(at index: Int) -> Float
+    func minScaled1000() -> Float
+    func maxScaled1000() -> Float
 }
 
 struct MinMax {
@@ -124,6 +127,17 @@ class BasicVector: Vector {
         return Int64(normalizedValue * scale) + minValue
     }
 
+    func scaled1000(at index: Int) -> Float {
+        return Float(values[index]/1000)
+    }
+    
+    func minScaled1000() -> Float {
+        return Float(minValue/1000)
+    }
+    
+    func maxScaled1000() -> Float {
+        return Float(maxValue/1000)
+    }
 }
 
 // type 'x'

@@ -2,8 +2,7 @@
 //  GeometryUtils.swift
 //  MtlTlgChart3
 //
-//  Created by Leonid Lokhmatov on 5/11/19.
-//  Copyright © 2018 Luxoft. All rights reserved
+//  Updated by leonid@leeloo on 5/11/19 ©2019 Horns&Hoofs.®
 //
 
 import simd
@@ -29,5 +28,8 @@ extension float2 {
     var w: Float {
         get { return self[1] }
         set { self[1] = newValue }
+    }
+    var sum: Float {
+        get { return self[0] + self[1] }
     }
 }

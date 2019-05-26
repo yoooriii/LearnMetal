@@ -32,6 +32,7 @@ extension ChartContext {
          screenSize: int2,
          lineWidth:Float,
          vertexCount:Int,
+         stride:Int,
          vshaderMode:VShaderMode,
          arrowPointer:ArrowPointer?)
     {
@@ -41,6 +42,7 @@ extension ChartContext {
         self.screenSize = screenSize
         self.lineWidth = lineWidth
         self.vertexCount = UInt32(vertexCount)
+        self.stride = uint(stride)
         self.vshaderMode = vshaderMode.rawValue
         if let arrowPointer = arrowPointer {
             self.ptRadius1 = arrowPointer.radius1
@@ -69,6 +71,7 @@ extension ChartContext {
                                     screenSize: screenSize,
                                     lineWidth: lineWidth,
                                     vertexCount: 0,
+                                    stride: 0,
                                     vshaderMode: VShaderModeDash,
                                     arrowPointer:nil)
         instance.extraFloat.0 = dashPattern[0]      // color filled line space

@@ -22,6 +22,8 @@ class ViewController: UIViewController {
     private var position2d = float2(0.0, 0.2)
     private var heightScale = float2(0, 1)
     
+    private var graphViewController:ZGraphController!
+    
     //MARK: -
 
     override func viewDidLoad() {
@@ -33,13 +35,19 @@ class ViewController: UIViewController {
         }
 //        setActivePlane(nil)
         
+        
         if let cx = ZGraphAppDelegate.getMetalContext() {
             renderer = ZMultiGraphRenderer(mtkView:mtkView, metalContext: cx)
             renderer.lineWidth = 4//4
             renderer.isGridEnabled = true
+            renderer.isMarkersEnabled = true
+            // scroll slider bg renderer
             renderer2 = ZMultiGraphRenderer(mtkView:mtkView2, metalContext: cx)
             renderer2.lineWidth = 2
             renderer2.isGridEnabled = false
+            renderer2.isMarkersEnabled = false
+            
+            graphViewController = ZGraphController(renderer:renderer)
         }
 
         startLoadingData()
@@ -144,7 +152,8 @@ class ViewController: UIViewController {
     }
 
     func setActivePlane(_ plane:Plane) {
-        renderer.setPlane(plane)
+        graphViewController.setPlane(plane)
+
         renderer2.setPlane(plane)
         setFillMode()
         applyPosition()
@@ -200,7 +209,7 @@ class ViewController: UIViewController {
 
     private func applyPosition() {
         renderer.heightScale = heightScale
-        renderer.position2d = position2d
+        graphViewController.position2d = position2d
     }
 }
 
